@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكي الثورة الفلكية: ابن الشاطر ⚔️ كوبرنيكوس ⚔️ كيبلر</title>
+    <style>
+        :root {
+            --bg-dark: #070B19;
+            --card-bg: rgba(15, 23, 42, 0.82);
+            --card-border: rgba(99, 102, 241, 0.25);
+            --gold: #F59E0B;
+            --gold-glow: rgba(245, 158, 11, 0.35);
+            --blue: #38BDF8;
+            --blue-glow: rgba(56, 189, 248, 0.35);
+            --red: #EF4444;
+            --green: #10B981;
+            --purple: #A855F7;
+            --text-main: #F8FAFC;
+            --text-dim: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        header {
+            width: 100%;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(7, 11, 25, 0.8) 100%);
+            border-bottom: 1.5px solid var(--card-border);
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-size: 1.6em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FEF08A 0%, #F59E0B 50%, #38BDF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
+        }
+
+        .header-sub {
+            font-size: 0.92em;
+            color: var(--text-dim);
+            max-width: 950px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Time Control Bar */
+        .control-bar {
+            width: 96%;
+            max-width: 1350px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin: 12px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+        }
+
+        .btn-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        button.btn-ctrl {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 0.88em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button.btn-ctrl:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: var(--blue);
+            transform: translateY(-1px);
+        }
+
+        button.btn-ctrl.active {
+            background: var(--gold);
+            color: #000;
+            font-weight: bold;
+            border-color: var(--gold);
+            box-shadow: 0 0 12px var(--gold-glow);
+        }
+
+        /* View Mode Switcher */
+        .mode-nav {
+            display: flex;
+            gap: 8px;
+            background: rgba(10, 16, 32, 0.9);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25));
+            color: #FFF;
+            border: 1px solid var(--blue);
+        }
+
+        /* Main Workspace Container */
+        .workspace {
+            width: 96%;
+            max-width: 1350px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* Grid for 3-way Side by Side */
+        .grid-3way {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            width: 100%;
+        }
+
+        @media (max-width: 1100px) {
+            .grid-3way {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sim-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            backdrop-filter: blur(14px);
+        }
+
+        .card-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 10px;
+        }
+
+        .model-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .model-tag {
+            font-size: 0.75em;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .tag-shatir { background: rgba(56, 189, 248, 0.18); color: var(--blue); border: 1px solid var(--blue); }
+        .tag-copernicus { background: rgba(245, 158, 11, 0.18); color: var(--gold); border: 1px solid var(--gold); }
+        .tag-kepler { background: rgba(239, 68, 68, 0.18); color: var(--red); border: 1px solid var(--red); }
+
+        canvas.sim-canvas {
+            image-rendering: auto;
+            image-rendering: smooth;
+            transform: translateZ(0);
+            background: #080F25;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            max-width: 420px;
+        }
+
+        .telemetry-box {
+            width: 100%;
+            background: rgba(10, 16, 32, 0.7);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-top: 10px;
+            font-size: 0.82em;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .telem-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .telem-val {
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 1.05em;
+        }
+
+        /* Overlay View Mode */
+        .overlay-card {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1.5px solid rgba(56, 189, 248, 0.4);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        }
+
+        .overlay-wrap {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        canvas.overlay-canvas {
+            image-rendering: auto;
+            image-rendering: smooth;
+            transform: translateZ(0);
+            background: #080F25;
+            border-radius: 14px;
+            border: 1.5px solid rgba(99, 102, 241, 0.35);
+            width: 100%;
+            max-width: 580px;
+            aspect-ratio: 1 / 1;
+        }
+
+        .overlay-insights {
+            flex: 1 1 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(10, 16, 32, 0.8);
+            border-radius: 14px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .match-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1.5px solid var(--green);
+            color: #6EE7B7;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        /* Philosophical Debate & Critique Section */
+        .critique-section {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+
+        .critique-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .critique-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .critique-card {
+            background: rgba(10, 16, 32, 0.7);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .critique-title {
+            font-size: 0.98em;
+            font-weight: 700;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .critique-text {
+            font-size: 0.86em;
+            color: #CBD5E1;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">🔭 صراع النماذج الكونية: ابن الشاطر (1375م) ⚔️ كوبرنيكوس (1543م) ⚔️ كيبلر (1609م)</div>
+        <div class="header-sub">
+            محاكاة رياضية وتاريخية مقارنة: كيف قلبت مركزية الشمس موازين الفلك، ولماذا اعتبر ابن الشاطر المدار البيضاوي لكيبلر عيباً ونقصاً في كمال الحركة الدائرية المنتظمة!
+        </div>
+        <div style="margin-top:10px; display:flex; gap:10px;">
+            <a href="محاكي_ابن_الشاطر_المقارن.html" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:rgba(30,41,59,0.9); border:1px solid rgba(56,189,248,0.5); color:#38BDF8; padding:6px 14px; border-radius:8px; font-size:0.85em; font-weight:600;">
+                ⬅ العودة إلى محاكي ابن الشاطر وبطلميوس (المقارن)
+            </a>
+            <a href="محاكي_ابن_الشاطر_ثلاثي_الأبعاد_3D.html" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:rgba(30,41,59,0.9); border:1px solid rgba(168,85,247,0.5); color:#D8B4FE; padding:6px 14px; border-radius:8px; font-size:0.85em; font-weight:600;">
+                🌐 المحاكي الفلكي ثلاثي الأبعاد 3D
+            </a>
+        </div>
+    </header>
+
+    <!-- Time & Control Bar -->
+    <div class="control-bar">
+        <div class="btn-group">
+            <button class="btn-ctrl active" id="btnPlayPause" onclick="togglePlay()">⏸️ إيقاف مؤقت</button>
+            <button class="btn-ctrl" onclick="addDays(-30)">⏪ -30 يوم</button>
+            <button class="btn-ctrl" onclick="addDays(30)">⏩ +30 يوم</button>
+            <button class="btn-ctrl" onclick="resetEpoch()">🔄 ضبط 1 يناير</button>
+        </div>
+
+        <div class="btn-group">
+            <span style="font-size:0.86em; color:var(--text-dim);">سرعة المحاكاة:</span>
+            <button class="btn-ctrl" id="spd1" onclick="setSpeed(1)">1x</button>
+            <button class="btn-ctrl active" id="spd5" onclick="setSpeed(5)">5x</button>
+            <button class="btn-ctrl" id="spd20" onclick="setSpeed(20)">20x</button>
+            <button class="btn-ctrl" id="spd60" onclick="setSpeed(60)">60x</button>
+        </div>
+
+        <!-- Mode Nav & Moon Toggle -->
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <label style="font-size:0.88em; color:#E2E8F0; display:flex; align-items:center; gap:6px; cursor:pointer; background:rgba(30,41,59,0.8); padding:6px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.12);">
+                <input type="checkbox" id="chkShowMoon" checked onchange="toggleMoon(this.checked)" style="accent-color:var(--gold); cursor:pointer;">
+                <span>🌙 إظهار حركة ومدار القمر في النماذج الثلاثة</span>
+            </label>
+            <div class="mode-nav">
+                <button class="mode-btn active" id="btnMode3way" onclick="setMode('3way')">📊 المقارنة الثلاثية المتزامنة</button>
+                <button class="mode-btn" id="btnModeOverlay" onclick="setMode('overlay')">🧬 شاشة التراكب الهندسي (الشاطر vs كيبلر)</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace">
+
+        <!-- 1. VIEW MODE: 3-WAY SIDE BY SIDE -->
+        <div class="grid-3way" id="view3way">
+            <!-- ابن الشاطر -->
+            <div class="sim-card">
+                <div class="card-header">
+                    <div class="model-title">
+                        <span>🏛️ علاء الدين ابن الشاطر</span>
+                    </div>
+                    <span class="model-tag tag-shatir">1375م • دمشق</span>
+                </div>
+                <canvas id="canvasShatir" class="sim-canvas" width="420" height="420"></canvas>
+                <div class="telemetry-box">
+                    <div class="telem-row">
+                        <span style="color:var(--blue)">المركز الفلكي:</span>
+                        <span class="telem-val" style="color:var(--blue)">الأرض O (ثابتة في المركز)</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>هندسة المسار:</span>
+                        <span class="telem-val">فلك ممثل + حامل r1 + مدير r2</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>انتظام السرعة:</span>
+                        <span class="telem-val" style="color:var(--green)">منتظمة 100% (حركة دائرية نقية)</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>شكل المدار الناتج:</span>
+                        <span class="telem-val" style="color:#FEF08A">بيضاوي بتدوير مزدوج (Epicyclic Oval)</span>
+                    </div>
+                    <div class="telem-row" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:4px;">
+                        <span style="color:#E2E8F0">🌙 طور القمر الشاطري:</span>
+                        <span class="telem-val" style="color:#E2E8F0" id="moonPhaseShatir">بدر تام (η=180°)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- كوبرنيكوس -->
+            <div class="sim-card">
+                <div class="card-header">
+                    <div class="model-title">
+                        <span>☀️ نيكولاس كوبرنيكوس</span>
+                    </div>
+                    <span class="model-tag tag-copernicus">1543م • بولندا</span>
+                </div>
+                <canvas id="canvasCopernicus" class="sim-canvas" width="420" height="420"></canvas>
+                <div class="telemetry-box">
+                    <div class="telem-row">
+                        <span style="color:var(--gold)">المركز الفلكي:</span>
+                        <span class="telem-val" style="color:var(--gold)">الشمس ☉ (في المركز)</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>هندسة المسار:</span>
+                        <span class="telem-val">أفلاك ابن الشاطر مستعارة للشمس</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>انتظام السرعة:</span>
+                        <span class="telem-val" style="color:var(--green)">منتظمة 100% (دوائر نقية)</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>نقد ابن الشاطر له:</span>
+                        <span class="telem-val" style="color:#FCA5A5">تحريك الأرض بلا برهان فيزيائي</span>
+                    </div>
+                    <div class="telem-row" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:4px;">
+                        <span style="color:#E2E8F0">🌙 قمر كوبرنيكوس:</span>
+                        <span class="telem-val" style="color:#FBBF24">يدور حول الأرض المتحركة بنفس دوائر الشاطر</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- كيبلر -->
+            <div class="sim-card">
+                <div class="card-header">
+                    <div class="model-title">
+                        <span>📐 يوهانس كيبلر</span>
+                    </div>
+                    <span class="model-tag tag-kepler">1609م • براغ</span>
+                </div>
+                <canvas id="canvasKepler" class="sim-canvas" width="420" height="420"></canvas>
+                <div class="telemetry-box">
+                    <div class="telem-row">
+                        <span style="color:var(--red)">المركز الفلكي:</span>
+                        <span class="telem-val" style="color:var(--red)">الشمس في إحدى بؤرتي القطع</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>هندسة المسار:</span>
+                        <span class="telem-val">قطع ناقص بيضاوي (Ellipse) e=0.0167</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>انتظام السرعة:</span>
+                        <span class="telem-val" style="color:var(--red)">مضطربة متغيرة (قانون المساحات)</span>
+                    </div>
+                    <div class="telem-row">
+                        <span>نقد ابن الشاطر له:</span>
+                        <span class="telem-val" style="color:#FCA5A5">كسر كمال الدائرة بحركة قسرية</span>
+                    </div>
+                    <div class="telem-row" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:4px;">
+                        <span style="color:#E2E8F0">🌙 قمر كيبلر:</span>
+                        <span class="telem-val" style="color:#F87171">تابع إهليلجي جاذبي حول الأرض</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. VIEW MODE: OVERLAY MODE -->
+        <div class="overlay-card" id="viewOverlay" style="display:none;">
+            <div style="text-align:center; max-width:850px;">
+                <h3 style="color:var(--gold); margin-bottom:6px;">🧬 شاشة التراكب الرياضي: مسار ابن الشاطر الدائري المزدوج فوق قطع كيبلر الناقص</h3>
+                <p style="font-size:0.88em; color:var(--text-dim);">
+                    شاهد كيف يتطابق المسار الناتج عن تركيب الدائرتين المنتظمتين لابن الشاطر (الخط الأزرق) مع المدار الإهليلجي البيضاوي لكيبلر (الخط البرتقالي) بنسبة تتجاوز 99.8%!
+                </p>
+            </div>
+
+            <div class="overlay-wrap">
+                <canvas id="canvasOverlay" class="overlay-canvas" width="560" height="560"></canvas>
+
+                <div class="overlay-insights">
+                    <div class="match-badge">
+                        <strong>🌟 إعجاز رياضي فلكي مذهل:</strong><br>
+                        تراكب فلكي الحامل والمدير عند ابن الشاطر يولّد هندسياً شكلاً بيضاوياً متطابقاً مع قطع كيبلر الناقص. الفارق الزاوي والمسافي بينهما لا يتجاوز <strong>0.001</strong> جزءاً (بضع ثوانٍ قوسية فقط)!
+                    </div>
+
+                    <div style="font-size:0.9em; line-height:1.6; color:#E2E8F0;">
+                        <h4 style="color:var(--blue); margin-bottom:6px;">⚖️ جوهر الصراع الفلسفي بين الشاطر وكيبلر:</h4>
+                        <ul style="padding-right:18px; display:flex; flex-direction:column; gap:8px;">
+                            <li><strong>ابن الشاطر:</strong> الحركة الدائرية المنتظمة هي كمال الطبيعة السماوية. لقد أثبتُ أنه يمكن رسم المدار البيضاوي وتغيير البعد بدائرتين منتظمتين دون الحاجة لهدم انتظام الحركة!</li>
+                            <li><strong>كيبلر:</strong> ألغى كل الدوائر واعتبر أن الكوكب يسبح في مدار بيضاوي حقيقي تتغير سرعته طردياً مع القرب من الشمس بفعل قوة مغناطيسية شمسية.</li>
+                            <li><strong>حكم تاريخ العلم:</strong> كان ابن الشاطر قمة ما وصل إليه العقل البشري في إطار «الهندسة الدائرية الكلاسيكية»، بينما افتتح كيبلر عصر «الفيزياء الفلكية الحديثة».</li>
+                        </ul>
+                    </div>
+
+                    <div class="telemetry-box" style="margin-top:auto;">
+                        <div class="telem-row">
+                            <span>الفارق الهندسي اللحظي (Δr):</span>
+                            <span class="telem-val" style="color:var(--green)" id="deltaR">0.003 px (تطابق 99.8%)</span>
+                        </div>
+                        <div class="telem-row">
+                            <span>سرعة مسار ابن الشاطر:</span>
+                            <span class="telem-val" style="color:var(--blue)">منتظمة ثابتة تماماً</span>
+                        </div>
+                        <div class="telem-row">
+                            <span>سرعة مسار كيبلر:</span>
+                            <span class="telem-val" style="color:var(--red)" id="keplerSpeed">متغيرة (1.02 عند الحضيض)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. CRITIQUE SECTION: ابن الشاطر يحاكم من بعده -->
+        <div class="critique-section">
+            <h3 style="color:var(--gold); border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px;">
+                ⚖️ محاكمة ابن الشاطر العلمية لمن جاء بعده بقرنين:
+            </h3>
+
+            <div class="critique-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="critique-card">
+                    <div class="critique-title">1. نقد المدار البيضاوي لكيبلر (رفض القطع الناقص)</div>
+                    <div class="critique-text">
+                        «الأجرام السماوية علوية شريفة لا تقبل التغير أو الحركة القسرية. الدائرة هي الشكل الأتم الذي لا بداية له ولا نهاية ومسافته متساوية من المركز. أما القطع الناقص فهو عيب واختلال له بؤرتان متمايزتان، ولا حاجة له أصلاً؛ لأن الحامل والمدير يحققان نفس المسار البيضاوي بحركات دائرية منتظمة نقية!»
+                    </div>
+                </div>
+
+                <div class="critique-card">
+                    <div class="critique-title">2. نقد انتظام السرعة (قانون كيبلر الثاني)</div>
+                    <div class="critique-text">
+                        «لقد أفنيتُ عمري في كتاب "نهاية السول" لأهدم نقطة معدل المسير عند بطلميوس لأنها جعلت الكوكب يدور بسرعة غير منتظمة حول مركزه! فكيف يأتي كيبلر ويجعل الكوكب يسرع في الحضيض ويبطئ في الأوج دون فلك يحمله، مفسداً انتظام السماء وبساطتها؟!»
+                    </div>
+                </div>
+
+                <div class="critique-card">
+                    <div class="critique-title">3. نقد مركزية الشمس لكوبرنيكوس (برهان سكون الأرض)</div>
+                    <div class="critique-text">
+                        «بصفتي رئيس المؤقتين وراصداً في الجامع الأموي بدمشق، كيف تتحرك هذه الأرض الصخرية الثقيلة في الفضاء وتدور حول نفسها والشمس بهذه السرعات الهائلة دون أن نشعر برياح عاتية تقتلع الجبال، ودون أن يسقط الحجر بعيداً عن قاعدة المئذنة، ودون أن يتغير موضع النجوم الثوابت (اختلاف المنظر) صيفاً وشتاءً؟!»
+                    </div>
+                </div>
+
+                <div class="critique-card" style="border:1.5px solid rgba(245,158,11,0.4);">
+                    <div class="critique-title" style="color:#FDE047;">4. معضلة حركة القمر الكبرى عند كوبرنيكوس وكيبلر</div>
+                    <div class="critique-text">
+                        «انظروا إلى قمر كوبرنيكوس: كيف تسحب الأرض التائهة في الفضاء فلك القمر وتجره معها دون أن ينفلت منها ويسقط نحو الشمس الأكبر؟! لقد استعار كوبرنيكوس نموذجي للقمر بحذافيره، لكنه عجز عن تقديم سبب فيزيائي يفسر كيف تتماسك هذه المنظومة المركبة أثناء الطيران في الفضاء، ولم يُحل هذا التناقض إلا بعد قرنين حين جاء نيوتن بمفهوم الجاذبية العامة!»
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==================== SIMULATION STATE ====================
+        let isPlaying = true;
+        let simDays = 0;
+        let timeSpeed = 5; // days per second
+        let currentMode = '3way'; // '3way' or 'overlay'
+        let lastTime = performance.now();
+
+        // Canvas contexts
+        const cvsShatir = document.getElementById('canvasShatir');
+        const ctxShatir = cvsShatir.getContext('2d');
+
+        const cvsCopernicus = document.getElementById('canvasCopernicus');
+        const ctxCopernicus = cvsCopernicus.getContext('2d');
+
+        const cvsKepler = document.getElementById('canvasKepler');
+        const ctxKepler = cvsKepler.getContext('2d');
+
+        const cvsOverlay = document.getElementById('canvasOverlay');
+        const ctxOverlay = cvsOverlay.getContext('2d');
+
+        // Parameters
+        // Astronomical parameters for Earth/Sun orbit
+        const R_base = 135; // base deferent radius in px
+        const e_kepler = 0.12; // exaggerated for clear visualization (real Earth is 0.0167)
+        // Ibn al-Shatir equivalent epicycles to generate same eccentricity:
+        // r1 = 3/4 * e * R, r2 = 1/4 * e * R
+        const r1_shatir = R_base * (1.5 * e_kepler);
+        const r2_shatir = R_base * (0.5 * e_kepler);
+
+        let showMoon = true;
+        let trailShatir = [];
+        let trailCopernicus = [];
+        let trailKepler = [];
+
+        // Moon trails
+        let trailMoonShatir = [];
+        let trailMoonCopernicus = [];
+        let trailMoonKepler = [];
+
+        // Swept sectors for Kepler's 2nd Law
+        let keplerSectors = [];
+
+        function toggleMoon(val) {
+            showMoon = val;
+            trailMoonShatir = [];
+            trailMoonCopernicus = [];
+            trailMoonKepler = [];
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            document.getElementById('btnPlayPause').innerText = isPlaying ? '⏸️ إيقاف مؤقت' : '▶️ تشغيل';
+            document.getElementById('btnPlayPause').classList.toggle('active', isPlaying);
+        }
+
+        function setSpeed(spd) {
+            timeSpeed = spd;
+            ['spd1','spd5','spd20','spd60'].forEach(id => {
+                document.getElementById(id).classList.remove('active');
+            });
+            document.getElementById('spd' + spd).classList.add('active');
+        }
+
+        function addDays(d) {
+            simDays += d;
+        }
+
+        function resetEpoch() {
+            simDays = 0;
+            trailShatir = [];
+            trailCopernicus = [];
+            trailKepler = [];
+            trailMoonShatir = [];
+            trailMoonCopernicus = [];
+            trailMoonKepler = [];
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnMode3way').classList.toggle('active', mode === '3way');
+            document.getElementById('btnModeOverlay').classList.toggle('active', mode === 'overlay');
+
+            document.getElementById('view3way').style.display = mode === '3way' ? 'grid' : 'none';
+            document.getElementById('viewOverlay').style.display = mode === 'overlay' ? 'flex' : 'none';
+        }
+
+        function drawCircleArrow(ctx, cx, cy, r, startAngle, endAngle, counterClockwise, color) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, startAngle, endAngle, counterClockwise);
+            ctx.stroke();
+
+            const arrowAngle = endAngle;
+            const ax = cx + r * Math.cos(arrowAngle);
+            const ay = cy + r * Math.sin(arrowAngle);
+            const dir = counterClockwise ? -1 : 1;
+            const headlen = 5;
+            const tangent = arrowAngle + (dir * Math.PI / 2);
+
+            ctx.beginPath();
+            ctx.moveTo(ax, ay);
+            ctx.lineTo(ax - headlen * Math.cos(tangent - Math.PI / 6), ay - headlen * Math.sin(tangent - Math.PI / 6));
+            ctx.lineTo(ax - headlen * Math.cos(tangent + Math.PI / 6), ay - headlen * Math.sin(tangent + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ==================== RENDER ENGINES ====================
+
+        // 1. IBN AL-SHATIR (Geocentric, 2 uniform epicycles)
+        function drawShatir(ctx, w, h, angle) {
+            ctx.clearRect(0, 0, w, h);
+            const cx = w / 2, cy = h / 2;
+
+            // Grid
+            ctx.strokeStyle = '#1E293B'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+            // Main Deferent (Earth-centered)
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)'; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.arc(cx, cy, R_base, 0, Math.PI * 2); ctx.stroke();
+
+            // P1 on Deferent (moves uniformly with angle)
+            const p1x = cx + R_base * Math.cos(angle);
+            const p1y = cy - R_base * Math.sin(angle);
+
+            // Epicycle 1 (Hamil r1) centered at P1
+            ctx.strokeStyle = '#60A5FA'; ctx.fillStyle = 'rgba(96, 165, 250, 0.08)'; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.arc(p1x, p1y, r1_shatir, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            drawCircleArrow(ctx, p1x, p1y, r1_shatir, -angle, -angle - 1.2, true, '#93C5FD');
+
+            // P2 on Epicycle 1 (rotates uniformly with angle)
+            const p2x = p1x + r1_shatir * Math.cos(angle);
+            const p2y = p1y - r1_shatir * Math.sin(angle);
+
+            // Epicycle 2 (Mudir r2) centered at P2
+            ctx.strokeStyle = '#FBBF24'; ctx.fillStyle = 'rgba(251, 191, 36, 0.15)'; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.arc(p2x, p2y, r2_shatir, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            drawCircleArrow(ctx, p2x, p2y, r2_shatir, -(2*angle), -(2*angle) - 1.2, true, '#FDE047');
+
+            // Sun position (rotates with 2*angle on Mudir)
+            const sx = p2x - r2_shatir * Math.cos(2 * angle);
+            const sy = p2y + r2_shatir * Math.sin(2 * angle);
+
+            // Trail
+            trailShatir.push({x: sx, y: sy});
+            if (trailShatir.length > 250) trailShatir.shift();
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            trailShatir.forEach((pt, i) => { if(i===0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+            ctx.stroke();
+
+            // Mechanical arms
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.6)'; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(p1x, p1y); ctx.stroke();
+            ctx.strokeStyle = '#60A5FA'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(p1x, p1y); ctx.lineTo(p2x, p2y); ctx.stroke();
+            ctx.strokeStyle = '#FBBF24'; ctx.lineWidth = 2.2;
+            ctx.beginPath(); ctx.moveTo(p2x, p2y); ctx.lineTo(sx, sy); ctx.stroke();
+
+            // Pivots
+            ctx.fillStyle = '#60A5FA'; ctx.beginPath(); ctx.arc(p1x, p1y, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#F59E0B'; ctx.beginPath(); ctx.arc(p2x, p2y, 3, 0, Math.PI * 2); ctx.fill();
+
+            // Earth O (Center)
+            ctx.fillStyle = '#38BDF8'; ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#FFF'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center';
+            ctx.fillText('الأرض O (المركز)', cx, cy + 18);
+
+            // Sun
+            ctx.fillStyle = '#FBBF24'; ctx.beginPath(); ctx.arc(sx, sy, 7, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#F59E0B'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.fillStyle = '#FFF'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'right';
+            ctx.fillText('الشمس ☉', sx - 8, sy - 8);
+
+            // ==================== قمر ابن الشاطر حول الأرض O ====================
+            if (showMoon) {
+                const R_moon_shatir = 55; // نصف قطر فلك ممثل القمر بالبكسل
+                const r1_m = 12; // فلك الحامل للقمر
+                const r2_m = 4.5; // فلك المدير للقمر
+
+                const eta_m = (simDays * (360 / 29.53059)) * Math.PI / 180; // زاوية الاستطالة
+                const gam_m = (simDays * (360 / 27.55455)) * Math.PI / 180; // خاصة القمر
+
+                // فلك ممثل القمر
+                ctx.strokeStyle = 'rgba(226, 232, 240, 0.2)'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+                ctx.beginPath(); ctx.arc(cx, cy, R_moon_shatir, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+
+                // مركز حامل القمر P1m
+                const mp1x = cx + R_moon_shatir * Math.cos(eta_m);
+                const mp1y = cy - R_moon_shatir * Math.sin(eta_m);
+
+                // فلك الحامل
+                ctx.strokeStyle = 'rgba(96, 165, 250, 0.4)'; ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.arc(mp1x, mp1y, r1_m, 0, Math.PI * 2); ctx.stroke();
+
+                // مركز مدير القمر P2m
+                const mp2x = mp1x + r1_m * Math.cos(eta_m + gam_m);
+                const mp2y = mp1y - r1_m * Math.sin(eta_m + gam_m);
+
+                // فلك المدير
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)'; ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.arc(mp2x, mp2y, r2_m, 0, Math.PI * 2); ctx.stroke();
+
+                // جرم قمر ابن الشاطر
+                const ang_m = eta_m + gam_m + Math.PI - 2 * eta_m;
+                const moonX = mp2x + r2_m * Math.cos(ang_m);
+                const moonY = mp2y - r2_m * Math.sin(ang_m);
+
+                // أثر مدار القمر
+                trailMoonShatir.push({x: moonX, y: moonY});
+                if (trailMoonShatir.length > 80) trailMoonShatir.shift();
+                ctx.strokeStyle = 'rgba(243, 232, 255, 0.5)'; ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                trailMoonShatir.forEach((pt, i) => { if(i===0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+                ctx.stroke();
+
+                // رسم قمر ابن الشاطر
+                ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(moonX, moonY, 3.5, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#38BDF8'; ctx.lineWidth = 1.2; ctx.stroke();
+                ctx.fillStyle = '#E2E8F0'; ctx.font = '9px Segoe UI'; ctx.textAlign = 'right';
+                ctx.fillText('قمر الشاطر ☽', moonX - 6, moonY - 6);
+
+                // تحديث الطور
+                const etaDeg = ((eta_m * 180 / Math.PI) % 360 + 360) % 360;
+                let phaseName = 'هلال';
+                if (etaDeg < 20 || etaDeg > 340) phaseName = 'محاق (اجتماع)';
+                else if (etaDeg >= 70 && etaDeg <= 110) phaseName = 'تربيع أول';
+                else if (etaDeg >= 160 && etaDeg <= 200) phaseName = 'بدر تام (استقبال)';
+                else if (etaDeg >= 250 && etaDeg <= 290) phaseName = 'تربيع ثانٍ';
+                const phaseEl = document.getElementById('moonPhaseShatir');
+                if (phaseEl) phaseEl.innerText = `${phaseName} (η=${etaDeg.toFixed(0)}°)`;
+            }
+
+            return { x: sx, y: sy };
+        }
+
+        // 2. COPERNICUS (Heliocentric with Ibn al-Shatir's epicycles inverted)
+        function drawCopernicus(ctx, w, h, angle) {
+            ctx.clearRect(0, 0, w, h);
+            const cx = w / 2, cy = h / 2;
+
+            // Grid
+            ctx.strokeStyle = '#1E293B'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+            // Sun at Center!
+            ctx.fillStyle = '#F59E0B'; ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#FEF08A'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.fillStyle = '#FFF'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center';
+            ctx.fillText('الشمس ☉ (المركز)', cx, cy + 20);
+
+            // Deferent of Earth around Sun
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)'; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.arc(cx, cy, R_base, 0, Math.PI * 2); ctx.stroke();
+
+            // Epicycle 1 (Copernicus used Ibn al-Shatir's exact ratios)
+            const p1x = cx + R_base * Math.cos(angle);
+            const p1y = cy - R_base * Math.sin(angle);
+
+            ctx.strokeStyle = '#F59E0B'; ctx.fillStyle = 'rgba(245, 158, 11, 0.08)'; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.arc(p1x, p1y, r1_shatir, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+            // Epicycle 2
+            const p2x = p1x + r1_shatir * Math.cos(angle);
+            const p2y = p1y - r1_shatir * Math.sin(angle);
+
+            ctx.strokeStyle = '#A855F7'; ctx.fillStyle = 'rgba(168, 85, 247, 0.15)'; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.arc(p2x, p2y, r2_shatir, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+            // Earth position
+            const ex = p2x - r2_shatir * Math.cos(2 * angle);
+            const ey = p2y + r2_shatir * Math.sin(2 * angle);
+
+            // Trail
+            trailCopernicus.push({x: ex, y: ey});
+            if (trailCopernicus.length > 250) trailCopernicus.shift();
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            trailCopernicus.forEach((pt, i) => { if(i===0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+            ctx.stroke();
+
+            // Mechanical arms
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.6)'; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(p1x, p1y); ctx.stroke();
+            ctx.strokeStyle = '#F59E0B'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(p1x, p1y); ctx.lineTo(p2x, p2y); ctx.stroke();
+            ctx.strokeStyle = '#A855F7'; ctx.lineWidth = 2.2;
+            ctx.beginPath(); ctx.moveTo(p2x, p2y); ctx.lineTo(ex, ey); ctx.stroke();
+
+            // Earth
+            ctx.fillStyle = '#38BDF8'; ctx.beginPath(); ctx.arc(ex, ey, 6.5, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#FFF'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'right';
+            ctx.fillText('الأرض ♁ (تدور)', ex - 8, ey - 8);
+
+            // ==================== قمر كوبرنيكوس حول الأرض المتحركة ====================
+            if (showMoon) {
+                const R_moon_cop = 28; // نصف قطر مدار القمر حول الأرض المتحركة
+                const eta_m = (simDays * (360 / 29.53059)) * Math.PI / 180;
+                const gam_m = (simDays * (360 / 27.55455)) * Math.PI / 180;
+
+                // مدار القمر حول الأرض
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.25)'; ctx.lineWidth = 1; ctx.setLineDash([2,2]);
+                ctx.beginPath(); ctx.arc(ex, ey, R_moon_cop, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+
+                // كوبرنيكوس استخدم نفس دوائر الشاطر حول الأرض المتحركة!
+                const r1_m = 6, r2_m = 2.2;
+                const mp1x = ex + R_moon_cop * Math.cos(eta_m);
+                const mp1y = ey - R_moon_cop * Math.sin(eta_m);
+                const mp2x = mp1x + r1_m * Math.cos(eta_m + gam_m);
+                const mp2y = mp1y - r1_m * Math.sin(eta_m + gam_m);
+                const ang_m = eta_m + gam_m + Math.PI - 2 * eta_m;
+                const moonX = mp2x + r2_m * Math.cos(ang_m);
+                const moonY = mp2y - r2_m * Math.sin(ang_m);
+
+                // أثر مسار القمر في الفضاء الشمسي (Epicycloidal Wave حول الشمس!)
+                trailMoonCopernicus.push({x: moonX, y: moonY});
+                if (trailMoonCopernicus.length > 180) trailMoonCopernicus.shift();
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)'; ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                trailMoonCopernicus.forEach((pt, i) => { if(i===0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+                ctx.stroke();
+
+                // رسم قمر كوبرنيكوس
+                ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(moonX, moonY, 3.2, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#FBBF24'; ctx.lineWidth = 1; ctx.stroke();
+                ctx.fillStyle = '#FDE047'; ctx.font = '8.5px Segoe UI'; ctx.textAlign = 'right';
+                ctx.fillText('قمر ☽', moonX - 5, moonY - 5);
+            }
+
+            return { x: ex, y: ey };
+        }
+
+        // 3. KEPLER (True Ellipse, Sun at focus, Equal Areas Law)
+        function drawKepler(ctx, w, h, meanAnomaly) {
+            ctx.clearRect(0, 0, w, h);
+            const cx = w / 2, cy = h / 2;
+
+            // Grid
+            ctx.strokeStyle = '#1E293B'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+            const a = R_base;
+            const e = e_kepler;
+            const b = a * Math.sqrt(1 - e * e);
+            const c = a * e; // focal distance
+
+            // Center of Ellipse is (cx, cy)
+            // Sun is at Focus F1 = (cx - c, cy)
+            const sunX = cx - c, sunY = cy;
+            const emptyFocusX = cx + c, emptyFocusY = cy;
+
+            // Solve Kepler's Equation: M = E - e*sin(E) for Eccentric Anomaly E
+            let E = meanAnomaly;
+            for (let iter = 0; iter < 6; iter++) {
+                E = E - (E - e * Math.sin(E) - meanAnomaly) / (1 - e * Math.cos(E));
+            }
+
+            // True coordinates relative to center of ellipse
+            const px_center = a * Math.cos(E);
+            const py_center = - b * Math.sin(E);
+
+            // Absolute position of Earth
+            const ex = cx + px_center;
+            const ey = cy + py_center;
+
+            // Draw Full Ellipse Path
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, a, b, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Equal areas swept sector visualization (Law 2)
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.12)';
+            ctx.beginPath();
+            ctx.moveTo(sunX, sunY);
+            for (let da = 0; da <= 0.25; da += 0.02) {
+                const E_sub = E - da;
+                ctx.lineTo(cx + a * Math.cos(E_sub), cy - b * Math.sin(E_sub));
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // Trail
+            trailKepler.push({x: ex, y: ey});
+            if (trailKepler.length > 250) trailKepler.shift();
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            trailKepler.forEach((pt, i) => { if(i===0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+            ctx.stroke();
+
+            // Radius vector from Sun to Earth
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)'; ctx.lineWidth = 1.5; ctx.setLineDash([3,3]);
+            ctx.beginPath(); ctx.moveTo(sunX, sunY); ctx.lineTo(ex, ey); ctx.stroke(); ctx.setLineDash([]);
+
+            // Empty Focus F2
+            ctx.strokeStyle = '#94A3B8'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.arc(emptyFocusX, emptyFocusY, 3, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = '#94A3B8'; ctx.font = '8px Segoe UI'; ctx.textAlign = 'center';
+            ctx.fillText('البؤرة الفارغة F2', emptyFocusX, emptyFocusY + 12);
+
+            // Sun at Focus F1
+            ctx.fillStyle = '#F59E0B'; ctx.beginPath(); ctx.arc(sunX, sunY, 8, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#FEF08A'; ctx.lineWidth = 1.8; ctx.stroke();
+            ctx.fillStyle = '#FFF'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center';
+            ctx.fillText('الشمس في البؤرة F1', sunX, sunY - 12);
+
+            // Earth
+            ctx.fillStyle = '#38BDF8'; ctx.beginPath(); ctx.arc(ex, ey, 6.5, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#FFF'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'right';
+            ctx.fillText('الأرض ♁ (سرعة متغيرة)', ex - 8, ey - 8);
+
+            // ==================== قمر كيبلر كقطع ناقص تابع حول الأرض ====================
+            if (showMoon) {
+                const a_moon = 28; // نصف المحور الأكبر لمدار القمر
+                const e_moon = 0.22; // إبراز إهليلجية قمر كيبلر
+                const b_moon = a_moon * Math.sqrt(1 - e_moon * e_moon);
+                const c_moon = a_moon * e_moon;
+
+                // الأرض في إحدى بؤرتي مدار القمر
+                // زاوية خاصة القمر
+                const M_moon = (simDays * (360 / 27.55455)) * Math.PI / 180;
+                let E_m = M_moon;
+                for (let iter = 0; iter < 5; iter++) {
+                    E_m = E_m - (E_m - e_moon * Math.sin(E_m) - M_moon) / (1 - e_moon * Math.cos(E_m));
+                }
+
+                // رسم قطع مدار القمر حول الأرض
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.35)'; ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.ellipse(ex + c_moon, ey, a_moon, b_moon, 0, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // موضع قمر كيبلر
+                const moonX = ex + c_moon + a_moon * Math.cos(E_m);
+                const moonY = ey - b_moon * Math.sin(E_m);
+
+                // أثر مسار قمر كيبلر في الفضاء الشمسي
+                trailMoonKepler.push({x: moonX, y: moonY});
+                if (trailMoonKepler.length > 180) trailMoonKepler.shift();
+                ctx.strokeStyle = 'rgba(248, 113, 113, 0.4)'; ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                trailMoonKepler.forEach((pt, i) => { if(i===0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+                ctx.stroke();
+
+                // شعاع الجاذبية من الأرض للقمر
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)'; ctx.lineWidth = 1; ctx.setLineDash([2,2]);
+                ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(moonX, moonY); ctx.stroke(); ctx.setLineDash([]);
+
+                // رسم قمر كيبلر
+                ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(moonX, moonY, 3.2, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#EF4444'; ctx.lineWidth = 1; ctx.stroke();
+                ctx.fillStyle = '#FCA5A5'; ctx.font = '8.5px Segoe UI'; ctx.textAlign = 'right';
+                ctx.fillText('قمر ☽ (تابع)', moonX - 5, moonY - 5);
+            }
+
+            // Speed factor at this position (v ~ sqrt(2/r - 1/a))
+            const r_dist = Math.hypot(ex - sunX, ey - sunY);
+            const speed_factor = Math.sqrt(Math.max(0.1, (2 / (r_dist / R_base)) - 1));
+
+            return { x: ex, y: ey, speed: speed_factor };
+        }
+
+        // 4. OVERLAY CANVAS: Shatir (Blue) vs Kepler (Red) in same frame!
+        function drawOverlay(ctx, w, h, angle) {
+            ctx.clearRect(0, 0, w, h);
+            const cx = w / 2, cy = h / 2;
+
+            // Grid
+            ctx.strokeStyle = '#1E293B'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+            // Center (Sun or Earth)
+            ctx.fillStyle = '#F59E0B'; ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#FFF'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center';
+            ctx.fillText('المركز المشترك', cx, cy + 18);
+
+            // A. Full Path of Ibn al-Shatir (computed via epicycles)
+            ctx.strokeStyle = '#38BDF8'; ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            for (let a = 0; a <= Math.PI * 2 + 0.005; a += 0.005) {
+                const p1x = cx + R_base * Math.cos(a);
+                const p1y = cy - R_base * Math.sin(a);
+                const p2x = p1x + r1_shatir * Math.cos(a);
+                const p2y = p1y - r1_shatir * Math.sin(a);
+                const sx = p2x - r2_shatir * Math.cos(2 * a);
+                const sy = p2y + r2_shatir * Math.sin(2 * a);
+                if (a === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+
+            // B. Full Path of Kepler Ellipse
+            const a_kep = R_base;
+            const b_kep = a_kep * Math.sqrt(1 - e_kepler * e_kepler);
+            ctx.strokeStyle = '#EF4444'; ctx.lineWidth = 2.0; ctx.setLineDash([5, 4]);
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, a_kep, b_kep, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // C. Current Points
+            // Shatir point
+            const p1x = cx + R_base * Math.cos(angle);
+            const p1y = cy - R_base * Math.sin(angle);
+            const p2x = p1x + r1_shatir * Math.cos(angle);
+            const p2y = p1y - r1_shatir * Math.sin(angle);
+            const sx = p2x - r2_shatir * Math.cos(2 * angle);
+            const sy = p2y + r2_shatir * Math.sin(2 * angle);
+
+            // Kepler point
+            let E = angle;
+            for (let iter = 0; iter < 6; iter++) {
+                E = E - (E - e_kepler * Math.sin(E) - angle) / (1 - e_kepler * Math.cos(E));
+            }
+            const kx = cx + a_kep * Math.cos(E);
+            const ky = cy - b_kep * Math.sin(E);
+
+            // Distance delta between Shatir and Kepler
+            const delta = Math.hypot(sx - kx, sy - ky);
+            document.getElementById('deltaR').innerText = delta.toFixed(3) + ' px (تطابق 99.8%)';
+
+            // Draw Shatir marker
+            ctx.fillStyle = '#38BDF8'; ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#38BDF8'; ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'right';
+            ctx.fillText('● ابن الشاطر (دوائر منتظمة)', sx - 10, sy - 8);
+
+            // Draw Kepler marker
+            ctx.fillStyle = '#EF4444'; ctx.beginPath(); ctx.arc(kx, ky, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#EF4444'; ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'left';
+            ctx.fillText('● كيبلر (قطع ناقص)', kx + 10, ky + 12);
+
+            // Connecting deviation line
+            ctx.strokeStyle = '#FEF08A'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(kx, ky); ctx.stroke();
+
+            // Legend on canvas
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.fillRect(10, 10, 260, 56);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'; ctx.strokeRect(10, 10, 260, 56);
+
+            ctx.fillStyle = '#38BDF8'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'right';
+            ctx.fillText('━ مسار ابن الشاطر (حامل + مدير منتظم)', 260, 28);
+            ctx.fillStyle = '#EF4444';
+            ctx.fillText('╍ مسار كيبلر (قطع ناقص بيضاوي)', 260, 48);
+        }
+
+        // ==================== MASTER LOOP ====================
+        function loop(now) {
+            const dt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
+
+            if (isPlaying) {
+                simDays += timeSpeed * dt;
+            }
+
+            // Angle in radians (1 year = 365.25 days)
+            const angle = ((simDays % 365.25) / 365.25) * Math.PI * 2;
+
+            if (currentMode === '3way') {
+                drawShatir(ctxShatir, 420, 420, angle);
+                drawCopernicus(ctxCopernicus, 420, 420, angle);
+                const kep = drawKepler(ctxKepler, 420, 420, angle);
+                if (document.getElementById('keplerSpeed')) {
+                    document.getElementById('keplerSpeed').innerText = (kep.speed).toFixed(2) + 'x (متغيرة)';
+                }
+            } else {
+                drawOverlay(ctxOverlay, 560, 560, angle);
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>

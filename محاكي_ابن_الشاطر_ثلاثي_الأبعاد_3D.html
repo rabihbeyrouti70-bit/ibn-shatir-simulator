@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحاكي الفلكي ثلاثي الأبعاد: دورة القمر والأفلاك التسعة وتغير المشارق والمغارب</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js and OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        :root {
+            --bg: #020617;
+            --card-bg: rgba(15, 23, 42, 0.88);
+            --card-inner: rgba(10, 16, 29, 0.94);
+            --border: rgba(99, 102, 241, 0.35);
+            --accent: #F59E0B;
+            --gold: #FBBF24;
+            --blue: #38BDF8;
+            --purple: #C084FC;
+            --green: #34D399;
+            --red: #F87171;
+            --silver: #E2E8F0;
+            --text: #F8FAFC;
+            --subtext: #94A3B8;
+            --mono: 'JetBrains Mono', monospace;
+            --font: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            user-select: none;
+        }
+
+        /* 3D WebGL Canvas */
+        #webgl-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            cursor: grab;
+            overscroll-behavior: none !important;
+            touch-action: none !important;
+        }
+        #webgl-container canvas {
+            overscroll-behavior: none !important;
+            touch-action: none !important;
+            display: block;
+        }
+        #webgl-container:active { cursor: grabbing; }
+
+        /* Top Overlay Header */
+        .top-nav {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid var(--border);
+            border-radius: 9999px;
+            padding: 8px 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            pointer-events: auto;
+        }
+        .top-nav h1 {
+            font-size: 1.05em;
+            font-weight: 800;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-view {
+            background: rgba(49, 46, 129, 0.8);
+            border: 1px solid #6366F1;
+            color: #E0E7FF;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 0.82em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-view:hover { background: #4338CA; color: #FFF; transform: translateY(-1px); }
+        .btn-view.active {
+            background: #D97706;
+            border-color: #FBBF24;
+            color: #FFF;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+
+        /* City Selector Floating Bar (Top Left) */
+        .city-bar {
+            position: absolute;
+            top: 74px;
+            left: 18px;
+            z-index: 10;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            pointer-events: auto;
+            width: 320px;
+        }
+        .panel-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .btn-collapse {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #E2E8F0;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--mono);
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-collapse:hover { background: #4338CA; color: #FFF; }
+        .city-bar label {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 0.86em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        select.city-select {
+            background: var(--card-inner);
+            color: #FFF;
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.86em;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        select.city-select option { background: #0F172A; color: #FFF; }
+        .custom-coord-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(0,0,0,0.25);
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px dashed rgba(255,255,255,0.15);
+        }
+        .custom-coord-row input {
+            background: var(--card-inner);
+            color: var(--gold);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 4px 6px;
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-size: 0.86em;
+            width: 70px;
+            text-align: center;
+        }
+
+        .mouse-helper {
+            font-size: 0.78em;
+            color: #94A3B8;
+            line-height: 1.5;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 6px;
+        }
+
+        /* Floating Telemetry HUD (Right) */
+        .telemetry-hud {
+            position: absolute;
+            top: 74px;
+            right: 18px;
+            z-index: 10;
+            width: 330px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+            pointer-events: auto;
+            max-height: calc(100vh - 220px);
+            overflow-y: auto;
+        }
+        .telemetry-hud::-webkit-scrollbar { width: 4px; }
+        .telemetry-hud::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 4px; }
+
+        .telemetry-hud h3 {
+            font-size: 1.05em;
+            color: var(--gold);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.86em;
+        }
+        .hud-label { color: var(--subtext); }
+        .hud-val {
+            font-family: var(--mono);
+            font-weight: 700;
+            color: #FFF;
+        }
+        .hud-val.gold { color: var(--gold); }
+        .hud-val.blue { color: var(--blue); }
+        .hud-val.purple { color: var(--purple); }
+        .hud-val.silver { color: #E2E8F0; }
+
+        .azimuth-bar-wrap {
+            background: var(--card-inner);
+            border-radius: 10px;
+            padding: 8px 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .azimuth-title {
+            font-size: 0.82em;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        /* Moon Specific Box */
+        .moon-box {
+            background: rgba(147, 51, 234, 0.12);
+            border: 1.5px solid rgba(192, 132, 252, 0.5);
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .spheres-toggle-group {
+            background: var(--card-inner);
+            border-radius: 10px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82em;
+            color: #CBD5E1;
+            cursor: pointer;
+        }
+        .toggle-item input {
+            cursor: pointer;
+            accent-color: var(--gold);
+        }
+
+        /* Bottom Floating Controls Bar */
+        .bottom-bar {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 92%;
+            max-width: 1220px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+            pointer-events: auto;
+        }
+        .bar-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .bar-group {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+        .btn-ui {
+            background: rgba(49, 46, 129, 0.7);
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            color: #E0E7FF;
+            padding: 5px 11px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.83em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-ui:hover {
+            background: #4338CA;
+            color: #FFF;
+            transform: translateY(-1px);
+        }
+        .btn-ui.active {
+            background: #D97706;
+            border-color: #FBBF24;
+            color: #FFF;
+        }
+        .btn-moon-phase {
+            background: rgba(147, 51, 234, 0.5);
+            border-color: #C084FC;
+            color: #F3E8FF;
+        }
+        .btn-moon-phase:hover {
+            background: #9333EA;
+            color: #FFF;
+        }
+        .btn-play {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            border: 1px solid #60A5FA;
+            color: #FFF;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3D WebGL Canvas -->
+    <div id="webgl-container"></div>
+
+    <!-- Top Navigation Header with Camera Presets -->
+    <div class="top-nav">
+        <h1>🪐 محاكي الأفلاك التسعة وتغير المشارق والمغارب ودورة القمر</h1>
+        <div style="display: flex; gap: 6px;">
+            <button id="btnViewHorizon" class="btn-view active" onclick="setCameraPreset('horizon')">👁️ منظور الأفق</button>
+            <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')">★ نحو النجم القطبي</button>
+            <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')">🌙 تتبع القمر</button>
+            <button id="btnViewSun" class="btn-view" onclick="setCameraPreset('sun')">☀️ تتبع الشمس</button>
+            <button id="btnViewOrbit" class="btn-view" onclick="setCameraPreset('orbit')">🌌 منظور كوني مائل</button>
+            <button id="btnViewPolar" class="btn-view" onclick="setCameraPreset('polar')">🧭 منظور رأسي</button>
+            <button id="btnAutoRotate" class="btn-view" onclick="toggleAutoRotate()">🔄 تدوير تلقائي</button>
+        </div>
+    </div>
+
+    <!-- City & Coordinates Bar (Left) -->
+    <div class="city-bar" id="cityPanel">
+        <div class="panel-header-row">
+            <label for="citySelect">📍 مرصد المدينة وموقع الراصد:</label>
+            <button class="btn-collapse" id="btnCollapseCity" onclick="togglePanel('city')">−</button>
+        </div>
+        <div id="cityPanelContent" style="display:flex; flex-direction:column; gap:8px;">
+        <select id="citySelect" class="city-select" onchange="onCityChange(this.value)">
+            <option value="damascus" selected>دمشق — مرصد ابن الشاطر والجامع الأموي (33.51°N)</option>
+            <option value="mecca">مكة المكرمة — الكعبة المشرفة (21.42°N)</option>
+            <option value="medina">المدينة المنورة (24.47°N)</option>
+            <option value="jerusalem">القدس الشريف (31.78°N)</option>
+            <option value="cairo">القاهرة — مرصد ابن يونس (30.04°N)</option>
+            <option value="alexandria">الإسكندرية — مرصد بطلميوس (31.20°N)</option>
+            <option value="baghdad">بغداد — مرصد بيت الحكمة (33.31°N)</option>
+            <option value="maragha">مراغة — مرصد الطوسي (37.39°N)</option>
+            <option value="samarkand">سمرقند — مرصد ألغ بك (39.65°N)</option>
+            <option value="equator">خط الاستواء — الفلك المستقيم (0.0°)</option>
+            <option value="pole">القطب الشمالي — شمس منتصف الليل (90.0°N)</option>
+            <option value="sydney">سيدني — نصف الكرة الجنوبي (-33.87°S)</option>
+            <option value="custom">⚙️ إحداثيات مخصصة (Custom Lat/Lon)...</option>
+        </select>
+
+        <div id="customCoordRow" class="custom-coord-row" style="display:none;">
+            <span style="font-size:0.82em; color:var(--gold);">خط العرض:</span>
+            <input type="number" id="inputLat" value="33.51" step="0.5" min="-90" max="90" onchange="onCustomCoordChange()">
+            <span style="font-size:0.82em; color:var(--blue);">خط الطول:</span>
+            <input type="number" id="inputLon" value="36.29" step="0.5" min="-180" max="180" onchange="onCustomCoordChange()">
+        </div>
+
+        <div class="mouse-helper">
+            💡 <strong>تحريك الكاميرا:</strong> سحب بالماوس للتدوير الحر 360° | عجلة الماوس للتقريب | الزر الأيمن للإزاحة.
+        </div>
+        </div>
+    </div>
+
+    <!-- Right Floating Telemetry & Spheres HUD -->
+    <div class="telemetry-hud" id="hudPanel">
+        <div class="panel-header-row">
+            <h3>📐 قياسات الشمس والمشارق والمغارب</h3>
+            <button class="btn-collapse" id="btnCollapseHud" onclick="togglePanel('hud')">−</button>
+        </div>
+        <div id="hudPanelContent" style="display:flex; flex-direction:column; gap:9px;">
+        <div class="hud-row">
+            <span class="hud-label">المرصد المحدد:</span>
+            <span id="hudCityName" class="hud-val gold">دمشق (33.51°N)</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">التاريخ والوقت:</span>
+            <span id="hudDateTime" class="hud-val gold">2026-06-21 12:00</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">ميل الشمس (δ):</span>
+            <span id="hudSunDecl" class="hud-val gold">+23° 26'</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">ارتفاع الشمس:</span>
+            <span id="hudSunAlt" class="hud-val gold">79.9°</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">سمت الشروق والغروب:</span>
+            <span id="hudSunriseAz" class="hud-val gold">61.5° (شمال الشرق)</span>
+        </div>
+
+        <!-- مشارق ومغارب الأبراج والطالع اللحظي -->
+        <div class="azimuth-bar-wrap" style="border-right: 3px solid #C084FC; background: rgba(168,85,247,0.12); padding: 8px 10px; border-radius: 8px;">
+            <div class="azimuth-title" style="color:#E9D5FF; font-weight:800; font-size:0.86em; margin-bottom:5px;">
+                ✨ مشارق ومغارب الأبراج (سماء الواقع):
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">البرج الطالع الآن (مشرقاً):</span>
+                <span id="hudAscendantSign" class="hud-val purple" style="font-weight:bold; color:#D8B4FE;">الحمل ♈ (يشرق)</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">البرج الغارب الآن (مغرباً):</span>
+                <span id="hudDescendantSign" class="hud-val silver" style="color:#CBD5E1;">الميزان ♎ (يغيب)</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">نطاق مشارق الأبراج:</span>
+                <span id="hudZodiacAmpRange" class="hud-val gold" style="font-size:0.82em;">57.0° (61.5° إلى 118.5°)</span>
+            </div>
+        </div>
+
+        <!-- دورة القمر التفصيلية -->
+        <div class="moon-box">
+            <div class="azimuth-title" style="color:var(--purple); display:flex; justify-content:space-between;">
+                <span>🌙 دورة القمر وأوجهه الشهرية:</span>
+                <span id="hudMoonPhaseName" style="color:#FFF; font-weight:800;">بدر تام (100%)</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">طور القمر وإضاءته:</span>
+                <span id="hudMoonIllum" class="hud-val purple">100% مضاء</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">استطالة القمر (D):</span>
+                <span id="hudMoonElong" class="hud-val purple">180.0° (مقابل للشمس)</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">ارتفاع القمر الحالي:</span>
+                <span id="hudMoonAlt" class="hud-val silver">15.2°</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">مطلع القمر اليوم:</span>
+                <span id="hudMoonriseAz" class="hud-val purple">56.2° (شمال الشرق)</span>
+            </div>
+            <div class="hud-row">
+                <span class="hud-label">مغيب القمر اليوم:</span>
+                <span id="hudMoonsetAz" class="hud-val purple">303.8° (شمال الغرب)</span>
+            </div>
+        </div>
+
+        <!-- الطبقات والأفلاك التسعة -->
+        <div class="spheres-toggle-group">
+            <div class="azimuth-title" style="color:#60A5FA;">🌐 طبقات الأفلاك ومسار القمر:</div>
+            <label class="toggle-item">
+                <span style="color:#E9D5FF; font-weight:bold;">🌙 مدار وقوس مسار القمر في السماء</span>
+                <input type="checkbox" id="chkMoonArc" checked onchange="toggleLayer('moonArc', this.checked)">
+            </label>
+            <label class="toggle-item">
+                <span>🔴 أقواس مسارات الشمس الموسمية</span>
+                <input type="checkbox" id="chkSunArcs" checked onchange="toggleLayer('sunArcs', this.checked)">
+            </label>
+            <label class="toggle-item">
+                <span>🟢 دائرة الزوال وأول السموت (Meridian & Prime Vertical)</span>
+                <input type="checkbox" id="chkMeridian" checked onchange="toggleLayer('meridian', this.checked)">
+            </label>
+            <label class="toggle-item">
+                <span>🪐 أجرام الكواكب السيارة</span>
+                <input type="checkbox" id="chkPlanetBodies" checked onchange="toggleLayer('planetBodies', this.checked)">
+            </label>
+            <label class="toggle-item">
+                <span style="color:#FDE047; font-weight:bold;">⭕ دوائر أفلاك ومدارات الكواكب</span>
+                <input type="checkbox" id="chkOrbitCircles" checked onchange="toggleLayer('orbitCircles', this.checked)">
+            </label>
+            <label class="toggle-item">
+                <span>✨ الفلك الثامن (البروج والثوابت)</span>
+                <input type="checkbox" id="chkZodiac" checked onchange="toggleLayer('zodiac', this.checked)">
+            </label>
+            <label class="toggle-item">
+                <span>🌌 الفلك التاسع (الأطلس 24h)</span>
+                <input type="checkbox" id="chkAtlas" checked onchange="toggleLayer('atlas', this.checked)">
+            </label>
+            <label class="toggle-item">
+                <span>🟢 قرص الأفق والجهات الأربعة</span>
+                <input type="checkbox" id="chkHorizon" checked onchange="toggleLayer('horizon', this.checked)">
+            </label>
+        </div>
+        </div>
+    </div>
+
+    <!-- Bottom Controls Bar -->
+    <div class="bottom-bar">
+        <!-- الصف الأول: دورة القمر وأوجهه الأربعة -->
+        <div class="bar-row" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+            <div class="bar-group">
+                <span style="color:var(--purple); font-weight:800; font-size:0.86em;">🌙 دورة القمر (القفز لأوجه القمر):</span>
+                <button class="btn-ui btn-moon-phase" onclick="jumpToMoonPhase(0)">🌑 محاق (D=0°)</button>
+                <button class="btn-ui btn-moon-phase" onclick="jumpToMoonPhase(90)">🌓 تربيع أول (D=90°)</button>
+                <button class="btn-ui btn-moon-phase" onclick="jumpToMoonPhase(180)">🌕 بدر تام (D=180°)</button>
+                <button class="btn-ui btn-moon-phase" onclick="jumpToMoonPhase(270)">🌗 تربيع أخير (D=270°)</button>
+                <button class="btn-ui" onclick="setCameraPreset('moon')">🔭 قفل الكاميرا على القمر</button>
+            </div>
+
+            <div class="bar-group">
+                <span style="color:var(--gold); font-weight:800; font-size:0.86em;">☀️ فصول السنة للشمس:</span>
+                <button class="btn-ui" onclick="jumpToSeason('spring')">🌸 اعتدال ربيعي</button>
+                <button class="btn-ui" onclick="jumpToSeason('summer')">☀️ انقلاب صيفي</button>
+                <button class="btn-ui" onclick="jumpToSeason('autumn')">🍂 اعتدال خريفي</button>
+                <button class="btn-ui" onclick="jumpToSeason('winter')">❄️ انقلاب شتوي</button>
+            </div>
+        </div>
+
+        <!-- الصف الثاني: تدفق الزمن والسرعات -->
+        <div class="bar-row">
+            <div class="bar-group">
+                <button id="btnPlay" class="btn-ui btn-play" onclick="togglePlay()">⏸️ إيقاف</button>
+                <button class="btn-ui" onclick="stepTime(-1, 'hour')">⏪ -ساعة</button>
+                <button class="btn-ui" onclick="stepTime(1, 'hour')">⏩ +ساعة</button>
+                <button class="btn-ui" onclick="stepTime(-1, 'day')">⏪ -يوم</button>
+                <button class="btn-ui" onclick="stepTime(1, 'day')">⏩ +يوم</button>
+            </div>
+
+            <div class="bar-group">
+                <label style="color:var(--gold);font-weight:bold;font-size:0.85em;">⚡ السرعة:</label>
+                <button class="btn-ui" onclick="setSpeed(0.0417)">1 س/ث</button>
+                <button class="btn-ui active" onclick="setSpeed(1)">1 يوم/ث (حركة يومية)</button>
+                <button class="btn-ui" onclick="setSpeed(7)">أسبوع/ث (تغير أوجه القمر)</button>
+                <button class="btn-ui" onclick="setSpeed(27.32)">شهر/ث (دورة قمرية كاملة)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js Astronomical Engine -->
+    <script>
+        const CITIES_DB = {
+            damascus: { name: 'دمشق (الجامع الأموي)', lat: 33.5138, lon: 36.2924 },
+            mecca: { name: 'مكة المكرمة (الكعبة المشرفة)', lat: 21.4225, lon: 39.8262 },
+            medina: { name: 'المدينة المنورة', lat: 24.4672, lon: 39.6111 },
+            jerusalem: { name: 'القدس الشريف', lat: 31.7767, lon: 35.2342 },
+            cairo: { name: 'القاهرة (مرصد ابن يونس)', lat: 30.0444, lon: 31.2357 },
+            alexandria: { name: 'الإسكندرية (مرصد بطلميوس)', lat: 31.2001, lon: 29.9187 },
+            baghdad: { name: 'بغداد (مرصد بيت الحكمة)', lat: 33.3152, lon: 44.3661 },
+            maragha: { name: 'مراغة (مرصد الطوسي)', lat: 37.3917, lon: 46.2392 },
+            samarkand: { name: 'سمرقند (مرصد ألغ بك)', lat: 39.6542, lon: 66.9597 },
+            equator: { name: 'خط الاستواء (الفلك المستقيم)', lat: 0.0, lon: 0.0 },
+            pole: { name: 'القطب الشمالي (شمس منتصف الليل)', lat: 90.0, lon: 0.0 },
+            sydney: { name: 'سيدني (نصف الكرة الجنوبي)', lat: -33.8688, lon: 151.2093 }
+        };
+
+        let currentCityKey = 'damascus';
+        let currentCityName = 'دمشق (الجامع الأموي)';
+        let currentLatDeg = 33.5138;
+        let currentLonDeg = 36.2924;
+        let currentLatRad = currentLatDeg * Math.PI / 180;
+
+        const EPSILON = 23.44 * Math.PI / 180;
+        const MOON_INC = 5.14 * Math.PI / 180; // ميل مدار القمر
+
+        // حالة المحاكي: نبدأ في يوم 15 شعبان (بدر)
+        let simDate = new Date(Date.UTC(2026, 5, 29, 21, 0, 0));
+        let isPlaying = true;
+        let timeSpeed = 1.0;
+
+        // كائنات Three.js
+        let scene, camera, renderer, controls;
+        let horizonGroup, seasonalArcsGroup, planetsGroup, zodiacGroup, atlasGroup, moonArcGroup;
+        let celestialAxisLine, celestialEquatorLine, polarisStar, polarisOrbitLine, polarisLabelSprite;
+        let sunMesh, moonMesh, moonLight, moonLabelSprite;
+        let zodiacLine, zodiacSprites = [];
+        let planetOrbitLines = {};
+        let meridianLine, primeVerticalLine;
+        let sunSightlineRay, moonSightlineRay;
+        let planetMeshes = {};
+        let cameraPreset = 'horizon';
+
+        // نصف قطر القبة السماوية
+        const DOME_R = 140;
+
+        const PLANETS_CONFIG = [
+            { key: 'mercury', name: 'عطارد ☿', r: 55, color: 0xC084FC, size: 3.5, periodDays: 87.97, inc: 0.122 },
+            { key: 'venus', name: 'الزهرة ♀', r: 85, color: 0xF472B6, size: 4.8, periodDays: 224.70, inc: 0.059 },
+            { key: 'mars', name: 'المريخ ♂', r: 165, color: 0xF87171, size: 4.5, periodDays: 686.97, inc: 0.032 },
+            { key: 'jupiter', name: 'المشتري ♃', r: 198, color: 0xFB923C, size: 6.2, periodDays: 4332.6, inc: 0.023 },
+            { key: 'saturn', name: 'زحل ♄', r: 236, color: 0xFACC15, size: 5.5, periodDays: 10759, inc: 0.043 }
+        ];
+
+        const ZODIAC_NAMES = [
+            'الحمل ♈', 'الثور ♉', 'الجوزاء ♊', 'السرطان ♋',
+            'الأسد ♌', 'السنبلة ♍', 'الميزان ♎', 'العقرب ♏',
+            'القوس ♐', 'الجدي ♑', 'الدلو ♒', 'الحوت ♓'
+        ];
+
+        function init3D() {
+            const container = document.getElementById('webgl-container');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x020617);
+            scene.fog = new THREE.FogExp2(0x020617, 0.001);
+
+            camera = new THREE.PerspectiveCamera(48, width / height, 0.5, 3500);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // منع التمرير الرأسي للصفحة (الصعود والنزول) عند استخدام دولاب الماوس فوق الـ 3D
+            const preventPageScroll = (e) => {
+                e.preventDefault();
+            };
+            container.addEventListener('wheel', preventPageScroll, { passive: false });
+            renderer.domElement.addEventListener('wheel', preventPageScroll, { passive: false });
+            container.addEventListener('touchmove', preventPageScroll, { passive: false });
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.06;
+            controls.rotateSpeed = 0.85;
+            controls.zoomSpeed = 1.2;
+            controls.panSpeed = 0.8;
+            controls.screenSpacePanning = true;
+            controls.minPolarAngle = 0.01;
+            controls.maxPolarAngle = Math.PI - 0.01;
+            controls.minDistance = 5;
+            controls.maxDistance = 1500;
+
+            setCameraPreset('horizon');
+
+            const ambient = new THREE.AmbientLight(0x334155, 1.2);
+            scene.add(ambient);
+
+            horizonGroup = new THREE.Group(); scene.add(horizonGroup);
+            seasonalArcsGroup = new THREE.Group(); scene.add(seasonalArcsGroup);
+
+            // دائرة نصف النهار العظمى (The Meridian Circle / دائرة الزوال) - تمر بالشمال والسمت والجنوب والنظير
+            const merPts = [];
+            for (let i = 0; i <= 64; i++) {
+                const th = (i / 64) * Math.PI * 2;
+                merPts.push(new THREE.Vector3(0, DOME_R * Math.cos(th), DOME_R * Math.sin(th)));
+            }
+            const merGeom = new THREE.BufferGeometry().setFromPoints(merPts);
+            meridianLine = new THREE.Line(
+                merGeom,
+                new THREE.LineDashedMaterial({ color: 0x10B981, dashSize: 4, gapSize: 3, transparent: true, opacity: 0.5 })
+            );
+            meridianLine.computeLineDistances();
+            scene.add(meridianLine);
+
+            // دائرة أول السموت العظمى (The Prime Vertical) - تمر بالشرق والسمت والغرب عمودياً على الزوال
+            const pvPts = [];
+            for (let i = 0; i <= 64; i++) {
+                const th = (i / 64) * Math.PI * 2;
+                pvPts.push(new THREE.Vector3(DOME_R * Math.cos(th), DOME_R * Math.sin(th), 0));
+            }
+            const pvGeom = new THREE.BufferGeometry().setFromPoints(pvPts);
+            primeVerticalLine = new THREE.Line(
+                pvGeom,
+                new THREE.LineDashedMaterial({ color: 0x06B6D4, dashSize: 4, gapSize: 3, transparent: true, opacity: 0.5 })
+            );
+            primeVerticalLine.computeLineDistances();
+            scene.add(primeVerticalLine);
+            moonArcGroup = new THREE.Group(); scene.add(moonArcGroup);
+            planetsGroup = new THREE.Group(); scene.add(planetsGroup);
+            zodiacGroup = new THREE.Group(); scene.add(zodiacGroup);
+            atlasGroup = new THREE.Group(); scene.add(atlasGroup);
+
+            createHorizonPlane();
+            createCelestialAxes();
+            rebuildSeasonalArcs();
+            createSunAndMoonOnDome();
+            createPlanetarySpheres();
+            createZodiacBelt();
+            createAtlasSphere();
+            createStarfield();
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        // 1. قرص الأفق
+        function createHorizonPlane() {
+            const r = DOME_R;
+            const geom = new THREE.CircleGeometry(r, 64);
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0x0A1628,
+                roughness: 0.85,
+                transparent: true,
+                opacity: 0.88,
+                side: THREE.DoubleSide
+            });
+            const disc = new THREE.Mesh(geom, mat);
+            disc.rotation.x = -Math.PI / 2;
+            horizonGroup.add(disc);
+
+            const ringGeom = new THREE.RingGeometry(r - 1.5, r + 0.5, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x38BDF8, side: THREE.DoubleSide });
+            const ring = new THREE.Mesh(ringGeom, ringMat);
+            ring.rotation.x = -Math.PI / 2;
+            ring.position.y = 0.05;
+            horizonGroup.add(ring);
+
+            // قوس مشارق الأبراج والشمس على الأفق الشرقي (نطاق سعة المشرق من 61.5° إلى 118.5° = 57°)
+            const eastArcGeom = new THREE.RingGeometry(r - 3.5, r + 2.5, 32, 1, -28.5 * Math.PI / 180, 57.0 * Math.PI / 180);
+            const eastArcMat = new THREE.MeshBasicMaterial({ color: 0xF59E0B, side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
+            const eastArc = new THREE.Mesh(eastArcGeom, eastArcMat);
+            eastArc.rotation.x = -Math.PI / 2;
+            eastArc.position.y = 0.08;
+            horizonGroup.add(eastArc);
+
+            // قوس مغارب الأبراج والشمس على الأفق الغربي (من 241.5° إلى 298.5° = 57°)
+            const westArcGeom = new THREE.RingGeometry(r - 3.5, r + 2.5, 32, 1, Math.PI - 28.5 * Math.PI / 180, 57.0 * Math.PI / 180);
+            const westArcMat = new THREE.MeshBasicMaterial({ color: 0xC084FC, side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
+            const westArc = new THREE.Mesh(westArcGeom, westArcMat);
+            westArc.rotation.x = -Math.PI / 2;
+            westArc.position.y = 0.08;
+            horizonGroup.add(westArc);
+
+            createDirectionBadge('المشرق 90° ⮕', r - 16, 0, '#FBBF24');
+            createDirectionBadge('⬅ المغرب 270°', -r + 16, 0, '#FBBF24');
+            createDirectionBadge('⬆ الشمال 0°', 0, -r + 16, '#38BDF8');
+            createDirectionBadge('⬇ الجنوب 180°', 0, r - 16, '#38BDF8');
+
+            const obsGeom = new THREE.CylinderGeometry(1.2, 1.2, 4, 16);
+            const obsMat = new THREE.MeshStandardMaterial({ color: 0xF59E0B });
+            const obs = new THREE.Mesh(obsGeom, obsMat);
+            obs.position.y = 2;
+            horizonGroup.add(obs);
+        }
+
+        function createDirectionBadge(text, x, z, color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 320;
+            canvas.height = 70;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.roundRect(10, 10, 300, 50, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.font = 'bold 24px "Cairo", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 160, 35);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMat);
+            sprite.scale.set(30, 7, 1);
+            sprite.position.set(x, 4, z);
+            horizonGroup.add(sprite);
+        }
+
+        // 2. الشمس والقمر في القبة السماوية DOME_R
+        function createSunAndMoonOnDome() {
+            // الشمس
+            const sunGeom = new THREE.SphereGeometry(7.5, 32, 32);
+            const sunMat = new THREE.MeshBasicMaterial({ color: 0xFDE047 });
+            sunMesh = new THREE.Mesh(sunGeom, sunMat);
+            scene.add(sunMesh);
+
+            const glowGeom = new THREE.SphereGeometry(12, 16, 16);
+            const glowMat = new THREE.MeshBasicMaterial({ color: 0xF59E0B, transparent: true, opacity: 0.35 });
+            sunMesh.add(new THREE.Mesh(glowGeom, glowMat));
+
+            const sunLight = new THREE.PointLight(0xFFFBEB, 2.0, 700);
+            sunMesh.add(sunLight);
+
+            // القمر: كرة فضية واضحة في القبة السماوية مع وهج فضي
+            const moonGeom = new THREE.SphereGeometry(5.5, 32, 32);
+            const moonMat = new THREE.MeshStandardMaterial({
+                color: 0xF1F5F9,
+                emissive: 0xCBD5E1,
+                emissiveIntensity: 0.45,
+                roughness: 0.4
+            });
+            moonMesh = new THREE.Mesh(moonGeom, moonMat);
+            scene.add(moonMesh);
+
+            // ضوء القمر الفضي
+            moonLight = new THREE.PointLight(0xE0E7FF, 1.2, 500);
+            moonMesh.add(moonLight);
+
+            // أشعة الرؤية والارتفاع اللحظي للشمس والقمر
+            const sunRayGeom = new THREE.BufferGeometry();
+            sunSightlineRay = new THREE.Line(
+                sunRayGeom,
+                new THREE.LineDashedMaterial({ color: 0xFBBF24, dashSize: 4, gapSize: 3, transparent: true, opacity: 0.5 })
+            );
+            scene.add(sunSightlineRay);
+
+            const moonRayGeom = new THREE.BufferGeometry();
+            moonSightlineRay = new THREE.Line(
+                moonRayGeom,
+                new THREE.LineDashedMaterial({ color: 0xC084FC, dashSize: 4, gapSize: 3, transparent: true, opacity: 0.5 })
+            );
+            scene.add(moonSightlineRay);
+
+            // شارة اسم وطور القمر ثلاثية الأبعاد
+            const mCanvas = document.createElement('canvas');
+            mCanvas.width = 240;
+            mCanvas.height = 60;
+            const mCtx = mCanvas.getContext('2d');
+            mCtx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+            mCtx.strokeStyle = '#C084FC';
+            mCtx.lineWidth = 3;
+            mCtx.beginPath();
+            mCtx.roundRect(5, 5, 230, 50, 12);
+            mCtx.fill();
+            mCtx.stroke();
+            mCtx.fillStyle = '#F1F5F9';
+            mCtx.font = 'bold 22px "Cairo", sans-serif';
+            mCtx.textAlign = 'center';
+            mCtx.textBaseline = 'middle';
+            mCtx.fillText('🌙 القمر (بدر 100%)', 120, 30);
+
+            const mTexture = new THREE.CanvasTexture(mCanvas);
+            moonLabelSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: mTexture, transparent: true }));
+            moonLabelSprite.scale.set(22, 6, 1);
+            moonLabelSprite.position.set(0, 9, 0);
+            moonMesh.add(moonLabelSprite);
+        }
+
+        // 3. المحاور ومعدل النهار
+        function createCelestialAxes() {
+            const sphereR = 260;
+            celestialAxisLine = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineDashedMaterial({ color: 0x38BDF8, dashSize: 6, gapSize: 4, opacity: 0.6, transparent: true })
+            );
+            scene.add(celestialAxisLine);
+
+            celestialEquatorLine = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.6 })
+            );
+            scene.add(celestialEquatorLine);
+
+            // دائرة مدار النجم القطبي حول القطب السماوي
+            const polOrbitGeom = new THREE.BufferGeometry();
+            polarisOrbitLine = new THREE.Line(
+                polOrbitGeom,
+                new THREE.LineDashedMaterial({ color: 0x38BDF8, dashSize: 4, gapSize: 3, transparent: true, opacity: 0.75 })
+            );
+            scene.add(polarisOrbitLine);
+
+            // جرم النجم القطبي
+            const polGeom = new THREE.SphereGeometry(4.5, 24, 24);
+            const polMat = new THREE.MeshBasicMaterial({ color: 0xE0F2FE });
+            polarisStar = new THREE.Mesh(polGeom, polMat);
+            scene.add(polarisStar);
+
+            // وهج النجم القطبي
+            const polGlow = new THREE.Mesh(
+                new THREE.SphereGeometry(8, 16, 16),
+                new THREE.MeshBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.45 })
+            );
+            polarisStar.add(polGlow);
+
+            // وسم النجم القطبي ثلاثي الأبعاد
+            const polCanvas = document.createElement('canvas');
+            polCanvas.width = 300; polCanvas.height = 65;
+            const polCtx = polCanvas.getContext('2d');
+            polCtx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+            polCtx.strokeStyle = '#38BDF8';
+            polCtx.lineWidth = 3;
+            polCtx.beginPath(); polCtx.roundRect(5, 5, 290, 55, 14); polCtx.fill(); polCtx.stroke();
+            polCtx.fillStyle = '#BAE6FD'; polCtx.font = 'bold 22px "Cairo", sans-serif';
+            polCtx.textAlign = 'center'; polCtx.textBaseline = 'middle';
+            polCtx.fillText('★ النجم القطبي (دورة 24h)', 150, 32);
+
+            polarisLabelSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(polCanvas), transparent: true }));
+            polarisLabelSprite.scale.set(28, 7, 1);
+            polarisLabelSprite.position.set(0, 12, 0);
+            polarisStar.add(polarisLabelSprite);
+
+            updateCelestialAxesGeometry();
+        }
+
+        function updateCelestialAxesGeometry() {
+            const sphereR = 260;
+            const phi = currentLatRad;
+
+            const axisPts = [
+                new THREE.Vector3(0, -sphereR * Math.sin(phi), sphereR * Math.cos(phi)),
+                new THREE.Vector3(0, sphereR * Math.sin(phi), -sphereR * Math.cos(phi))
+            ];
+            celestialAxisLine.geometry.setFromPoints(axisPts);
+            celestialAxisLine.computeLineDistances();
+
+            const eqPts = [];
+            for (let i = 0; i <= 64; i++) {
+                const th = (i / 64) * Math.PI * 2;
+                const ex = DOME_R * Math.sin(th);
+                const ey = DOME_R * Math.cos(th) * Math.cos(phi);
+                const ez = DOME_R * Math.cos(th) * Math.sin(phi);
+                eqPts.push(new THREE.Vector3(ex, ey, ez));
+            }
+            celestialEquatorLine.geometry.setFromPoints(eqPts);
+
+            // تحديث دائرة مدار النجم القطبي حول القطب السماوي
+            const polDist = 320;
+            const polOrbitR = 24; // نصف قطر دائرة مدار النجم القطبي
+            const centerPole = new THREE.Vector3(0, polDist * Math.sin(phi), -polDist * Math.cos(phi));
+
+            const polOrbitPts = [];
+            for (let i = 0; i <= 64; i++) {
+                const th = (i / 64) * Math.PI * 2;
+                const px = centerPole.x + polOrbitR * Math.cos(th);
+                const py = centerPole.y + polOrbitR * Math.sin(th) * Math.cos(phi);
+                const pz = centerPole.z + polOrbitR * Math.sin(th) * Math.sin(phi);
+                polOrbitPts.push(new THREE.Vector3(px, py, pz));
+            }
+            if (polarisOrbitLine) {
+                polarisOrbitLine.geometry.setFromPoints(polOrbitPts);
+                polarisOrbitLine.computeLineDistances();
+            }
+        }
+
+        // 4. بناء مسارات الشمس وقوس القمر الشهري في السماء
+        function rebuildSeasonalArcs() {
+            while (seasonalArcsGroup.children.length > 0) {
+                const obj = seasonalArcsGroup.children[0];
+                seasonalArcsGroup.remove(obj);
+                if (obj.geometry) obj.geometry.dispose();
+            }
+
+            const phi = currentLatRad;
+
+            function buildArc(decl, color) {
+                const pts = [];
+                for (let i = 0; i <= 72; i++) {
+                    const H = -Math.PI + (i / 72) * Math.PI * 2;
+                    const sinA = Math.sin(phi) * Math.sin(decl) + Math.cos(phi) * Math.cos(decl) * Math.cos(H);
+                    const a = Math.asin(Math.max(-1, Math.min(1, sinA)));
+
+                    let Az = 0;
+                    const cosAlt = Math.cos(a);
+                    if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                        const cosAz = (Math.sin(decl) - Math.sin(phi) * sinA) / (Math.cos(phi) * cosAlt);
+                        Az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+                        if (Math.sin(H) > 0) Az = 2 * Math.PI - Az;
+                    }
+                    pts.push(new THREE.Vector3(DOME_R * Math.cos(a) * Math.sin(Az), DOME_R * Math.sin(a), -DOME_R * Math.cos(a) * Math.cos(Az)));
+                }
+                seasonalArcsGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7, linewidth: 2 })));
+            }
+
+            buildArc(EPSILON, 0xEF4444);  // صيف
+            buildArc(0.0, 0x38BDF8);      // اعتدال
+            buildArc(-EPSILON, 0x34D399); // شتاء
+        }
+
+        // تحديث قوس مسار القمر لليوم الحالي
+        function updateMoonSkyArc(moonDelta) {
+            while (moonArcGroup.children.length > 0) {
+                const obj = moonArcGroup.children[0];
+                moonArcGroup.remove(obj);
+                if (obj.geometry) obj.geometry.dispose();
+            }
+
+            const phi = currentLatRad;
+            const pts = [];
+            for (let i = 0; i <= 72; i++) {
+                const H = -Math.PI + (i / 72) * Math.PI * 2;
+                const sinA = Math.sin(phi) * Math.sin(moonDelta) + Math.cos(phi) * Math.cos(moonDelta) * Math.cos(H);
+                const a = Math.asin(Math.max(-1, Math.min(1, sinA)));
+
+                let Az = 0;
+                const cosAlt = Math.cos(a);
+                if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                    const cosAz = (Math.sin(moonDelta) - Math.sin(phi) * sinA) / (Math.cos(phi) * cosAlt);
+                    Az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+                    if (Math.sin(H) > 0) Az = 2 * Math.PI - Az;
+                }
+                pts.push(new THREE.Vector3(DOME_R * Math.cos(a) * Math.sin(Az), DOME_R * Math.sin(a), -DOME_R * Math.cos(a) * Math.cos(Az)));
+            }
+            const line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints(pts),
+                new THREE.LineDashedMaterial({ color: 0xC084FC, dashSize: 5, gapSize: 3, transparent: true, opacity: 0.85, linewidth: 2 })
+            );
+            line.computeLineDistances();
+            moonArcGroup.add(line);
+        }
+
+        // 5. الكواكب الخمسة الأخرى
+        function createPlanetarySpheres() {
+            PLANETS_CONFIG.forEach(cfg => {
+                const orbitRing = new THREE.Line(
+                    new THREE.BufferGeometry(),
+                    new THREE.LineBasicMaterial({ color: cfg.color, transparent: true, opacity: 0.45 })
+                );
+                planetsGroup.add(orbitRing);
+                planetOrbitLines[cfg.key] = orbitRing;
+
+                const pMesh = new THREE.Mesh(
+                    new THREE.SphereGeometry(cfg.size, 20, 20),
+                    new THREE.MeshStandardMaterial({ color: cfg.color, roughness: 0.6 })
+                );
+                planetsGroup.add(pMesh);
+                planetMeshes[cfg.key] = pMesh;
+            });
+        }
+
+        // 6. الفلك الثامن: حزام البروج الفلكي الحقيقي (ديناميكي وواقعي 100%)
+        function createZodiacBelt() {
+            const zGeom = new THREE.BufferGeometry();
+            zodiacLine = new THREE.Line(
+                zGeom,
+                new THREE.LineBasicMaterial({ color: 0xC084FC, transparent: true, opacity: 0.75, linewidth: 2 })
+            );
+            zodiacGroup.add(zodiacLine);
+
+            zodiacSprites = [];
+            for (let i = 0; i < 12; i++) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 240; canvas.height = 65;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.strokeStyle = '#A855F7';
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.roundRect(6, 6, 228, 53, 14); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#E9D5FF'; ctx.font = 'bold 22px "Cairo", sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(ZODIAC_NAMES[i], 120, 32);
+
+                const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true }));
+                sprite.scale.set(26, 7, 1);
+                zodiacGroup.add(sprite);
+                zodiacSprites.push(sprite);
+            }
+        }
+
+        // دالة تحويل إحداثيات البروج (Ecliptic Coordinates) إلى إحداثيات أفقية ثلاثية الأبعاد (Alt/Az in 3D)
+        function getEcliptic3DPos(lamRad, H_sun, alpha_sun, phi, radius) {
+            const sinDelta = Math.sin(EPSILON) * Math.sin(lamRad);
+            const delta = Math.asin(Math.max(-1, Math.min(1, sinDelta)));
+            const alpha = Math.atan2(Math.cos(EPSILON) * Math.sin(lamRad), Math.cos(lamRad));
+
+            const H = H_sun - (alpha - alpha_sun);
+
+            const sinAlt = Math.sin(phi) * Math.sin(delta) + Math.cos(phi) * Math.cos(delta) * Math.cos(H);
+            const alt = Math.asin(Math.max(-1, Math.min(1, sinAlt)));
+
+            let az = 0;
+            const cosAlt = Math.cos(alt);
+            if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                const cosAz = (Math.sin(delta) - Math.sin(phi) * sinAlt) / (Math.cos(phi) * cosAlt);
+                az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+                if (Math.sin(H) > 0) az = 2 * Math.PI - az;
+            }
+
+            return new THREE.Vector3(
+                radius * Math.cos(alt) * Math.sin(az),
+                radius * Math.sin(alt),
+                -radius * Math.cos(alt) * Math.cos(az)
+            );
+        }
+
+        // 7. الفلك التاسع: الأطلس
+        function createAtlasSphere() {
+            const atlasR = 295;
+            const atlasRing = new THREE.Mesh(
+                new THREE.RingGeometry(atlasR - 1.5, atlasR + 1.5, 96),
+                new THREE.MeshBasicMaterial({ color: 0xA855F7, side: THREE.DoubleSide, transparent: true, opacity: 0.5 })
+            );
+            atlasRing.rotation.x = -(Math.PI / 2 - currentLatRad);
+            atlasGroup.add(atlasRing);
+
+            const sphereWireMat = new THREE.MeshBasicMaterial({ color: 0x7C3AED, wireframe: true, transparent: true, opacity: 0.08 });
+            atlasGroup.add(new THREE.Mesh(new THREE.SphereGeometry(atlasR, 16, 12), sphereWireMat));
+        }
+
+        function createStarfield() {
+            const count = 1500;
+            const pos = [];
+            for (let i = 0; i < count; i++) {
+                const u = Math.random(), v = Math.random();
+                const th = u * 2 * Math.PI, ph = Math.acos(2 * v - 1);
+                const r = 800;
+                pos.push(r * Math.sin(ph) * Math.cos(th), r * Math.sin(ph) * Math.sin(th), r * Math.cos(ph));
+            }
+            const geom = new THREE.BufferGeometry();
+            geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+            const starPoints = new THREE.Points(geom, new THREE.PointsMaterial({ color: 0xFFFFFF, size: 2.2, transparent: true, opacity: 0.85 }));
+            atlasGroup.add(starPoints); // ربط النجوم الثوابت بالفلك الأطلس لتدور القبة السماوية بأكملها كل 24 ساعة
+        }
+
+        // إدارة المدينة
+        function onCityChange(cityKey) {
+            currentCityKey = cityKey;
+            const customRow = document.getElementById('customCoordRow');
+            if (cityKey === 'custom') {
+                customRow.style.display = 'flex';
+                onCustomCoordChange();
+                return;
+            } else {
+                customRow.style.display = 'none';
+            }
+
+            const city = CITIES_DB[cityKey];
+            if (!city) return;
+
+            currentCityName = city.name;
+            currentLatDeg = city.lat;
+            currentLonDeg = city.lon;
+            currentLatRad = currentLatDeg * Math.PI / 180;
+
+            document.getElementById('inputLat').value = currentLatDeg;
+            document.getElementById('inputLon').value = currentLonDeg;
+
+            applyCityChanges();
+        }
+
+        function onCustomCoordChange() {
+            currentLatDeg = parseFloat(document.getElementById('inputLat').value) || 0;
+            currentLonDeg = parseFloat(document.getElementById('inputLon').value) || 0;
+            currentLatRad = currentLatDeg * Math.PI / 180;
+            currentCityName = `مخصص (${currentLatDeg >= 0 ? '+' : ''}${currentLatDeg}°)`;
+
+            applyCityChanges();
+        }
+
+        function applyCityChanges() {
+            updateCelestialAxesGeometry();
+            rebuildSeasonalArcs();
+
+            if (atlasGroup.children.length > 0) {
+                atlasGroup.children[0].rotation.x = -(Math.PI / 2 - currentLatRad);
+            }
+
+            document.getElementById('hudCityName').innerText = `${currentCityName} (${currentLatDeg.toFixed(1)}°)`;
+            updateAstronomy();
+        }
+
+        // إعدادات زوايا الكاميرا
+        function setCameraPreset(preset) {
+            cameraPreset = preset;
+            document.querySelectorAll('.btn-view').forEach(b => {
+                if (!b.id.includes('AutoRotate')) b.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(
+                preset === 'horizon' ? 'btnViewHorizon' :
+                preset === 'moon' ? 'btnViewMoon' :
+                preset === 'sun' ? 'btnViewSun' :
+                preset === 'orbit' ? 'btnViewOrbit' : 'btnViewPolar'
+            );
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (preset === 'horizon') {
+                camera.position.set(0, 16, 65);
+                controls.target.set(0, 15, -45);
+            } else if (preset === 'moon' && moonMesh) {
+                // الكاميرا تنظر مباشرة نحو القمر
+                camera.position.set(0, 18, 50);
+                controls.target.copy(moonMesh.position);
+            } else if (preset === 'sun' && sunMesh) {
+                camera.position.set(0, 18, 50);
+                controls.target.copy(sunMesh.position);
+            } else if (preset === 'orbit') {
+                camera.position.set(280, 240, 360);
+                controls.target.set(0, 0, 0);
+            } else if (preset === 'polar') {
+                camera.position.set(0, 520, 0);
+                controls.target.set(0, 0, 0);
+            } else if (preset === 'polaris') {
+                // توجيه الكاميرا مباشرة نحو الشمال ونحو النجم القطبي المرتفع بزاوية خط العرض
+                camera.position.set(0, 16, 60);
+                const phi = currentLatRad;
+                controls.target.set(0, 320 * Math.sin(phi), -320 * Math.cos(phi));
+            }
+            controls.update();
+        }
+
+        function toggleAutoRotate() {
+            controls.autoRotate = !controls.autoRotate;
+            controls.autoRotateSpeed = 1.2;
+            document.getElementById('btnAutoRotate').classList.toggle('active', controls.autoRotate);
+        }
+
+        function toggleLayer(layer, isVisible) {
+            if (layer === 'atlas' && atlasGroup) atlasGroup.visible = isVisible;
+            if (layer === 'zodiac' && zodiacGroup) zodiacGroup.visible = isVisible;
+            if (layer === 'planets' && planetsGroup) planetsGroup.visible = isVisible;
+            if (layer === 'planetBodies') {
+                Object.values(planetMeshes).forEach(mesh => {
+                    if (mesh) mesh.visible = isVisible;
+                });
+            }
+            if (layer === 'orbitCircles') {
+                Object.values(planetOrbitLines).forEach(ring => {
+                    if (ring) ring.visible = isVisible;
+                });
+            }
+            if (layer === 'horizon' && horizonGroup) horizonGroup.visible = isVisible;
+            if (layer === 'sunArcs' && seasonalArcsGroup) seasonalArcsGroup.visible = isVisible;
+            if (layer === 'meridian') {
+                if (meridianLine) meridianLine.visible = isVisible;
+                if (primeVerticalLine) primeVerticalLine.visible = isVisible;
+            }
+            if (layer === 'moonArc' && moonArcGroup) moonArcGroup.visible = isVisible;
+        }
+
+        // قفز لأطوار القمر
+        function jumpToMoonPhase(targetElong) {
+            // حساب يوم من السنة يجعل استطالة القمر D = targetElong
+            // D = (13.176 - 0.9856) * days = 12.19 * days
+            const targetDays = targetElong / 12.1907;
+            const curYear = simDate.getUTCFullYear();
+            simDate = new Date(Date.UTC(curYear, 0, 1 + targetDays, 20, 0, 0));
+            updateAstronomy();
+            setCameraPreset('moon');
+        }
+
+        // حلقة الحركة الرئيسية
+        let lastTime = performance.now();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const now = performance.now();
+            const dtSec = (now - lastTime) / 1000;
+            lastTime = now;
+
+            if (isPlaying) {
+                const addedMs = dtSec * timeSpeed * 86400 * 1000;
+                simDate = new Date(simDate.getTime() + addedMs);
+            }
+
+            updateAstronomy();
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function updateAstronomy() {
+            const startOfYear = new Date(Date.UTC(simDate.getUTCFullYear(), 0, 1));
+            const dayOfYear = (simDate.getTime() - startOfYear.getTime()) / (86400 * 1000);
+
+            // 1. حساب الشمس
+            const lambdaSun = ((dayOfYear / 365.25) * 2 * Math.PI - 1.39) % (2 * Math.PI);
+            const deltaSun = Math.asin(Math.sin(EPSILON) * Math.sin(lambdaSun));
+
+            const hours = simDate.getUTCHours() + simDate.getUTCMinutes() / 60 + simDate.getUTCSeconds() / 3600;
+            const lonHours = currentLonDeg / 15.0;
+            const localSolarHours = (hours + lonHours + 24) % 24;
+            const H_sun = ((localSolarHours / 24) * 2 * Math.PI - Math.PI);
+
+            const phi = currentLatRad;
+
+            const sinAltSun = Math.sin(phi) * Math.sin(deltaSun) + Math.cos(phi) * Math.cos(deltaSun) * Math.cos(H_sun);
+            const altSun = Math.asin(Math.max(-1, Math.min(1, sinAltSun)));
+
+            let azSun = 0;
+            const cosAltSun = Math.cos(altSun);
+            if (Math.abs(cosAltSun) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                const cosAzSun = (Math.sin(deltaSun) - Math.sin(phi) * sinAltSun) / (Math.cos(phi) * cosAltSun);
+                azSun = Math.acos(Math.max(-1, Math.min(1, cosAzSun)));
+                if (Math.sin(H_sun) > 0) azSun = 2 * Math.PI - azSun;
+            }
+
+            if (sunMesh) {
+                sunMesh.position.set(
+                    DOME_R * Math.cos(altSun) * Math.sin(azSun),
+                    DOME_R * Math.sin(altSun),
+                    -DOME_R * Math.cos(altSun) * Math.cos(azSun)
+                );
+            }
+
+            // سعة مشرق الشمس
+            let riseAzDeg = 90, setAzDeg = 270, ampDeg = 0;
+            if (Math.abs(Math.cos(phi)) > 0.0001) {
+                const cosRiseVal = Math.sin(deltaSun) / Math.cos(phi);
+                if (Math.abs(cosRiseVal) <= 1.0) {
+                    riseAzDeg = Math.acos(cosRiseVal) * 180 / Math.PI;
+                    setAzDeg = 360 - riseAzDeg;
+                    ampDeg = 90 - riseAzDeg;
+                }
+            }
+
+            // 2. حساب حركة القمر الدقيقة ودورته في السماء
+            // طول القمر λ_moon وسرعته ~13.18° في اليوم
+            const moonLambda = ((dayOfYear / 27.3216) * 2 * Math.PI) % (2 * Math.PI);
+            // ميل القمر δ_moon مع مراعاة ميل مداره 5.14°
+            const moonDelta = Math.asin(Math.sin(EPSILON + MOON_INC) * Math.sin(moonLambda));
+
+            // زاوية ساعة القمر H_moon
+            const H_moon = H_sun + (moonLambda - lambdaSun);
+
+            // موقع القمر في القبة السماوية
+            const sinAltMoon = Math.sin(phi) * Math.sin(moonDelta) + Math.cos(phi) * Math.cos(moonDelta) * Math.cos(H_moon);
+            const altMoon = Math.asin(Math.max(-1, Math.min(1, sinAltMoon)));
+
+            let azMoon = 0;
+            const cosAltMoon = Math.cos(altMoon);
+            if (Math.abs(cosAltMoon) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                const cosAzMoon = (Math.sin(moonDelta) - Math.sin(phi) * sinAltMoon) / (Math.cos(phi) * cosAltMoon);
+                azMoon = Math.acos(Math.max(-1, Math.min(1, cosAzMoon)));
+                if (Math.sin(H_moon) > 0) azMoon = 2 * Math.PI - azMoon;
+            }
+
+            // وضع القمر الواضح تماماً على حافة القبة السماوية (DOME_R - 2)
+            if (moonMesh) {
+                moonMesh.position.set(
+                    (DOME_R - 2) * Math.cos(altMoon) * Math.sin(azMoon),
+                    (DOME_R - 2) * Math.sin(altMoon),
+                    -(DOME_R - 2) * Math.cos(altMoon) * Math.cos(azMoon)
+                );
+            }
+
+            // رسم قوس مسار القمر لليوم الحالي
+            updateMoonSkyArc(moonDelta);
+
+            // حساب المطلع المستقيم للشمس alpha_sun لمزامنة حركة فلك البروج بالكامل
+            const alpha_sun = Math.atan2(Math.cos(EPSILON) * Math.sin(lambdaSun), Math.cos(lambdaSun));
+            const zR = 260;
+
+            // تحديث حلقة فلك البروج الحقيقية في السماء (96 نقطة تتكيف مع دوران اليوم وخط العرض)
+            if (zodiacLine) {
+                const zPts = [];
+                for (let j = 0; j <= 96; j++) {
+                    const lam = (j / 96) * Math.PI * 2;
+                    zPts.push(getEcliptic3DPos(lam, H_sun, alpha_sun, phi, zR));
+                }
+                zodiacLine.geometry.setFromPoints(zPts);
+            }
+
+            // تحديث مواضع شارات البروج الاثني عشر وحساب البرج الطالع والغارب اللحظيين
+            let bestAscIdx = 0, minAscDist = 9999;
+            let bestDescIdx = 6, minDescDist = 9999;
+
+            if (zodiacSprites && zodiacSprites.length === 12) {
+                for (let i = 0; i < 12; i++) {
+                    const midLam = (i * 30 + 15) * Math.PI / 180;
+                    const pos = getEcliptic3DPos(midLam, H_sun, alpha_sun, phi, zR);
+                    zodiacSprites[i].position.copy(pos);
+
+                    // البحث عن البرج الطالع (الأقرب للأفق الشرقي: pos.x > 0 وارتفاعه y الأقرب للصفر من الأسفل أو الأعلى)
+                    if (pos.x > 0) {
+                        const dist = Math.abs(pos.y);
+                        if (dist < minAscDist) {
+                            minAscDist = dist;
+                            bestAscIdx = i;
+                        }
+                    }
+                    // البحث عن البرج الغارب (الأقرب للأفق الغربي: pos.x < 0 وارتفاعه y الأقرب للصفر)
+                    if (pos.x < 0) {
+                        const dist = Math.abs(pos.y);
+                        if (dist < minDescDist) {
+                            minDescDist = dist;
+                            bestDescIdx = i;
+                        }
+                    }
+                }
+            }
+
+            // تحديث بيانات الطالع والغارب في HUD
+            const ascEl = document.getElementById('hudAscendantSign');
+            if (ascEl) ascEl.innerText = ZODIAC_NAMES[bestAscIdx] + ' (طالع الآن)';
+            const descEl = document.getElementById('hudDescendantSign');
+            if (descEl) descEl.innerText = ZODIAC_NAMES[bestDescIdx] + ' (غارب الآن)';
+
+            // حساب طور القمر ونسبة الإضاءة (Phase & Illumination)
+            let elongRad = (moonLambda - lambdaSun);
+            elongRad = ((elongRad % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            const elongDeg = elongRad * 180 / Math.PI;
+
+            // نسبة الإضاءة
+            const illumPercent = Math.round((1 - Math.cos(elongRad)) / 2 * 100);
+
+            // اسم الطور
+            let phaseName = 'محاق';
+            if (elongDeg >= 340 || elongDeg < 20) phaseName = '🌑 محاق (New Moon)';
+            else if (elongDeg >= 20 && elongDeg < 70) phaseName = '🌒 هلال متزايد (Crescent)';
+            else if (elongDeg >= 70 && elongDeg < 110) phaseName = '🌓 تربيع أول (First Quarter)';
+            else if (elongDeg >= 110 && elongDeg < 160) phaseName = '🌔 أحدب متزايد (Gibbous)';
+            else if (elongDeg >= 160 && elongDeg < 200) phaseName = '🌕 بدر تام (Full Moon)';
+            else if (elongDeg >= 200 && elongDeg < 250) phaseName = '🌖 أحدب متناقص (Gibbous)';
+            else if (elongDeg >= 250 && elongDeg < 290) phaseName = '🌗 تربيع أخير (Last Quarter)';
+            else phaseName = '🌘 هلال متناقص (Crescent)';
+
+            // مطلع ومغيب القمر
+            let moonRiseStr = '56.2°', moonSetStr = '303.8°';
+            if (Math.abs(Math.cos(phi)) > 0.0001) {
+                const cosMRise = Math.sin(moonDelta) / Math.cos(phi);
+                if (Math.abs(cosMRise) <= 1.0) {
+                    const mRiseDeg = Math.acos(cosMRise) * 180 / Math.PI;
+                    moonRiseStr = `${mRiseDeg.toFixed(1)}° (${mRiseDeg < 90 ? 'شمال الشرق' : 'جنوب الشرق'})`;
+                    moonSetStr = `${(360 - mRiseDeg).toFixed(1)}°`;
+                }
+            }
+
+            // 3. تحديث الكواكب الخمسة الأخرى
+            PLANETS_CONFIG.forEach(cfg => {
+                const mesh = planetMeshes[cfg.key];
+                if (!mesh) return;
+
+                const lambda = ((dayOfYear / cfg.periodDays) * 2 * Math.PI) % (2 * Math.PI);
+                const delta = Math.sin(EPSILON + cfg.inc) * Math.sin(lambda);
+                const H = H_sun + (lambda - lambdaSun);
+
+                const sinAlt = Math.sin(phi) * Math.sin(delta) + Math.cos(phi) * Math.cos(delta) * Math.cos(H);
+                const alt = Math.asin(Math.max(-1, Math.min(1, sinAlt)));
+                let az = 0;
+                const cosAlt = Math.cos(alt);
+                if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                    const cosAz = (Math.sin(delta) - Math.sin(phi) * sinAlt) / (Math.cos(phi) * cosAlt);
+                    az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+                    if (Math.sin(H) > 0) az = 2 * Math.PI - az;
+                }
+
+                mesh.position.set(
+                    cfg.r * Math.cos(alt) * Math.sin(az),
+                    cfg.r * Math.sin(alt),
+                    -cfg.r * Math.cos(alt) * Math.cos(az)
+                );
+
+                // تحديث دائرة فلك الكوكب ديناميكياً لتطابق مساره المداري ويدور الكوكب فوقها تماماً
+                const ringLine = planetOrbitLines[cfg.key];
+                if (ringLine) {
+                    const pts = [];
+                    for (let j = 0; j <= 48; j++) {
+                        const ringLam = (j / 48) * Math.PI * 2;
+                        const ringDelta = Math.sin(EPSILON + cfg.inc) * Math.sin(ringLam);
+                        const ringH = H_sun + (ringLam - lambdaSun);
+                        const sAlt = Math.sin(phi) * Math.sin(ringDelta) + Math.cos(phi) * Math.cos(ringDelta) * Math.cos(ringH);
+                        const rAlt = Math.asin(Math.max(-1, Math.min(1, sAlt)));
+                        let rAz = 0;
+                        const cAlt = Math.cos(rAlt);
+                        if (Math.abs(cAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                            const cAz = (Math.sin(ringDelta) - Math.sin(phi) * sAlt) / (Math.cos(phi) * cAlt);
+                            rAz = Math.acos(Math.max(-1, Math.min(1, cAz)));
+                            if (Math.sin(ringH) > 0) rAz = 2 * Math.PI - rAz;
+                        }
+                        pts.push(new THREE.Vector3(
+                            cfg.r * Math.cos(rAlt) * Math.sin(rAz),
+                            cfg.r * Math.sin(rAlt),
+                            -cfg.r * Math.cos(rAlt) * Math.cos(rAz)
+                        ));
+                    }
+                    ringLine.geometry.setFromPoints(pts);
+                }
+            });
+
+            // تدوير الفلك الأطلس وكافة النجوم الثوابت حول محور القطبين السماويين بزاوية خط العرض
+            if (atlasGroup) {
+                const axisVec = new THREE.Vector3(0, Math.sin(phi), -Math.cos(phi)).normalize();
+                atlasGroup.setRotationFromAxisAngle(axisVec, -H_sun);
+            }
+
+            // تحديث أشعة الرؤية والارتفاع للشمس والقمر
+            const obsPos = new THREE.Vector3(0, 2, 0);
+            if (sunSightlineRay && sunMesh) {
+                sunSightlineRay.geometry.setFromPoints([obsPos, sunMesh.position]);
+                sunSightlineRay.computeLineDistances();
+            }
+            if (moonSightlineRay && moonMesh) {
+                moonSightlineRay.geometry.setFromPoints([obsPos, moonMesh.position]);
+                moonSightlineRay.computeLineDistances();
+            }
+
+            // تحديث حركة النجم القطبي اليومية حول القطب السماوي الشمالي (دورة كل 24 ساعة)
+            if (polarisStar) {
+                const polDist = 320;
+                const polOrbitR = 24;
+                // الزاوية متوافقة تماماً مع الحركة اليومية من الشرق إلى الغرب (+H_sun)
+                const polAngle = H_sun;
+
+                const centerPoleX = 0;
+                const centerPoleY = polDist * Math.sin(phi);
+                const centerPoleZ = -polDist * Math.cos(phi);
+
+                const px = centerPoleX + polOrbitR * Math.cos(polAngle);
+                const py = centerPoleY + polOrbitR * Math.sin(polAngle) * Math.cos(phi);
+                const pz = centerPoleZ + polOrbitR * Math.sin(polAngle) * Math.sin(phi);
+
+                polarisStar.position.set(px, py, pz);
+            }
+
+            // تحديث HUD
+            document.getElementById('hudDateTime').innerText = simDate.toISOString().replace('T', ' ').substring(0, 16);
+            document.getElementById('hudSunDecl').innerText = `${deltaSun >= 0 ? '+' : ''}${(deltaSun * 180 / Math.PI).toFixed(2)}°`;
+            document.getElementById('hudSunAlt').innerText = `${(altSun * 180 / Math.PI).toFixed(1)}° (${altSun >= 0 ? 'فوق الأفق' : 'تحت الأفق'})`;
+            document.getElementById('hudSunriseAz').innerText = `${riseAzDeg.toFixed(1)}° (سعة ${Math.abs(ampDeg).toFixed(1)}°)`;
+
+            document.getElementById('hudMoonPhaseName').innerText = phaseName;
+            document.getElementById('hudMoonIllum').innerText = `${illumPercent}% مضاء (${phaseName.split(' ')[1] || ''})`;
+            document.getElementById('hudMoonElong').innerText = `${elongDeg.toFixed(1)}°`;
+            document.getElementById('hudMoonAlt').innerText = `${(altMoon * 180 / Math.PI).toFixed(1)}° (${altMoon >= 0 ? 'فوق الأفق طالع' : 'تحت الأفق غارب'})`;
+            document.getElementById('hudMoonriseAz').innerText = moonRiseStr;
+            document.getElementById('hudMoonsetAz').innerText = moonSetStr;
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            document.getElementById('btnPlay').innerText = isPlaying ? '⏸️ إيقاف' : '▶️ تشغيل';
+        }
+
+        function setSpeed(speed) {
+            timeSpeed = speed;
+            document.querySelectorAll('.bar-group .btn-ui').forEach(b => {
+                if(b.innerText.includes('س/ث') || b.innerText.includes('يوم/ث') || b.innerText.includes('شهر/ث') || b.innerText.includes('أسبوع/ث')) {
+                    b.classList.remove('active');
+                }
+            });
+            event.target.classList.add('active');
+        }
+
+        function stepTime(amount, unit) {
+            if (unit === 'hour') simDate = new Date(simDate.getTime() + amount * 3600 * 1000);
+            if (unit === 'day') simDate = new Date(simDate.getTime() + amount * 86400 * 1000);
+            updateAstronomy();
+        }
+
+        function jumpToSeason(season) {
+            const y = simDate.getUTCFullYear();
+            if (season === 'spring') simDate = new Date(Date.UTC(y, 2, 21, 5, 45, 0));
+            if (season === 'summer') simDate = new Date(Date.UTC(y, 5, 21, 4, 30, 0));
+            if (season === 'autumn') simDate = new Date(Date.UTC(y, 8, 23, 5, 45, 0));
+            if (season === 'winter') simDate = new Date(Date.UTC(y, 11, 21, 6, 45, 0));
+            updateAstronomy();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        
+        // دالة طي وتوسيع اللوحات الجانبية لتوفير رؤية سينمائية كاملة
+        function togglePanel(panel) {
+            if (panel === 'city') {
+                const c = document.getElementById('cityPanelContent');
+                const btn = document.getElementById('btnCollapseCity');
+                const isHidden = c.style.display === 'none';
+                c.style.display = isHidden ? 'flex' : 'none';
+                btn.innerText = isHidden ? '−' : '+';
+            } else if (panel === 'hud') {
+                const c = document.getElementById('hudPanelContent');
+                const btn = document.getElementById('btnCollapseHud');
+                const isHidden = c.style.display === 'none';
+                c.style.display = isHidden ? 'flex' : 'none';
+                btn.innerText = isHidden ? '−' : '+';
+            }
+        }
+
+        window.onload = init3D;
+    </script>
+</body>
+</html>

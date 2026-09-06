@@ -1,0 +1,32 @@
+﻿# Node.js dependencies
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+npm-debug.log*
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.ocr_cache/
+
+# Environment & Secrets
+.env
+.env.*
+
+# Heavy scans and raw documents (>50MB / OCR sources)
+*.pdf
+*.docx
+manuscript_page_1_view.png
+manuscript_page_2_view.png
+
+# Agent & temporary directories
+.agents/
+scratch/
+test_figures/
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store

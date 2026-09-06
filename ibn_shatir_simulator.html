@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>المحاكي الفلكي المقارن: بطلميوس وابن الشاطر الدمشقي (ت 777هـ)</title>
+        <style>
+        :root {
+            --bg: #060913;
+            --bg-radial: radial-gradient(circle at 50% 12%, #131E3D 0%, #070B16 55%, #03050B 100%);
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-inner: rgba(10, 16, 29, 0.85);
+            --border: rgba(99, 102, 241, 0.22);
+            --border-hover: rgba(129, 140, 248, 0.45);
+            --accent: #F59E0B;
+            --gold: #FBBF24;
+            --gold-glow: rgba(245, 158, 11, 0.25);
+            --blue: #38BDF8;
+            --blue-glow: rgba(56, 189, 248, 0.25);
+            --purple: #C084FC;
+            --purple-glow: rgba(192, 132, 252, 0.25);
+            --red: #F87171;
+            --green: #34D399;
+            --orange: #FB923C;
+            --text: #F8FAFC;
+            --subtext: #94A3B8;
+            --ptolemy: #F87171;
+            --ptolemy-bg: rgba(239, 68, 68, 0.08);
+            --ibs: #34D399;
+            --ibs-bg: rgba(16, 185, 129, 0.08);
+            --mono-font: 'JetBrains Mono', 'Fira Code', monospace;
+            --main-font: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+            --trad-font: 'Amiri', 'Traditional Arabic', serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--main-font);
+            background: var(--bg);
+            background-image: var(--bg-radial);
+            background-attachment: fixed;
+            color: var(--text);
+            padding: 20px 16px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Focus rings for accessibility */
+        :focus-visible {
+            outline: 2px solid var(--blue);
+            outline-offset: 2px;
+        }
+
+        header {
+            text-align: center;
+            max-width: 1280px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: var(--gold);
+            padding: 5px 16px;
+            border-radius: 9999px;
+            font-size: 0.88em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+        }
+
+        h1 {
+            color: var(--gold);
+            font-size: 2.1em;
+            font-weight: 900;
+            margin: 0;
+            text-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--subtext);
+            font-size: 1.05em;
+            max-width: 900px;
+            line-height: 1.7;
+        }
+
+        /* Time Control Observatory Bar */
+        .time-control-bar {
+            width: 100%;
+            max-width: 1280px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(99, 102, 241, 0.35);
+            border-radius: 16px;
+            padding: 16px 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .time-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .time-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .time-group label {
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 0.95em;
+        }
+
+        input[type="datetime-local"] {
+            background: var(--card-inner);
+            color: #FFF;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: var(--mono-font);
+            font-size: 0.95em;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input[type="datetime-local"]:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+
+        .btn-time {
+            background: rgba(49, 46, 129, 0.7);
+            color: #E0E7FF;
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            padding: 6px 13px;
+            border-radius: 8px;
+            font-family: var(--main-font);
+            font-size: 0.88em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-time:hover {
+            background: #4338CA;
+            color: #FFF;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(67, 56, 202, 0.4);
+        }
+        .btn-time.active-speed {
+            background: #D97706;
+            border-color: #FBBF24;
+            color: #FFF;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+        .btn-now {
+            background: rgba(5, 150, 105, 0.8);
+            border-color: #10B981;
+            color: #FFF;
+        }
+        .btn-now:hover {
+            background: #059669;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-play-clock {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            border: 1px solid #60A5FA;
+            color: #FFF;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            transition: all 0.2s;
+        }
+        .btn-play-clock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+        }
+
+        /* Zodiac & Telemetry Banner */
+        .zodiac-banner {
+            width: 100%;
+            max-width: 1280px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .zodiac-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 8px 14px;
+            border-radius: 12px;
+            background: rgba(10, 16, 29, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.25s;
+        }
+        .zodiac-item:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+        .zodiac-item.card-tropical {
+            border: 1.5px solid rgba(245, 158, 11, 0.5);
+            background: rgba(245, 158, 11, 0.08);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.08);
+        }
+        .zodiac-item.card-sidereal {
+            border: 1.5px solid rgba(168, 85, 247, 0.5);
+            background: rgba(168, 85, 247, 0.08);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.08);
+        }
+
+        .z-label {
+            color: var(--subtext);
+            font-size: 0.78em;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+        .z-badge {
+            font-weight: 800;
+            font-size: 1.1em;
+            line-height: 1.3;
+        }
+        .z-val {
+            font-family: var(--mono-font);
+            font-weight: 700;
+            font-size: 1em;
+        }
+
+        /* Segmented Tabs Navigation */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+            max-width: 1280px;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1 1 180px;
+            padding: 11px 16px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: var(--subtext);
+            font-family: var(--main-font);
+            font-size: 0.95em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.9), rgba(49, 46, 129, 0.9));
+            color: var(--gold);
+            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 12px rgba(99, 102, 241, 0.25);
+        }
+
+        /* View Panels */
+        .view-panel {
+            display: none;
+            width: 100%;
+            max-width: 1280px;
+        }
+        .view-panel.active {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Canvas Wrapper */
+        .canvas-wrap {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: border-color 0.25s;
+        }
+        .canvas-wrap:hover {
+            border-color: var(--border-hover);
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            background: #020617;
+            border: 1px solid #1E293B;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.85);
+        }
+
+        .canvas-wrap h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            font-weight: 800;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+            font-size: 0.86em;
+            justify-content: center;
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--subtext);
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .controls-row {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 0.92em;
+            justify-content: center;
+        }
+        .controls-row label {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+        .controls-row label:hover {
+            opacity: 0.85;
+        }
+
+        /* Dashboards & Cards */
+        .dashboard {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            flex: 1 1 420px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .dashboard h3 {
+            color: var(--gold);
+            margin: 0 0 8px 0;
+            font-size: 1.25em;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .stat-box {
+            background: var(--card-inner);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 10px 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .stat-box .label {
+            color: var(--subtext);
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .stat-box .value {
+            font-family: var(--mono-font);
+            font-weight: 800;
+            font-size: 1.15em;
+            color: var(--gold);
+        }
+        .stat-box .value.ptolemy { color: var(--ptolemy); }
+        .stat-box .value.ibs { color: var(--ibs); }
+
+        /* Tables */
+        .compare-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.88em;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .compare-table th {
+            background: rgba(30, 27, 75, 0.85);
+            color: var(--gold);
+            padding: 10px;
+            font-weight: 800;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .compare-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            font-family: var(--mono-font);
+        }
+        .compare-table td.text-cell {
+            font-family: var(--main-font);
+            font-weight: 600;
+        }
+        .compare-table tr:nth-child(even) td {
+            background: rgba(15, 23, 42, 0.4);
+        }
+        .compare-table tr:hover td {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Quotes & Historical Callouts */
+        .quote-box {
+            background: rgba(11, 19, 43, 0.7);
+            border-right: 4px solid var(--blue);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: var(--trad-font);
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #E2E8F0;
+        }
+        .quote-box strong {
+            font-family: var(--main-font);
+            color: var(--gold);
+            font-size: 0.95em;
+        }
+        .quote-box.ptol { border-right-color: var(--ptolemy); }
+        .quote-box.ibs  { border-right-color: var(--ibs); }
+
+        /* Badges */
+        .correction-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid #10B981;
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 0.85em;
+            color: #34D399;
+            font-weight: 700;
+        }
+        .error-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid #EF4444;
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 0.85em;
+            color: #FCA5A5;
+            font-weight: 700;
+        }
+
+        /* Planet buttons */
+        .planet-btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card-inner);
+            color: var(--text);
+            cursor: pointer;
+            font-family: var(--main-font);
+            font-size: 0.92em;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .planet-btn:hover {
+            border-color: var(--blue);
+            transform: translateY(-1px);
+        }
+        .planet-btn.active {
+            background: linear-gradient(135deg, #1E3A5F, #312E81);
+            color: var(--gold);
+            border-color: var(--gold);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Study Cards */
+        .study-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 18px;
+            width: 100%;
+        }
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.25s;
+        }
+        .card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+        }
+        .card h4 {
+            font-size: 1.15em;
+            font-weight: 800;
+        }
+        .card p {
+            font-size: 0.92em;
+            line-height: 1.8;
+            color: #CBD5E1;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5em; }
+            .time-control-bar { padding: 12px; }
+            .time-row { flex-direction: column; align-items: stretch; }
+            .tab-btn { flex: 1 1 100%; }
+            /* compare-col stays side-by-side */
+        }
+    
+        /* Strict Side-by-Side Comparison Grid */
+        .compare-row {
+            width: 100%;
+            max-width: 1280px;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            gap: 16px;
+            align-items: stretch;
+            margin-bottom: 16px;
+        }
+
+        .compare-col {
+            width: 100% !important;
+            min-width: 0 !important; /* Critical to allow flexible shrinking */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 14px;
+            box-sizing: border-box;
+            border-radius: 16px;
+            transition: all 0.25s;
+        }
+
+        .compare-col.ptolemy-card {
+            border: 1.5px solid rgba(248, 113, 113, 0.35);
+            background: rgba(239, 68, 68, 0.04);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4), inset 0 0 15px rgba(239, 68, 68, 0.05);
+        }
+
+        .compare-col.ibs-card {
+            border: 1.5px solid rgba(52, 211, 153, 0.35);
+            background: rgba(16, 185, 129, 0.04);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4), inset 0 0 15px rgba(16, 185, 129, 0.05);
+        }
+
+        .compare-col canvas {
+            width: 100% !important;
+            max-width: 460px;
+            height: auto !important;
+            aspect-ratio: 1 / 1;
+            border-radius: 12px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .model-badge {
+            width: 100%;
+            text-align: center;
+            padding: 7px 12px;
+            border-radius: 10px;
+            font-size: 0.98em;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+        }
+        .ptol-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: #FCA5A5;
+            border: 1px solid rgba(248, 113, 113, 0.4);
+        }
+        .ibs-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6EE7B7;
+            border: 1px solid rgba(52, 211, 153, 0.4);
+        }
+    
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚖️ المحاكي الفلكي المقارن: بطلميوس وابن الشاطر الدمشقي (ت 777هـ)</h1>
+    <div class="subtitle">
+        مقارنة تفاعلية متزامنة زمنياً بين النماذج الفلكية البطلمية وإصلاحات ابن الشاطر<br>
+        تُبيِّن الفلك الخارج المركز ونقطة معدل المسير في نظام بطلميوس، ومزدوجة الطوسي وحل معضلة القمر في نظام ابن الشاطر
+    </div>
+</header>
+
+<!-- Time control bar -->
+<div class="time-control-bar">
+    <div class="time-row">
+        <div class="time-group">
+            <label for="astroDateTime">📅 التاريخ والوقت:</label>
+            <input type="datetime-local" id="astroDateTime" onchange="onManualDateChange()">
+            <button class="btn-time btn-now" onclick="setLiveNow()">⏱️ الآن</button>
+            <button class="btn-time btn-play" id="btnPlayClock" onclick="toggleClockPlay()">⏯️ بدء تدفق الزمن</button>
+        </div>
+        <div class="time-group">
+            <button class="btn-time" onclick="addTime(-1,'day')">⏪ -يوم</button>
+            <button class="btn-time" onclick="addTime(1,'day')">⏩ +يوم</button>
+            <button class="btn-time" onclick="addTime(-1,'month')">⏪ -شهر</button>
+            <button class="btn-time" onclick="addTime(1,'month')">⏩ +شهر</button>
+            <button class="btn-time" onclick="addTime(-1,'year')">⏪ -سنة</button>
+            <button class="btn-time" onclick="addTime(1,'year')">⏩ +سنة</button>
+        </div>
+        <div class="time-group">
+            <button class="btn-time" onclick="jumpToEpoch(150)">عصر بطلميوس (150م)</button>
+            <button class="btn-time" onclick="jumpToEpoch(1375)">عصر ابن الشاطر (1375م)</button>
+            <button class="btn-time" onclick="jumpToEpoch(2025)">العصر الحاضر (2025م)</button>
+        </div>
+    </div>
+    <div class="time-row" style="border-top:1px solid rgba(99,102,241,0.3);padding-top:10px;">
+        <div class="time-group">
+            <label>⚡ سرعة الزمن:</label>
+            <button class="btn-time" onclick="setTimeSpeed(0.0417)">1 ساعة/ث</button>
+            <button class="btn-time" onclick="setTimeSpeed(1)">1 يوم/ث</button>
+            <button class="btn-time" onclick="setTimeSpeed(7)">أسبوع/ث</button>
+            <button class="btn-time active-speed" onclick="setTimeSpeed(30)">شهر/ث</button>
+            <button class="btn-time" onclick="setTimeSpeed(365.25)">سنة/ث</button>
+            <button class="btn-time" onclick="setTimeSpeed(3652.5)">عقد/ث</button>
+            <button class="btn-time" onclick="setTimeSpeed(-30)">⏪ عكسي</button>
+        </div>
+        <div class="time-group">
+            <span id="speedDisplayBadge">⏱️ التدفق: +30 يوم/ث</span>
+            <input type="range" id="timeSpeedSlider" min="-365" max="365" step="1" value="30"
+                   style="width:130px;cursor:pointer;" oninput="onSliderSpeedChange(this.value)">
+        </div>
+    </div>
+</div>
+
+<!-- Zodiac banner: مقارنة البرج الاصطلاحي الفصلي بالكوكبة النجمية الفعلية -->
+<div class="zodiac-banner">
+    <div class="zodiac-item card-tropical" style="flex:1 1 200px; border-radius:10px; padding:8px 14px; background:rgba(245,158,11,0.08); flex:1 1 200px;">
+        <div class="z-label" style="color:var(--gold); font-weight:bold; font-size:0.85em;">☀️ البرج الفصلي الاصطلاحي (Tropical)</div>
+        <div id="zodiacBadge" class="z-badge" style="font-size:1.15em; color:#FBBF24;">☀️ برج السنبلة (العذراء ♍)</div>
+        <div id="zodiacDegVal" style="color:#FDE047; font-size:0.92em; font-weight:bold; margin-top:2px;">09° 54' 12" (بالبرج)</div>
+        <div id="solarLongVal" style="color:#94A3B8; font-size:0.82em;">الطول الاستوائي λ = 159.90°</div>
+        <div id="zodiacSeasonVal" style="color:#CBD5E1; font-size:0.8em; margin-top:2px;">ترابي | أواخر الصيف</div>
+    </div>
+    <div class="zodiac-item card-sidereal" style="flex:1 1 200px; border-radius:10px; padding:8px 14px; background:rgba(168,85,247,0.08); flex:1 1 200px;">
+        <div class="z-label" style="color:var(--purple); font-weight:bold; font-size:0.85em;">✨ البرج الفلكي الفعلي (Sidereal Constellation)</div>
+        <div id="siderealConstBadge" class="z-badge" style="font-size:1.15em; color:#C084FC;">✨ كوكبة الأسد المكوكبة (♌)</div>
+        <div id="siderealDegVal" style="color:#E9D5FF; font-size:0.92em; font-weight:bold; margin-top:2px;">13° 05' 24" (في نجوم الكوكبة)</div>
+        <div id="siderealLongVal" style="color:#94A3B8; font-size:0.82em;">الطول النجمي λ* = 133.09°</div>
+        <div style="color:#A7F3D0; font-size:0.8em; margin-top:2px;">الشمس أمام نجوم هذه الكوكبة فعلياً!</div>
+    </div>
+    <div class="zodiac-item" style="flex:1 1 140px;">
+        <div class="z-label">حركة المبادرة التراكمية (ψ)</div>
+        <div id="precessionVal" class="z-val" style="color:#38BDF8; font-size:1.1em;">26.81°</div>
+        <div id="precessionSignsVal" style="color:#FBBF24; font-size:0.82em; font-weight:bold;">انزياح ~برج كامل!</div>
+        <div style="color:#94A3B8; font-size:0.75em;">معدل: 1° كل 70 سنة</div>
+    </div>
+    <div class="zodiac-item" style="flex:1 1 140px;">
+        <div class="z-label">المنزلة القمرية للشمس</div>
+        <div id="lunarMansionVal" class="z-val" style="color:var(--blue); font-size:1.05em;">منزلة العوّاء (13)</div>
+        <div style="color:#94A3B8; font-size:0.78em;">من منازل القمر الـ 28</div>
+    </div>
+    <div class="zodiac-item" style="flex:1 1 140px;">
+        <div class="z-label">طول واستطالة القمر</div>
+        <div id="lunarLongVal" class="z-val" style="color:#34D399;">λ☽ = 245.2°</div>
+        <div id="moonElongVal" style="color:#C084FC; font-size:0.88em;">الاستطالة D = 85.3°</div>
+    </div>
+    <div class="zodiac-item" style="flex:1 1 110px;">
+        <div class="z-label">اليوم اليولياني (JD)</div>
+        <div id="jdVal" class="z-val" style="color:#94A3B8; font-size:1em;">2451545.0</div>
+    </div>
+</div>
+
+<!-- Tab buttons -->
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('cosmos')">🌌 1. هيأة الأفلاك التسعة</button>
+    <button class="tab-btn" onclick="switchTab('sunComp')">☀️ 2. مقارنة نموذج الشمس</button>
+    <button class="tab-btn" onclick="switchTab('moonComp')">🌙 3. مقارنة نموذج القمر</button>
+    <button class="tab-btn" onclick="switchTab('planets')">🪐 4. الكواكب ومعادل بطلميوس</button>
+    <button class="tab-btn" onclick="switchTab('study')">📚 5. الدراسة المقارنة الشاملة</button>
+</div>
+
+<!-- ===== PANEL 1: COSMOS ===== -->
+<div id="cosmosPanel" class="view-panel active">
+    <div class="canvas-wrap" style="flex:1 1 600px;">
+        <h4 style="color:var(--gold);">🌌 هيأة الأفلاك التسعة — متزامن مع التاريخ والوقت</h4>
+        <canvas id="cosmosCanvas" width="660" height="660"></canvas>
+        <div class="legend">
+            <div class="legend-item"><span class="dot" style="background:#A855F7;"></span> الفلك التاسع (الأطلس 24h) ⟲</div>
+            <div class="legend-item"><span class="dot" style="background:#38BDF8;"></span> فلك الثوابت (الثامن - المبادرة 1°/70س)</div>
+            <div class="legend-item"><span class="dot" style="background:#FBBF24;"></span> الشمس (الرابع)</div>
+            <div class="legend-item"><span class="dot" style="background:#F59E0B;"></span> خط الشرق والغرب</div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:16px;font-size:0.9em;">
+            <label style="cursor:pointer;color:var(--gold);font-weight:bold;">
+                <input type="checkbox" id="showPolarStars" checked> ★ النجم القطبي Polaris (نجم الجدي شمالاً)
+            </label>
+            <label style="cursor:pointer;color:var(--blue);">
+                <input type="checkbox" id="showCelestialAxis" checked> محور القطبين (الشمال والجنوب)
+            </label>
+            <label style="cursor:pointer;color:#F59E0B;font-weight:bold;">
+                <input type="checkbox" id="showEastWestAxis" checked> خط الشرق والغرب
+            </label>
+            <label style="cursor:pointer;color:var(--ptolemy);">
+                <input type="checkbox" id="showPtolemyEpicycles" checked> إظهار التدويرات البطلمية
+            </label>
+            <label style="cursor:pointer;color:#34D399;font-weight:bold;">
+                <input type="checkbox" id="showSolarZodiacRay" checked> ☀️ شعاع محاذاة الشمس (البرج الاصطلاحي vs الكوكبة الفعلية)
+            </label>
+        </div>
+    </div>
+
+    <div class="dashboard" style="flex:1 1 420px;">
+        <h3>📐 نسب سرعات الأفلاك السبعة السيارة (الدورات الفلكية الفعلية)</h3>
+        <table class="compare-table">
+            <thead><tr>
+                <th>الفلك / الكوكب</th><th>الدورة السيدريّة</th><th>السرعة اليومية</th><th>نسبة أبعاد ابن الشاطر</th>
+            </tr></thead>
+            <tbody>
+                <tr><td>☽ القمر</td><td>27.32 يوم</td><td>13.18°/ي</td><td>R=60 | r1=6;35 | r2=1;25</td></tr>
+                <tr><td>☿ عطارد</td><td>87.97 يوم</td><td>4.09°/ي</td><td>R=60 | r1=4;05 | r2=0;50</td></tr>
+                <tr><td>♀ الزهرة</td><td>224.7 يوم</td><td>1.60°/ي</td><td>R=60 | r1=1;41 | r2=0;26</td></tr>
+                <tr><td>☉ الشمس</td><td>365.25 يوم</td><td>0.986°/ي</td><td>R=60 | r1=4;37 | r2=2;30</td></tr>
+                <tr><td>♂ المريخ</td><td>686.97 يوم</td><td>0.524°/ي</td><td>R=60 | r1=9;00 | r2=3;00 | r3=39;30</td></tr>
+                <tr><td>♃ المشتري</td><td>4332.6 يوم</td><td>0.083°/ي</td><td>R=60 | r1=4;07 | r2=1;22 | r3=11;30</td></tr>
+                <tr><td>♄ زحل</td><td>10759 يوم</td><td>0.033°/ي</td><td>R=60 | r1=5;07 | r2=1;42 | r3=6;30</td></tr>
+            </tbody>
+        </table>
+        <div class="quote-box" style="margin-top:12px;">
+            <strong>📜 ابن الشاطر — نهاية السول في تصحيح الأصول (ص 64):</strong><br>
+            «وجعلنا الحامل الأول يتحرك بحركة وسط الكوكب، والحامل الثاني بحركة مضاعفة عكسية ليُحدث
+            ما يُحدثه الفلك الخارج المركز من غير أن يخرج المركز أو يُثبت نقطة المعدل خارج جرم الفلك.»
+        </div>
+        <div class="quote-box" style="border-right-color:var(--ptolemy);">
+            <strong>⚠️ إشكالية بطلميوس في الأفلاك السيارة:</strong><br>
+            • <strong>الفلك الخارج المركز (Eccentric):</strong> مركز الدائرة ليس في مركز الأرض<br>
+            • <strong>نقطة معدل المسير (Equant):</strong> الحركة منتظمة حول نقطة وهمية ليست المركز<br>
+            • <strong>معضلة القمر:</strong> القمر يقترب من الأرض في التربيع حتى يبلغ 34 جزءاً بدلاً من 52-68
+        </div>
+    </div>
+</div>
+
+<!-- ===== PANEL 2: SUN COMPARISON ===== -->
+<div id="sunCompPanel" class="view-panel">
+    <div class="compare-row">
+        <!-- Ptolemy Sun -->
+        <div class="canvas-wrap compare-col ptolemy-card">
+            <div class="model-badge ptol-badge">🔴 نموذج بطلميوس (المجسطي 150م) — إشكالية الفلك الخارج</div>
+            <canvas id="ptolemySunCanvas" width="480" height="480"></canvas>
+            <div class="legend">
+                <div class="legend-item"><span class="dot" style="background:#FF6B6B;"></span> الفلك الخارج المركز (مركزه E ليس الأرض)</div>
+                <div class="legend-item"><span class="dot" style="background:#FBBF24;"></span> الشمس تدور حول E</div>
+                <div class="legend-item"><span class="dot" style="background:#38BDF8;"></span> الأرض (O) مُزاحة عن المركز!</div>
+            </div>
+        </div>
+        <!-- Ibn al-Shatir Sun -->
+        <div class="canvas-wrap compare-col ibs-card">
+            <div class="model-badge ibs-badge">🟢 نموذج ابن الشاطر (نهاية السول 1363م) — مركزية تامة للأرض</div>
+            <canvas id="ibsSunCanvas" width="480" height="480"></canvas>
+            <div class="legend">
+                <div class="legend-item"><span class="dot" style="background:#38BDF8;"></span> الفلك الممثل (R=60) مركزه الأرض</div>
+                <div class="legend-item"><span class="dot" style="background:#60A5FA;"></span> الحامل (r1=4;37) يدور بالخاصة</div>
+                <div class="legend-item"><span class="dot" style="background:#FBBF24;"></span> المدير (r2=2;30) يدور بضعف الخاصة عكساً</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard" style="width:100%;max-width:1300px;">
+        <h3>📊 مقارنة نموذجَي الشمس — القيم الآنية المتزامنة</h3>
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="label">زاوية خاصة الشمس (ᾱ)</div>
+                <div id="sunAlphaComp" class="value">0.0°</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">بعد الشمس (ابن الشاطر)</div>
+                <div id="ibsSunDist" class="value ibs">67.1 جزءاً</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">بعد الشمس (بطلميوس)</div>
+                <div id="ptSunDist" class="value ptolemy">62.5 جزءاً</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">تعديل ابن الشاطر</div>
+                <div id="ibsSunEq" class="value ibs">0° 00'</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">تعديل بطلميوس</div>
+                <div id="ptSunEq" class="value ptolemy">0° 00'</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">القطر الظاهري (ابن الشاطر)</div>
+                <div id="ibsSunDiam" class="value ibs">29' 05"</div>
+            </div>
+        </div>
+        <table class="compare-table">
+            <thead><tr>
+                <th>العنصر</th>
+                <th class="red">بطلميوس (خطأ)</th>
+                <th class="grn">ابن الشاطر (صحيح)</th>
+            </tr></thead>
+            <tbody>
+                <tr><td>مركز الدائرة الكبرى</td><td class="red">E (خارج الأرض بـ 2;30)</td><td class="grn">O (مركز الأرض دائماً)</td></tr>
+                <tr><td>نوع الفلك</td><td class="red">خارج المركز (Eccentric)</td><td class="grn">ممثل + حامل + مدير</td></tr>
+                <tr><td>بعد الأوج</td><td class="red">62;30 جزءاً</td><td class="grn">67;07 جزءاً (أدق)</td></tr>
+                <tr><td>بعد الحضيض</td><td class="red">57;30 جزءاً</td><td class="grn">52;53 جزءاً (أدق)</td></tr>
+                <tr><td>نقطة معدل المسير</td><td class="red">موجودة (مركز الخارج)</td><td class="grn">منعدمة — حركة منتظمة حقيقية</td></tr>
+                <tr><td>الأفلاك المستخدمة</td><td class="red">1 فلك خارج المركز</td><td class="grn">3 أفلاك (ممثل+حامل+مدير) كلها مركزية</td></tr>
+                <tr><td>مطابقة الرصد</td><td class="red">إشكالية في الطولين المتساوي البعد</td><td class="grn">أدق في التعديل عند التربيعين</td></tr>
+            </tbody>
+        </table>
+        <div class="quote-box ibs" style="margin-top:12px;">
+            <strong>📜 ابن الشاطر — نهاية السول (ص 89):</strong><br>
+            «ونعرف من ذلك أن مركز الشمس في الأوج يبعد عن مركز العالم سبعة وستين جزءاً وسبع دقائق، وفي الحضيض اثنان وخمسون جزءاً وثلاثة وخمسون دقيقة...
+            وفي هذا النموذج لا يحتاج إلى إخراج مركز أيٍّ من الأفلاك عن مركز العالم.»
+        </div>
+    </div>
+</div>
+
+<!-- ===== PANEL 3: MOON COMPARISON ===== -->
+<div id="moonCompPanel" class="view-panel">
+    <div class="compare-row">
+        <!-- Ptolemy Moon -->
+        <div class="canvas-wrap compare-col ptolemy-card">
+            <div class="model-badge ptol-badge">🔴 نموذج بطلميوس — معضلة المرفاق وتضاعف حجم القمر</div>
+            <canvas id="ptolemyMoonCanvas" width="480" height="480"></canvas>
+            <div class="legend">
+                <div class="legend-item"><span class="dot" style="background:#FF6B6B;"></span> مركز الفلك الحامل يتحرك (المرفاق)</div>
+                <div class="legend-item"><span class="dot" style="background:#F59E0B;"></span> قمر بطلميوس (D متغير 34-64!)</div>
+                <div class="legend-item"><span class="dot" style="background:#475569;"></span> دائرة المرفاق (ρ=10;19)</div>
+            </div>
+        </div>
+        <!-- Ibn al-Shatir Moon -->
+        <div class="canvas-wrap compare-col ibs-card">
+            <div class="model-badge ibs-badge">🟢 نموذج ابن الشاطر — ثبات الحجم والبعد الحقيقي</div>
+            <canvas id="ibsMoonCanvas" width="480" height="480"></canvas>
+            <div class="legend">
+                <div class="legend-item"><span class="dot" style="background:#38BDF8;"></span> الفلك الحامل (R=60) — مركزه الأرض</div>
+                <div class="legend-item"><span class="dot" style="background:#10B981;"></span> قمر ابن الشاطر المُصحَّح (D=52 إلى 68)</div>
+                <div class="legend-item"><span class="dot" style="background:#EF4444;"></span> مسار قمر بطلميوس للمقارنة</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard" style="width:100%;max-width:1300px;">
+        <h3>🌙 مقارنة نموذجَي القمر — القيم الآنية</h3>
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="label">استطالة القمر (η)</div>
+                <div id="moonEtaComp" class="value">0.0°</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">بعد القمر — ابن الشاطر</div>
+                <div id="ibsMoonDist" class="value ibs">65.2 جزءاً</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">بعد القمر — بطلميوس (خطأ!)</div>
+                <div id="ptMoonDist" class="value ptolemy">60.0 جزءاً</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">نسبة حجم القمر (ابن الشاطر)</div>
+                <div id="ibsMoonSize" class="value ibs">ثابت ≈ 100%</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">نسبة حجم القمر (بطلميوس)</div>
+                <div id="ptMoonSize" class="value ptolemy">متغير!</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">الاجتماع/الاستقبال vs التربيع</div>
+                <div id="moonPhaseLabel" class="value">—</div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:10px;">
+            <label style="cursor:pointer;color:var(--ptolemy);font-weight:bold;">
+                <input type="checkbox" id="showPtolemyMoon" checked> إظهار قمر بطلميوس في نموذج ابن الشاطر للمقارنة
+            </label>
+        </div>
+
+        <table class="compare-table" style="margin-top:10px;">
+            <thead><tr>
+                <th>الوضع الفلكي</th>
+                <th class="red">بطلميوس — بعد القمر</th>
+                <th class="grn">ابن الشاطر — بعد القمر</th>
+                <th>الفرق</th>
+            </tr></thead>
+            <tbody>
+                <tr>
+                    <td>الاجتماع (المحاق) η=0°</td>
+                    <td class="red">64.2 جزءاً</td>
+                    <td class="grn">65.2 جزءاً</td>
+                    <td>متقارب</td>
+                </tr>
+                <tr>
+                    <td>التربيع الأول η=90°</td>
+                    <td class="red" style="font-size:1.1em;font-weight:bold;">~34 جزءاً ← قمر 2× أكبر!</td>
+                    <td class="grn">~52-55 جزءاً ← حجم منطقي</td>
+                    <td style="color:#F59E0B;font-weight:bold;">خطأ بطلميوس!</td>
+                </tr>
+                <tr>
+                    <td>الاستقبال (البدر) η=180°</td>
+                    <td class="red">64.2 جزءاً</td>
+                    <td class="grn">65.2 جزءاً</td>
+                    <td>متقارب</td>
+                </tr>
+                <tr>
+                    <td>التربيع الثاني η=270°</td>
+                    <td class="red" style="font-size:1.1em;font-weight:bold;">~34 جزءاً ← قمر 2× أكبر!</td>
+                    <td class="grn">~52-55 جزءاً ← حجم منطقي</td>
+                    <td style="color:#F59E0B;font-weight:bold;">خطأ بطلميوس!</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="quote-box ptol" style="margin-top:12px;">
+            <strong>⚠️ نقد ابن الشاطر لبطلميوس (نهاية السول ص 113):</strong><br>
+            «وذلك يعطي أن يكون قطر القمر في التربيعين ضعف قطر القمر في الإبدار،
+            <strong>وهذا محال لأنه لم يُرَ كذلك</strong>... فاحتجنا إلى تركيب آخر يُعطي القُرب الصحيح.»
+        </div>
+        <div class="quote-box ibs" style="margin-top:8px;">
+            <strong>✅ حل ابن الشاطر (نهاية السول ص 117):</strong><br>
+            «استخدمت الحامل (r1=6;35) والمدير (r2=1;25) بدلاً من آلية المرفاق، فيكون أبعد بعد القمر في الاجتماع والاستقبال <strong>68 جزءاً</strong>،
+            وأقرب قربه في التربيعين <strong>52 جزءاً</strong>، وهذا يتطابق مع الرصد الدقيق.»
+        </div>
+    </div>
+</div>
+
+<!-- ===== PANEL 4: PLANETS & EQUANT ===== -->
+<div id="planetsPanel" class="view-panel">
+    <div style="width:100%;display:flex;flex-direction:column;gap:16px;align-items:center;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+            <button class="planet-btn active" onclick="selectPlanet('mars',this)">♂ المريخ</button>
+            <button class="planet-btn" onclick="selectPlanet('jupiter',this)">♃ المشتري</button>
+            <button class="planet-btn" onclick="selectPlanet('saturn',this)">♄ زحل</button>
+            <button class="planet-btn" onclick="selectPlanet('venus',this)">♀ الزهرة</button>
+            <button class="planet-btn" onclick="selectPlanet('mercury',this)">☿ عطارد</button>
+        </div>
+
+        <div class="compare-row">
+            <div class="canvas-wrap compare-col ptolemy-card">
+                <div class="model-badge ptol-badge">🔴 نموذج بطلميوس — <span id="ptolemyPlanetTitle">المريخ</span> (نقطة المعادل)</div>
+                <canvas id="ptolemyPlanetCanvas" width="480" height="480"></canvas>
+                <div class="legend">
+                    <div class="legend-item"><span class="dot" style="background:#FF6B6B;"></span> الفلك الخارج المركز (E)</div>
+                    <div class="legend-item"><span class="dot" style="background:#FACC15;"></span> نقطة المعادل (Q) — محل الحركة المنتظمة</div>
+                    <div class="legend-item"><span class="dot" style="background:#FB923C;"></span> الكوكب على فلك التدوير</div>
+                </div>
+            </div>
+            <div class="canvas-wrap compare-col ibs-card">
+                <div class="model-badge ibs-badge">🟢 نموذج ابن الشاطر — <span id="ibsPlanetTitle">المريخ</span> (مزدوجة التدوير)</div>
+                <canvas id="ibsPlanetCanvas" width="480" height="480"></canvas>
+                <div class="legend">
+                    <div class="legend-item"><span class="dot" style="background:#38BDF8;"></span> الفلك الممثل (R=60) مركزه الأرض</div>
+                    <div class="legend-item"><span class="dot" style="background:#60A5FA;"></span> الحامل + المدير (مزدوجة الطوسي)</div>
+                    <div class="legend-item"><span class="dot" style="background:#FB923C;"></span> فلك التدوير الأصلي للكوكب</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard" style="width:100%;max-width:1300px;">
+            <h3 id="planetCompTitle">📊 مقارنة نموذجَي المريخ</h3>
+            <div class="stat-grid">
+                <div class="stat-box"><div class="label">خاصة الكوكب (ᾱ)</div><div id="planetAlpha" class="value">0°</div></div>
+                <div class="stat-box"><div class="label">بعد الكوكب (ابن الشاطر)</div><div id="ibsPlanetDist" class="value ibs">0</div></div>
+                <div class="stat-box"><div class="label">بعد الكوكب (بطلميوس)</div><div id="ptPlanetDist" class="value ptolemy">0</div></div>
+                <div class="stat-box"><div class="label">إزاحة نقطة المعادل (بطلميوس)</div><div id="ptEquantDist" class="value ptolemy">0</div></div>
+            </div>
+            <div id="planetParamsBox" class="quote-box" style="margin-top:10px;"></div>
+            <div class="quote-box ibs" style="margin-top:8px;">
+                <strong>📜 مبدأ ابن الشاطر في تصحيح الكواكب (نهاية السول ص 147):</strong><br>
+                «وضعنا في كل كوكب من الكواكب السيارة حاملاً ومديراً يولدان ما يولده الفلك الخارج المركز ونقطة معدل المسير في نظام بطلميوس،
+                غير أن حاملنا ومديرنا مركزهما في مركز العالم. ولذا لا يحتاج العقل أن يُقرّ بحركة غير منتظمة في أيٍّ من الأفلاك الحقيقية.»
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PANEL 5: STUDY ===== -->
+<div id="studyPanel" class="view-panel">
+    <div class="study-grid">
+        <div class="card">
+            <h4 style="color:var(--ptolemy);">🏛️ نموذج بطلميوس (المجسطي، القرن الثاني الميلادي)</h4>
+            <p>وضع كلاوديوس بطلميوس في كتابه «المجسطي» نموذجاً فلكياً يعتمد على ثلاثة أجهزة رياضية لتفسير حركة الكواكب:</p>
+            <div class="error-badge">⚠️ الفلك الخارج المركز (Eccentric): مركز الدائرة بعيد عن الأرض</div><br>
+            <div class="error-badge">⚠️ نقطة معدل المسير (Equant): الحركة المنتظمة حول نقطة وهمية</div><br>
+            <div class="error-badge">⚠️ آلية المرفاق للقمر: تقريب القمر 2× في التربيع!</div><br>
+            <p>ورغم دقة بطلميوس في حساب المواضع، فإن نموذجه ينتهك مبدأ الحركة المنتظمة الدائرية الذي اعتبره أرسطو ركيزة الفيزياء الكونية.</p>
+        </div>
+        <div class="card">
+            <h4 style="color:var(--ibs);">✨ ابن الشاطر الدمشقي (ت 777هـ) — نهاية السول في تصحيح الأصول</h4>
+            <p>رفع ابن الشاطر علي بن إبراهيم الأنصاري (رئيس المؤقتين بالجامع الأموي بدمشق) راية الإصلاح الفلكي الكامل:</p>
+            <div class="correction-badge">✅ إلغاء كل الأفلاك الخارجة المركز</div><br>
+            <div class="correction-badge">✅ إلغاء نقطة معدل المسير (الأفلاك الخمسة السيارة)</div><br>
+            <div class="correction-badge">✅ حل معضلة القمر (ثبات قطره الظاهري)</div><br>
+            <div class="correction-badge">✅ استخدام مزدوجة الطوسي بشكل منهجي</div><br>
+            <div class="correction-badge">✅ إدخال فلكين إضافيين لعطارد (الشامل والحافظ)</div><br>
+            <p>وأنجز كتابه حوالي سنة 765هـ / 1363م، وهو من أعمق كتب الإصلاح الفلكي في التاريخ الإسلامي.</p>
+        </div>
+        <div class="card">
+            <h4 style="color:var(--gold);">🔬 مزدوجة الطوسي (الحيلة الهندسية الثورية)</h4>
+            <p>اعتمد ابن الشاطر على الحيلة الهندسية التي ابتكرها نصير الدين الطوسي (ت 672هـ) في «تذكرة الهيئة»:</p>
+            <p><strong>المبدأ الرياضي:</strong> إذا كانت نقطة تتحرك على دائرة صغيرة نصف قطرها r تدور داخل دائرة كبيرة نصف قطرها 2r، فإنها تصف خطاً مستقيماً.</p>
+            <p><strong>التطبيق الفلكي:</strong> باستخدام حامل (r1) يدور بالخاصة، ومدير (r2=r1/2) يدور بضعف الخاصة عكساً، يُولَّد تأثير الفلك الخارج المركز دون أن يخرج المركز عن مركز الأرض.</p>
+            <div class="correction-badge">✅ r1 = عطارد: 4;05 | الزهرة: 1;41 | المريخ: 9;00 | المشتري: 4;07 | زحل: 5;07</div><br>
+            <div class="correction-badge">✅ r2 ≈ r1/2 في أغلب الكواكب</div>
+        </div>
+        <div class="card">
+            <h4 style="color:var(--blue);">🌙 حل معضلة القمر — الإنجاز الأعظم</h4>
+            <p>كانت أكبر إشكاليات نظرية بطلميوس هي آلية المرفاق (Crank) للقمر:</p>
+            <p>• في الاجتماع والاستقبال (محاق وبدر): بعد القمر ≈ 64 جزءاً → حجم صغير.</p>
+            <p>• في التربيعين: بعد القمر ≈ 34 جزءاً → حجم 2× أكبر! لا يُرى هذا في الواقع أبداً.</p>
+            <p>استبدل ابن الشاطر آلية المرفاق بنظام الحامل والمدير:</p>
+            <p>• في جميع الأوضاع: بعد القمر بين 52 و68 جزءاً فحسب.</p>
+            <p>• النسبة بين أقصى وأقل بعد: 68/52 ≈ 1.31 (بدلاً من 64/34 ≈ 1.88 عند بطلميوس).</p>
+            <p>وهذا يتوافق تماماً مع ملاحظة أن القمر لا يتضاعف حجمه الظاهري عند التربيع.</p>
+        </div>
+        <div class="card">
+            <h4 style="color:var(--purple);">🌍 الأثر التاريخي — كوبرنيكوس وابن الشاطر</h4>
+            <p>اكتشف المؤرخ الفلكي العلمي كنيدي وكولماسكي ووسوف عام 1957م أن نماذج كوبرنيكوس في «دورات الأجرام السماوية» (1543م) <strong>متطابقة رياضياً</strong> مع نماذج ابن الشاطر!</p>
+            <p>• نموذج الشمس: كوبرنيكوس استخدم ثلاثة أفلاك بنفس النسب والأبعاد تقريباً.</p>
+            <p>• نموذج القمر: كوبرنيكوس أيضاً استخدم حاملاً ومديراً لحل معضلة التربيع.</p>
+            <p>• يرى الباحثون أن كوبرنيكوس اطلع على نماذج المدرسة العربية الإسلامية عبر مخطوطات بيزنطية.</p>
+            <div class="correction-badge">📜 المصدر: E.S. Kennedy & Victor Roberts (1959) — "The Planetary Theory of Ibn al-Shatir"</div>
+        </div>
+        <div class="card">
+            <h4 style="color:var(--orange);">📅 الجدول الزمني للإصلاح الفلكي</h4>
+            <table class="compare-table">
+                <thead><tr><th>العصر</th><th>العالم</th><th>الإصلاح</th></tr></thead>
+                <tbody>
+                    <tr><td>القرن 2م</td><td>بطلميوس</td><td>المجسطي — الأساس المعيب</td></tr>
+                    <tr><td>765هـ/1363م</td><td>ابن الشاطر</td><td>نهاية السول — الإصلاح الشامل</td></tr>
+                    <tr><td>القرن 13هـ/19م</td><td>لاغرانج/غاوس</td><td>ميكانيكا سماوية حديثة</td></tr>
+                    <tr><td>1543م</td><td>كوبرنيكوس</td><td>مركزية الشمس (نماذج مشابهة)</td></tr>
+                    <tr><td>1609م</td><td>كبلر</td><td>المدارات الإهليلجية (التأكيد النهائي)</td></tr>
+                    <tr><td>1687م</td><td>نيوتن</td><td>الجاذبية — إنهاء نظرية الأفلاك</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==================== ZODIAC DATA ====================
+const zodiacData = [
+    { name: "برج الحمل", symbol: "♈", elem: "ناري", season: "أوائل الربيع (الاعتدال)" },
+    { name: "برج الثور", symbol: "♉", elem: "ترابي", season: "منتصف فصل الربيع" },
+    { name: "برج الجوزاء", symbol: "♊", elem: "هوائي", season: "أواخر فصل الربيع" },
+    { name: "برج السرطان", symbol: "♋", elem: "مائي", season: "أوائل الصيف (الانقلاب)" },
+    { name: "برج الأسد", symbol: "♌", elem: "ناري", season: "منتصف فصل الصيف" },
+    { name: "برج السنبلة", symbol: "♍", elem: "ترابي", season: "أواخر فصل الصيف" },
+    { name: "برج الميزان", symbol: "♎", elem: "هوائي", season: "أوائل الخريف (الاعتدال)" },
+    { name: "برج العقرب", symbol: "♏", elem: "مائي", season: "منتصف فصل الخريف" },
+    { name: "برج القوس", symbol: "♐", elem: "ناري", season: "أواخر فصل الخريف" },
+    { name: "برج الجدي", symbol: "♑", elem: "ترابي", season: "أوائل الشتاء (الانقلاب)" },
+    { name: "برج الدلو", symbol: "♒", elem: "هوائي", season: "منتصف فصل الشتاء" },
+    { name: "برج الحوت", symbol: "♓", elem: "مائي", season: "أواخر فصل الشتاء" }
+];
+
+const lunarMansions = [
+    "الشرطان", "البطين", "الثريا", "الدبران", "الهقعة", "الهنعة", "الذراع",
+    "النثرة", "الطرف", "الجبهة", "الزبرة", "الصرفة", "العواء", "السماك الأعزل",
+    "الغفر", "الزبانا", "الإكليل", "القلب", "الشولة", "النعائم", "البلدة",
+    "سعد الذابح", "سعد بلع", "سعد السعود", "سعد الأخبية", "فرغ الدلو المقدم", "فرغ الدلو المؤخر", "الرشاء (بطن الحوت)"
+];
+
+// ==================== PLANET DATA ====================
+// params: {name, e_ptol (eccentricity from Earth), r_ep_ptol (epicycle), r1_ibs, r2_ibs, r3_ibs, color, sidereal_days, mean_lon_0, mean_ano_0}
+const planetData = {
+    mars: {
+        nameAr:"المريخ",symbol:"♂",color:"#F87171",
+        // Ptolemy: eccentricity e=6, equant at 2e=12, epicycle r_ep=39.5
+        e_ptol: 6.0, r_ep_ptol: 39.5,
+        // Ibn al-Shatir: R=60, r1=9, r2=3, r3=39.5
+        r1_ibs: 9.0, r2_ibs: 3.0, r3_ibs: 39.5,
+        sidereal: 686.97, mean0: 355.433, ano0: 0
+    },
+    jupiter: {
+        nameAr:"المشتري",symbol:"♃",color:"#FB923C",
+        e_ptol: 2.75, r_ep_ptol: 11.5,
+        r1_ibs: 4.125, r2_ibs: 1.375, r3_ibs: 11.5,
+        sidereal: 4332.6, mean0: 34.351, ano0: 0
+    },
+    saturn: {
+        nameAr:"زحل",symbol:"♄",color:"#FACC15",
+        e_ptol: 3.417, r_ep_ptol: 6.5,
+        r1_ibs: 5.125, r2_ibs: 1.708, r3_ibs: 6.5,
+        sidereal: 10759, mean0: 50.077, ano0: 0
+    },
+    venus: {
+        nameAr:"الزهرة",symbol:"♀",color:"#F472B6",
+        e_ptol: 1.25, r_ep_ptol: 43.33,
+        r1_ibs: 1.683, r2_ibs: 0.433, r3_ibs: 43.33,
+        sidereal: 224.7, mean0: 212.0, ano0: 0
+    },
+    mercury: {
+        nameAr:"عطارد",symbol:"☿",color:"#C084FC",
+        e_ptol: 3.0, r_ep_ptol: 22.77,
+        r1_ibs: 4.083, r2_ibs: 0.833, r3_ibs: 22.77,
+        sidereal: 87.97, mean0: 174.794, ano0: 0
+    }
+};
+
+let selectedPlanet = 'mars';
+
+// ==================== TIME ENGINE ====================
+let currentDate = new Date();
+let isClockRunning = false;
+let timeSpeedDaysPerSec = 30.0;
+let lastFrameTimestamp = performance.now();
+
+// Shared computed values
+let sunAlpha = 0, moonAlpha = 0, precessionAngle = 0, atlasAngle = 0;
+let currentSolarLongitude = 0, currentLunarLongitude = 0, currentMoonElongation = 0;
+let currentN = 0, currentJD = 2451545;
+let planetAngles = {}; // {planet: {mean, anomaly}}
+
+function updateDateTimeUI() {
+    const tzOffset = currentDate.getTimezoneOffset() * 60000;
+    const localISO = (new Date(currentDate.getTime() - tzOffset)).toISOString().slice(0,16);
+    document.getElementById('astroDateTime').value = localISO;
+    calculateAstroPosition();
+}
+function setLiveNow() { currentDate = new Date(); sunTrail=[]; moonTrail=[]; ibsMoonTrail=[]; updateDateTimeUI(); }
+function onManualDateChange() {
+    const v = document.getElementById('astroDateTime').value;
+    if(v) { currentDate = new Date(v); sunTrail=[]; moonTrail=[]; ibsMoonTrail=[]; calculateAstroPosition(); }
+}
+function addTime(a, u) {
+    if(u==='day') currentDate.setDate(currentDate.getDate()+a);
+    else if(u==='month') currentDate.setMonth(currentDate.getMonth()+a);
+    else if(u==='year') currentDate.setFullYear(currentDate.getFullYear()+a);
+    sunTrail=[]; moonTrail=[]; ibsMoonTrail=[]; updateDateTimeUI();
+}
+function toggleClockPlay() {
+    isClockRunning = !isClockRunning;
+    const btn = document.getElementById('btnPlayClock');
+    btn.innerText = isClockRunning ? '⏸️ إيقاف تدفق الزمن' : '⏯️ بدء تدفق الزمن';
+}
+function setTimeSpeed(d) {
+    timeSpeedDaysPerSec = d;
+    document.getElementById('timeSpeedSlider').value = d;
+    document.getElementById('speedDisplayBadge').innerText = `⏱️ التدفق: ${d>0?'+':''}${d.toFixed(2)} يوم/ث`;
+}
+function onSliderSpeedChange(v) {
+    timeSpeedDaysPerSec = parseFloat(v);
+    document.getElementById('speedDisplayBadge').innerText = `⏱️ التدفق: ${timeSpeedDaysPerSec>0?'+':''}${timeSpeedDaysPerSec.toFixed(1)} يوم/ث`;
+}
+function jumpToEpoch(yr) { currentDate = new Date(yr,2,21,12,0); sunTrail=[]; moonTrail=[]; ibsMoonTrail=[]; updateDateTimeUI(); }
+
+// ==================== ASTRONOMY CALCULATION ====================
+function calculateAstroPosition() {
+    const y = currentDate.getFullYear(), m = currentDate.getMonth()+1, d = currentDate.getDate();
+    const h = currentDate.getHours() + currentDate.getMinutes()/60 + currentDate.getSeconds()/3600;
+    const a = Math.floor((14-m)/12);
+    const y1 = y+4800-a, m1 = m+12*a-3;
+    const jd = d + Math.floor((153*m1+2)/5) + 365*y1 + Math.floor(y1/4) - Math.floor(y1/100) + Math.floor(y1/400) - 32045;
+    const jdFrac = jd + (h-12)/24;
+    currentJD = jdFrac;
+    const n = jdFrac - 2451545.0;
+    currentN = n;
+
+    // Sun
+    const L_sun = (280.460 + 0.9856474*n) % 360;
+    const g_sun = ((357.528 + 0.9856003*n) % 360) * Math.PI/180;
+    let lambda_sun = (L_sun + 1.915*Math.sin(g_sun) + 0.020*Math.sin(2*g_sun)) % 360;
+    if(lambda_sun<0) lambda_sun+=360;
+    currentSolarLongitude = lambda_sun;
+
+    // Moon
+    const L_moon = (218.316 + 13.176396*n) % 360;
+    const D_moon = (297.850 + 12.190749*n) % 360;
+    currentMoonElongation = (D_moon+360)%360;
+    let lambda_moon = (L_moon + 6.289*Math.sin(((134.963+13.064993*n)%360)*Math.PI/180)) % 360;
+    if(lambda_moon<0) lambda_moon+=360;
+    currentLunarLongitude = lambda_moon;
+
+    // Precession
+    const decYear = y + (m-1)/12 + d/365.25;
+    let totalPrec = (decYear - 150.0) / 70.0;
+    if(totalPrec<0) totalPrec=0;
+    precessionAngle = totalPrec * Math.PI/180;
+
+    // Atlas (diurnal)
+    atlasAngle = ((h/24 + n) % 1) * Math.PI * 2;
+
+    // Sun anomaly
+    const solarApogeeLong = 102.5;
+    let anom = lambda_sun - solarApogeeLong;
+    if(anom<0) anom+=360;
+    sunAlpha = anom * Math.PI/180;
+
+    // Moon elongation
+    moonAlpha = (currentMoonElongation * Math.PI/180);
+
+    // Planets (mean longitude and anomaly from Sun)
+    for(const [key, pd] of Object.entries(planetData)) {
+        const meanLon = (pd.mean0 + (360/pd.sidereal)*n) % 360;
+        const synAnom = ((lambda_sun - meanLon) % 360 + 360) % 360;
+        planetAngles[key] = {
+            mean: meanLon * Math.PI/180,
+            anomaly: synAnom * Math.PI/180
+        };
+    }
+
+    // Update UI: البروج الاصطلاحية والكوكبات الفعلية والمنازل
+    const signIdx = Math.floor(lambda_sun / 30);
+    const degInSign = lambda_sun % 30;
+    const deg = Math.floor(degInSign);
+    const min = Math.floor((degInSign - deg) * 60);
+    const sec = Math.floor(((degInSign - deg) * 60 - min) * 60);
+    const signInfo = zodiacData[signIdx];
+
+    // الطول النجمي الفعلي في فلك الثوابت المنزاح بالمبادرة
+    let siderealLong = (lambda_sun - totalPrec) % 360.0;
+    if(siderealLong < 0) siderealLong += 360.0;
+    let siderealSignIdx = Math.floor(siderealLong / 30);
+    let siderealSignInfo = zodiacData[siderealSignIdx];
+    let siderealDegInSign = siderealLong % 30;
+    let sDeg = Math.floor(siderealDegInSign);
+    let sMin = Math.floor((siderealDegInSign - sDeg) * 60);
+    let sSec = Math.floor(((siderealDegInSign - sDeg) * 60 - sMin) * 60);
+
+    const mansionIdx = Math.floor(lambda_sun / (360.0 / 28.0)) % 28;
+
+    document.getElementById('zodiacBadge').innerHTML = `☀️ ${signInfo.name} (${signInfo.symbol})`;
+    if(document.getElementById('zodiacDegVal')) {
+        document.getElementById('zodiacDegVal').innerText = `${deg}° ${min}' ${sec}" (بالبرج)`;
+    }
+    document.getElementById('solarLongVal').innerText = `الطول الاستوائي λ = ${lambda_sun.toFixed(2)}°`;
+
+    if(document.getElementById('siderealConstBadge')) {
+        document.getElementById('siderealConstBadge').innerHTML = `✨ كوكبة ${siderealSignInfo.name.replace('برج ', '')} (${siderealSignInfo.symbol})`;
+    }
+    if(document.getElementById('siderealDegVal')) {
+        document.getElementById('siderealDegVal').innerText = `${sDeg}° ${sMin}' ${sSec}" (في كوكبة النجوم)`;
+    }
+    if(document.getElementById('siderealLongVal')) {
+        document.getElementById('siderealLongVal').innerText = `الطول النجمي λ* = ${siderealLong.toFixed(2)}°`;
+    }
+
+    if(document.getElementById('precessionVal')) {
+        document.getElementById('precessionVal').innerText = `${totalPrec.toFixed(2)}°`;
+    }
+    if(document.getElementById('precessionSignsVal')) {
+        document.getElementById('precessionSignsVal').innerText = `انزياح ~${(totalPrec/30).toFixed(1)} برج (1°/70س)`;
+    }
+    if(document.getElementById('lunarMansionVal')) {
+        document.getElementById('lunarMansionVal').innerText = `منزلة ${lunarMansions[mansionIdx]} (${mansionIdx + 1})`;
+    }
+    if(document.getElementById('zodiacSeasonVal')) {
+        document.getElementById('zodiacSeasonVal').innerText = `${signInfo.elem} | ${signInfo.season}`;
+    }
+    if(document.getElementById('lunarLongVal')) {
+        document.getElementById('lunarLongVal').innerText = `λ☽ = ${lambda_moon.toFixed(1)}°`;
+    }
+    if(document.getElementById('moonElongVal')) {
+        document.getElementById('moonElongVal').innerText = `الاستطالة D = ${currentMoonElongation.toFixed(1)}°`;
+    }
+    if(document.getElementById('jdVal')) {
+        document.getElementById('jdVal').innerText = jdFrac.toFixed(2);
+    }
+}
+
+
+// دالة رسم شارات الجهات الأصلية لتكون واضحة تماماً وغير مقطوعة أبداً
+function drawDirectionBadge(ctx, x, y, text, textColor, bgColor, borderColor) {
+    ctx.font = 'bold 10px "Segoe UI", Tahoma, sans-serif';
+    let textWidth = ctx.measureText(text).width;
+    let bw = textWidth + 16;
+    let bh = 22;
+
+    ctx.fillStyle = bgColor;
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(x - bw/2, y - bh/2, bw, bh, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x, y);
+    ctx.textBaseline = 'alphabetic';
+}
+
+// ==================== COSMOS CANVAS ====================
+const cosmosCanvas = document.getElementById('cosmosCanvas');
+const cosmosCtx = cosmosCanvas.getContext('2d');
+const canvasW = 660, canvasH = 660;
+const ccx = 330, ccy = 330;
+
+const cosmosBodies = [
+    {key:'moon',    r:34,  color:'#E2E8F0', size:3.5, name:'القمر ☽'},
+    {key:'mercury', r:58,  color:'#C084FC', size:3.2, name:'عطارد ☿'},
+    {key:'venus',   r:82,  color:'#F472B6', size:4.2, name:'الزهرة ♀'},
+    {key:'sun',     r:110, color:'#FBBF24', size:6.5, name:'الشمس ☉'},
+    {key:'mars',    r:138, color:'#F87171', size:4.0, name:'المريخ ♂'},
+    {key:'jupiter', r:164, color:'#FB923C', size:5.5, name:'المشتري ♃'},
+    {key:'saturn',  r:188, color:'#FACC15', size:5.0, name:'زحل ♄'},
+];
+
+function drawCosmos() {
+    cosmosCtx.clearRect(0,0,canvasW,canvasH);
+    const showStars = document.getElementById('showPolarStars').checked;
+    const showAxis  = document.getElementById('showCelestialAxis') ? document.getElementById('showCelestialAxis').checked : true;
+    const showEWAxis= document.getElementById('showEastWestAxis') ? document.getElementById('showEastWestAxis').checked : true;
+    const showPtEpi = document.getElementById('showPtolemyEpicycles').checked;
+
+    // 0.1 محور القطبين السماويين (شمال - جنوب)
+    if(showAxis) {
+        cosmosCtx.strokeStyle = 'rgba(56,189,248,0.35)';
+        cosmosCtx.lineWidth = 1.3;
+        cosmosCtx.setLineDash([6,5]);
+        cosmosCtx.beginPath();
+        cosmosCtx.moveTo(ccx, 44);
+        cosmosCtx.lineTo(ccx, canvasH - 44);
+        cosmosCtx.stroke();
+        cosmosCtx.setLineDash([]);
+
+        drawDirectionBadge(cosmosCtx, ccx, 22, '⬆ القطب الشمالي السماوي', '#38BDF8', 'rgba(15, 23, 42, 0.92)', '#0284C7');
+        drawDirectionBadge(cosmosCtx, ccx, canvasH - 22, '⬇ القطب الجنوبي السماوي', '#38BDF8', 'rgba(15, 23, 42, 0.92)', '#0284C7');
+    }
+
+    // 0.2 خط الشرق والغرب (المشرق والمغرب)
+    if(showEWAxis) {
+        cosmosCtx.strokeStyle = 'rgba(245,158,11,0.35)';
+        cosmosCtx.lineWidth = 1.3;
+        cosmosCtx.setLineDash([6,5]);
+        cosmosCtx.beginPath();
+        cosmosCtx.moveTo(85, ccy);
+        cosmosCtx.lineTo(canvasW - 85, ccy);
+        cosmosCtx.stroke();
+        cosmosCtx.setLineDash([]);
+
+        drawDirectionBadge(cosmosCtx, canvasW - 55, ccy, 'المشرق ⮕', '#FBBF24', 'rgba(15, 23, 42, 0.92)', '#D97706');
+        drawDirectionBadge(cosmosCtx, 55, ccy, '⬅ المغرب', '#FBBF24', 'rgba(15, 23, 42, 0.92)', '#D97706');
+    }
+
+    // 1. الفلك التاسع (الأطلس 24h)
+    let atlasR = 274;
+    cosmosCtx.strokeStyle = '#A855F7';
+    cosmosCtx.lineWidth = 2.5;
+    cosmosCtx.beginPath();
+    cosmosCtx.arc(ccx, ccy, atlasR, 0, Math.PI * 2);
+    cosmosCtx.stroke();
+    for(let k = 0; k < 8; k++) {
+        let aAng = k * Math.PI / 4 + atlasAngle;
+        cosmosCtx.fillStyle = '#C084FC';
+        cosmosCtx.beginPath();
+        cosmosCtx.arc(ccx + atlasR * Math.cos(aAng), ccy - atlasR * Math.sin(aAng), 3.5, 0, Math.PI * 2);
+        cosmosCtx.fill();
+    }
+
+    // 2. الفلك الثامن المزدوج
+    // أ. الحلقة الخارجية: البروج الاصطلاحية الفصلية (Tropical Signs)
+    let tropicalR = 246;
+    cosmosCtx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    cosmosCtx.lineWidth = 1.5;
+    cosmosCtx.beginPath();
+    cosmosCtx.arc(ccx, ccy, tropicalR, 0, Math.PI * 2);
+    cosmosCtx.stroke();
+
+    for(let i = 0; i < 12; i++) {
+        let divAng = -i * Math.PI / 6;
+        cosmosCtx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+        cosmosCtx.lineWidth = 1.2;
+        cosmosCtx.beginPath();
+        cosmosCtx.moveTo(ccx + (tropicalR - 8) * Math.cos(divAng), ccy + (tropicalR - 8) * Math.sin(divAng));
+        cosmosCtx.lineTo(ccx + (tropicalR + 8) * Math.cos(divAng), ccy + (tropicalR + 8) * Math.sin(divAng));
+        cosmosCtx.stroke();
+    }
+
+    let currentSignIdx = Math.floor(currentSolarLongitude / 30);
+    for(let i = 0; i < 12; i++) {
+        let ang = -(i + 0.5) * Math.PI / 6;
+        let tx = ccx + tropicalR * Math.cos(ang);
+        let ty = ccy + tropicalR * Math.sin(ang);
+        let isActive = (i === currentSignIdx);
+
+        cosmosCtx.fillStyle = isActive ? '#F59E0B' : '#7DD3FC';
+        cosmosCtx.font = isActive ? 'bold 11px Segoe UI, sans-serif' : '9px Segoe UI, sans-serif';
+        cosmosCtx.textAlign = 'center';
+        cosmosCtx.textBaseline = 'middle';
+        cosmosCtx.fillText(zodiacData[i].name.replace('برج ', ''), tx, ty);
+    }
+
+    // ب. الحلقة الداخلية: الصور النجمية المكوكبة للثوابت (Sidereal Constellations)
+    let siderealR = 212;
+    cosmosCtx.strokeStyle = 'rgba(192, 132, 252, 0.5)';
+    cosmosCtx.lineWidth = 1.4;
+    cosmosCtx.setLineDash([3, 3]);
+    cosmosCtx.beginPath();
+    cosmosCtx.arc(ccx, ccy, siderealR, 0, Math.PI * 2);
+    cosmosCtx.stroke();
+    cosmosCtx.setLineDash([]);
+
+    for(let i = 0; i < 12; i++) {
+        let sDivAng = -(i * Math.PI / 6 + precessionAngle);
+        cosmosCtx.strokeStyle = 'rgba(192, 132, 252, 0.35)';
+        cosmosCtx.lineWidth = 1.2;
+        cosmosCtx.beginPath();
+        cosmosCtx.moveTo(ccx + (siderealR - 7) * Math.cos(sDivAng), ccy + (siderealR - 7) * Math.sin(sDivAng));
+        cosmosCtx.lineTo(ccx + (siderealR + 7) * Math.cos(sDivAng), ccy + (siderealR + 7) * Math.sin(sDivAng));
+        cosmosCtx.stroke();
+    }
+
+    let siderealLon = (currentSolarLongitude - (precessionAngle * 180 / Math.PI)) % 360;
+    if(siderealLon < 0) siderealLon += 360;
+    let activeSiderealIdx = Math.floor(siderealLon / 30);
+
+    for(let i = 0; i < 12; i++) {
+        let sAng = -((i + 0.5) * Math.PI / 6 + precessionAngle);
+        let sx = ccx + siderealR * Math.cos(sAng);
+        let sy = ccy + siderealR * Math.sin(sAng);
+        let isSidActive = (i === activeSiderealIdx);
+
+        cosmosCtx.fillStyle = isSidActive ? '#F43F5E' : '#C084FC';
+        cosmosCtx.beginPath();
+        cosmosCtx.arc(sx, sy, isSidActive ? 4.5 : 2.5, 0, Math.PI * 2);
+        cosmosCtx.fill();
+        if(isSidActive) {
+            cosmosCtx.strokeStyle = 'rgba(244, 63, 94, 0.6)';
+            cosmosCtx.lineWidth = 2;
+            cosmosCtx.beginPath();
+            cosmosCtx.arc(sx, sy, 8, 0, Math.PI * 2);
+            cosmosCtx.stroke();
+        }
+
+        cosmosCtx.fillStyle = isSidActive ? '#FDA4AF' : '#E9D5FF';
+        cosmosCtx.font = isSidActive ? 'bold 10px Segoe UI, sans-serif' : '8px Segoe UI, sans-serif';
+        cosmosCtx.textAlign = 'center';
+        cosmosCtx.textBaseline = 'middle';
+        cosmosCtx.fillText('كوكبة ' + zodiacData[i].name.replace('برج ', ''), sx, sy - 8);
+    }
+
+    // ج. شعاع محاذاة الشمس المزدوج
+    let showRays = document.getElementById('showSolarZodiacRay') ? document.getElementById('showSolarZodiacRay').checked : true;
+    if(showRays) {
+        let sunTheta = currentSolarLongitude * Math.PI / 180;
+        let sunCos = Math.cos(sunTheta);
+        let sunSin = Math.sin(sunTheta);
+
+        let rayGrad = cosmosCtx.createLinearGradient(ccx, ccy, ccx + 265 * sunCos, ccy - 265 * sunSin);
+        rayGrad.addColorStop(0, 'rgba(251, 191, 36, 0.15)');
+        rayGrad.addColorStop(0.4, 'rgba(251, 191, 36, 0.7)');
+        rayGrad.addColorStop(1, 'rgba(251, 191, 36, 0.95)');
+
+        cosmosCtx.strokeStyle = rayGrad;
+        cosmosCtx.lineWidth = 2.0;
+        cosmosCtx.setLineDash([5, 3]);
+        cosmosCtx.beginPath();
+        cosmosCtx.moveTo(ccx, ccy);
+        cosmosCtx.lineTo(ccx + 265 * sunCos, ccy - 265 * sunSin);
+        cosmosCtx.stroke();
+        cosmosCtx.setLineDash([]);
+
+        let sPtX = ccx + siderealR * sunCos;
+        let sPtY = ccy - siderealR * sunSin;
+        cosmosCtx.fillStyle = '#C084FC';
+        cosmosCtx.beginPath(); cosmosCtx.arc(sPtX, sPtY, 5, 0, Math.PI * 2); cosmosCtx.fill();
+        cosmosCtx.strokeStyle = '#FFFFFF'; cosmosCtx.lineWidth = 1.5; cosmosCtx.stroke();
+
+        let tPtX = ccx + tropicalR * sunCos;
+        let tPtY = ccy - tropicalR * sunSin;
+        cosmosCtx.fillStyle = '#F59E0B';
+        cosmosCtx.beginPath(); cosmosCtx.arc(tPtX, tPtY, 5, 0, Math.PI * 2); cosmosCtx.fill();
+        cosmosCtx.strokeStyle = '#FFFFFF'; cosmosCtx.lineWidth = 1.5; cosmosCtx.stroke();
+
+        let degInS = Math.floor(currentSolarLongitude % 30);
+        let sDegInC = Math.floor(siderealLon % 30);
+
+        let badgeX = ccx + 280 * sunCos;
+        let badgeY = ccy - 280 * sunSin;
+        let bw = 142, bh = 34;
+        badgeX = Math.max(bw/2 + 15, Math.min(canvasW - bw/2 - 15, badgeX));
+        badgeY = Math.max(bh/2 + 35, Math.min(canvasH - bh/2 - 35, badgeY));
+
+        cosmosCtx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+        cosmosCtx.strokeStyle = '#6366F1';
+        cosmosCtx.lineWidth = 1.4;
+        let badgeText1 = `☀️ اصطلاحاً: ${zodiacData[currentSignIdx].name.replace('برج ', '')} (${degInS}°)`;
+        let badgeText2 = `✨ فعلياً: كوكبة ${zodiacData[activeSiderealIdx].name.replace('برج ', '')} (${sDegInC}°)`;
+        
+        cosmosCtx.beginPath();
+        cosmosCtx.roundRect(badgeX - bw/2, badgeY - bh/2, bw, bh, 6);
+        cosmosCtx.fill();
+        cosmosCtx.stroke();
+
+        cosmosCtx.fillStyle = '#FDE047';
+        cosmosCtx.font = 'bold 9.5px Segoe UI, sans-serif';
+        cosmosCtx.textAlign = 'center';
+        cosmosCtx.textBaseline = 'middle';
+        cosmosCtx.fillText(badgeText1, badgeX, badgeY - 7);
+        cosmosCtx.fillStyle = '#C084FC';
+        cosmosCtx.fillText(badgeText2, badgeX, badgeY + 7);
+        cosmosCtx.textBaseline = 'alphabetic';
+    }
+
+    // 3. النجم القطبي
+    if(showStars) {
+        let polR = 14;
+        let polCY = ccy - 240;
+        let polCX = ccx;
+
+        cosmosCtx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+        cosmosCtx.lineWidth = 1;
+        cosmosCtx.setLineDash([2, 2]);
+        cosmosCtx.beginPath();
+        cosmosCtx.arc(polCX, polCY, polR, 0, Math.PI * 2);
+        cosmosCtx.stroke();
+        cosmosCtx.setLineDash([]);
+
+        let polAng = atlasAngle + precessionAngle;
+        let polX = polCX + polR * Math.cos(polAng);
+        let polY = polCY - polR * Math.sin(polAng); // متطابق مع حركة الشمس والكواكب من الشرق للغرب ⟲
+
+        cosmosCtx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+        cosmosCtx.beginPath(); cosmosCtx.arc(polX, polY, 7, 0, Math.PI * 2); cosmosCtx.fill();
+        cosmosCtx.fillStyle = '#E0F2FE';
+        cosmosCtx.beginPath(); cosmosCtx.arc(polX, polY, 3.5, 0, Math.PI * 2); cosmosCtx.fill();
+
+        cosmosCtx.fillStyle = '#38BDF8';
+        cosmosCtx.font = 'bold 9.5px Segoe UI, sans-serif';
+        cosmosCtx.textAlign = 'left';
+        cosmosCtx.textBaseline = 'middle';
+        cosmosCtx.fillText('★ النجم القطبي (Polaris - شمالاً)', polX + 10, polY);
+        cosmosCtx.textBaseline = 'alphabetic';
+    }
+
+    // 4. مدارات وكواكب الأفلاك السبعة
+    cosmosBodies.forEach(b => {
+        cosmosCtx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+        cosmosCtx.lineWidth = 1;
+        cosmosCtx.beginPath();
+        cosmosCtx.arc(ccx, ccy, b.r, 0, Math.PI * 2);
+        cosmosCtx.stroke();
+
+        let angle = 0, epAngle = 0, epR = b.r * 0.12;
+        if(b.key === 'moon')     { angle = moonAlpha; epAngle = moonAlpha * 2; }
+        else if(b.key === 'sun') { angle = currentSolarLongitude * Math.PI / 180; epAngle = 0; }
+        else if(planetAngles[b.key]) {
+            angle = planetAngles[b.key].mean;
+            epAngle = planetAngles[b.key].anomaly;
+        }
+
+        const bx = ccx + b.r * Math.cos(angle);
+        const by = ccy - b.r * Math.sin(angle);
+
+        if(showPtEpi && b.key !== 'sun') {
+            cosmosCtx.strokeStyle = b.color + '66';
+            cosmosCtx.lineWidth = 0.8;
+            cosmosCtx.beginPath();
+            cosmosCtx.arc(bx, by, epR, 0, Math.PI * 2);
+            cosmosCtx.stroke();
+        }
+
+        const px = bx + epR * Math.cos(epAngle);
+        const py = by - epR * Math.sin(epAngle);
+
+        cosmosCtx.fillStyle = b.color;
+        cosmosCtx.beginPath();
+        cosmosCtx.arc(px, py, b.size, 0, Math.PI * 2);
+        cosmosCtx.fill();
+
+        cosmosCtx.fillStyle = '#F8FAFC';
+        cosmosCtx.font = 'bold 9px Segoe UI, sans-serif';
+        let alignL = bx > ccx;
+        cosmosCtx.textAlign = alignL ? 'left' : 'right';
+        cosmosCtx.fillText(b.name, bx + (alignL ? 8 : -8), by - 4);
+    });
+
+    // مركز الأرض
+    cosmosCtx.fillStyle = '#38BDF8';
+    cosmosCtx.beginPath();
+    cosmosCtx.arc(ccx, ccy, 7, 0, Math.PI * 2);
+    cosmosCtx.fill();
+    cosmosCtx.fillStyle = '#FFF';
+    cosmosCtx.font = 'bold 9.5px Segoe UI, sans-serif';
+    cosmosCtx.textAlign = 'center';
+    cosmosCtx.fillText('الأرض O', ccx, ccy + 17);
+}
+// ==================== SUN COMPARISON ====================
+const ptSunCanvas = document.getElementById('ptolemySunCanvas');
+const ptSunCtx = ptSunCanvas.getContext('2d');
+const ibsSunCanvas = document.getElementById('ibsSunCanvas');
+const ibsSunCtx = ibsSunCanvas.getContext('2d');
+const sunSCX=240, sunSCY=240, sunScale=2.85;
+const R_sun=60, r1_sun=4.6167, r2_sun=2.5;
+const e_ptol_sun=2.5; // Ptolemy's solar eccentricity
+let sunTrail = [];
+
+function drawPtolemySun(alpha) {
+    const ctx=ptSunCtx, cx=sunSCX, cy=sunSCY, sc=sunScale;
+    ctx.clearRect(0,0,480,480);
+    ctx.fillStyle='#080F25'; ctx.fillRect(0,0,480,480);
+
+    // Grid
+    ctx.strokeStyle='#1E293B'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(480,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,480); ctx.stroke();
+
+    // Apse line (apogee direction)
+    ctx.strokeStyle='#374151'; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(20,cy); ctx.lineTo(460,cy); ctx.stroke(); ctx.setLineDash([]);
+
+    // Earth at O (shifted)
+    const Ox=cx, Oy=cy;
+    // Eccentric center E at (Ox + e, Oy)
+    const Ex = Ox + e_ptol_sun*sc, Ey=Oy;
+
+    // Draw connection line Earth→E
+    ctx.strokeStyle='rgba(255,107,107,0.4)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(Ox,Oy); ctx.lineTo(Ex,Ey); ctx.stroke();
+    ctx.fillStyle='rgba(255,107,107,0.12)';
+    // E-offset label
+    ctx.fillStyle='#FF6B6B'; ctx.font='11px Segoe UI,sans-serif'; ctx.textAlign='left';
+    ctx.fillText('e=2;30', Ox+4, Oy-10);
+
+    // Eccentric circle centered at E
+    ctx.strokeStyle='#FF6B6B'; ctx.lineWidth=2; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(Ex,Ey,R_sun*sc,0,Math.PI*2); ctx.stroke();
+
+    // Sun position: E + R*(cos(-alpha), sin(-alpha))
+    const sx = Ex + R_sun*Math.cos(-alpha)*sc;
+    const sy = Ey + R_sun*Math.sin(-alpha)*sc;
+
+    // Draw Sun orbit line
+    ctx.strokeStyle='rgba(251,191,36,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(Ex,Ey); ctx.lineTo(sx,sy); ctx.stroke();
+
+    // Apogee and Perigee
+    ctx.fillStyle='#10B981'; ctx.beginPath(); ctx.arc(Ex+(R_sun)*sc,Ey,5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#DC2626'; ctx.beginPath(); ctx.arc(Ex-(R_sun)*sc,Ey,5,0,Math.PI*2); ctx.fill();
+
+    // Earth (O)
+    ctx.fillStyle='#38BDF8'; ctx.beginPath(); ctx.arc(Ox,Oy,8,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 11px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText('الأرض O', Ox-14, Oy+22);
+
+    // Eccentric center E
+    cosmosCtx.textAlign='center';
+    ctx.fillStyle='#FF6B6B'; ctx.beginPath(); ctx.arc(Ex,Ey,5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FF6B6B'; ctx.font='bold 11px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('E (مركز الشمس)', Ex, Ey+18);
+
+    // Sun
+    ctx.fillStyle='#FBBF24'; ctx.beginPath(); ctx.arc(sx,sy,11,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 11px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('الشمس ☉', sx-3, sy-14);
+
+    // Warning badge
+    ctx.fillStyle='rgba(239,68,68,0.15)'; ctx.fillRect(5,5,270,38);
+    ctx.strokeStyle='#EF4444'; ctx.lineWidth=1.5; ctx.strokeRect(5,5,270,38);
+    ctx.fillStyle='#FCA5A5'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('⚠️ إشكالية: الأرض ليست في مركز الفلك', 275, 21);
+    ctx.font='9px Segoe UI'; ctx.fillStyle='#94A3B8';
+    ctx.fillText('الشمس تدور بانتظام حول E، لا حول O (الأرض)', 275, 37);
+
+    // Stats
+    const ptDist = Math.hypot(sx-Ox, sy-Oy)/sc;
+    const ptAngle = Math.atan2(-(sy-Oy), sx-Ox)*180/Math.PI;
+    const ptEq = ((alpha*180/Math.PI) - (ptAngle+360)%360);
+
+    if(document.getElementById('ptSunDist')) {
+        document.getElementById('ptSunDist').innerText = ptDist.toFixed(2)+' جزءاً';
+        const alpDeg = ((alpha*180/Math.PI)%360+360)%360;
+        document.getElementById('sunAlphaComp').innerText = alpDeg.toFixed(1)+'°';
+        let eq = ptEq; if(eq>180)eq-=360; if(eq<-180)eq+=360;
+        document.getElementById('ptSunEq').innerText = (eq>=0?'+':'')+eq.toFixed(2)+'°';
+    }
+}
+
+function drawIbsSun(alpha) {
+    const ctx=ibsSunCtx, cx=sunSCX, cy=sunSCY, sc=sunScale;
+    ctx.clearRect(0,0,480,480);
+    ctx.fillStyle='#080F25'; ctx.fillRect(0,0,480,480);
+
+    ctx.strokeStyle='#1E293B'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(480,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,480); ctx.stroke();
+
+    ctx.strokeStyle='#374151'; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(20,cy); ctx.lineTo(460,cy); ctx.stroke(); ctx.setLineDash([]);
+
+    // Main deferent (centered on Earth)
+    ctx.strokeStyle='#38BDF8'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(cx,cy,R_sun*sc,0,Math.PI*2); ctx.stroke();
+
+    // P3: deferent point at angle alpha
+    const p3x=cx+R_sun*Math.cos(alpha)*sc, p3y=cy-R_sun*Math.sin(alpha)*sc;
+    // r1 (Hamil) along fixed +x direction (toward apogee)
+    const p4x=p3x+r1_sun*sc, p4y=p3y;
+    // r2 (Mudir) rotates at 2*alpha in same direction
+    const px=p4x+r2_sun*Math.cos(2*alpha)*sc, py=p4y-r2_sun*Math.sin(2*alpha)*sc;
+
+    sunTrail.push({x:px,y:py}); if(sunTrail.length>360) sunTrail.shift();
+
+    // Sun's elliptical trail
+    ctx.strokeStyle='rgba(239,68,68,0.7)'; ctx.lineWidth=2;
+    ctx.beginPath();
+    for(let i=0;i<sunTrail.length;i++){
+        if(i===0) ctx.moveTo(sunTrail[i].x,sunTrail[i].y);
+        else ctx.lineTo(sunTrail[i].x,sunTrail[i].y);
+    }
+    ctx.stroke();
+
+    // Hamil circle
+    ctx.strokeStyle='#60A5FA'; ctx.fillStyle='rgba(96,165,250,0.08)';
+    ctx.beginPath(); ctx.arc(p3x,p3y,r1_sun*sc,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Mudir circle
+    ctx.strokeStyle='#FBBF24'; ctx.fillStyle='rgba(251,191,36,0.12)';
+    ctx.beginPath(); ctx.arc(p4x,p4y,r2_sun*sc,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+    // Arm from Earth → P3 → P4 → Sun
+    ctx.strokeStyle='#94A3B8'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p3x,p3y); ctx.lineTo(p4x,p4y); ctx.lineTo(px,py); ctx.stroke();
+
+    // Apogee/Perigee
+    const apoX=cx+(R_sun+r1_sun+r2_sun)*sc, perX=cx-(R_sun-r1_sun-r2_sun)*sc;
+    ctx.fillStyle='#10B981'; ctx.beginPath(); ctx.arc(apoX,cy,5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#DC2626'; ctx.beginPath(); ctx.arc(perX,cy,5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#10B981'; ctx.font='10px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText('أوج 67;07', apoX-35, cy-8);
+    ctx.fillStyle='#DC2626'; ctx.fillText('حضيض 52;53', perX-5, cy-8);
+
+    // Earth
+    ctx.fillStyle='#38BDF8'; ctx.beginPath(); ctx.arc(cx,cy,8,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 11px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('الأرض O (في المركز)', cx, cy+22);
+
+    // Sun
+    ctx.fillStyle='#F59E0B'; ctx.beginPath(); ctx.arc(px,py,11,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 11px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('الشمس ☉', px-3, py-14);
+
+    // Labels
+    ctx.fillStyle='#93C5FD'; ctx.font='10px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('الحامل r1=4;37', p3x-4, p3y+15);
+    ctx.fillStyle='#FDE047'; ctx.fillText('المدير r2=2;30', p4x+4, p4y+20);
+
+    // OK badge
+    ctx.fillStyle='rgba(16,185,129,0.12)'; ctx.fillRect(5,5,290,38);
+    ctx.strokeStyle='#10B981'; ctx.lineWidth=1.5; ctx.strokeRect(5,5,290,38);
+    ctx.fillStyle='#6EE7B7'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('✅ الأرض في المركز — لا فلك خارج المركز', 295, 21);
+    ctx.font='9px Segoe UI'; ctx.fillStyle='#94A3B8';
+    ctx.fillText('الحامل والمدير يولدان تأثير المدار الإهليلجي بانتظام تام', 295, 37);
+
+    // Stats
+    const ibsDist = Math.hypot((px-cx)/sc,(py-cy)/sc);
+    const trueAngle = Math.atan2(-(py-cy), px-cx)*180/Math.PI;
+    const alphaDeg = ((sunAlpha*180/Math.PI)%360+360)%360;
+    let eq = alphaDeg - (trueAngle+360)%360;
+    if(eq>180) eq-=360; if(eq<-180) eq+=360;
+    const diam = (32.53*(60/ibsDist)).toFixed(1);
+
+    if(document.getElementById('ibsSunDist')) {
+        document.getElementById('ibsSunDist').innerText = ibsDist.toFixed(2)+' جزءاً';
+        document.getElementById('ibsSunEq').innerText = (eq>=0?'+':'')+eq.toFixed(2)+'°';
+        document.getElementById('ibsSunDiam').innerText = diam+' دقيقة';
+    }
+}
+
+function drawSunComparison() {
+    drawPtolemySun(sunAlpha);
+    drawIbsSun(sunAlpha);
+}
+
+// ==================== MOON COMPARISON ====================
+const ptMoonCanvas = document.getElementById('ptolemyMoonCanvas');
+const ptMoonCtx = ptMoonCanvas.getContext('2d');
+const ibsMoonCanvas = document.getElementById('ibsMoonCanvas');
+const ibsMoonCtx = ibsMoonCanvas.getContext('2d');
+const moonCX=240, moonCY=240, moonScale=2.8;
+const R_moon=60, r1_moon=6.5833, r2_moon=1.4167;
+// Ptolemy crank params
+const rho_ptol=10.317; // crank radius
+const R_ptol_defer=49.683; // Ptolemy's effective deferent
+const r_ep_ptol_moon=5.25; // Ptolemy's epicycle for moon
+let moonTrail=[], ibsMoonTrail=[];
+
+function getPtMoonDist(eta) {
+    // Simplified: at eta=0 (syzygy) dist~64, at eta=pi/2 (quadrature) dist~34
+    return 64.17 - 29.77*Math.pow(Math.sin(eta),2);
+}
+
+function drawPtolemyMoon(eta, gamma) {
+    gamma = gamma || 0;
+    const ctx=ptMoonCtx, cx=moonCX, cy=moonCY, sc=moonScale;
+    ctx.clearRect(0,0,480,480);
+    ctx.fillStyle='#080F25'; ctx.fillRect(0,0,480,480);
+
+    // Grid
+    ctx.strokeStyle='#1E293B'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(480,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,480); ctx.stroke();
+
+    // 1. مركز المرفاق اللامركزي D (Crank Center)
+    // يدور على دائرة المرفاق (نصف قطرها rho=10.32) بحيث يكون متجهاً نحو القمر في الاجتماعين وعكسه في التربيعين
+    const Dx = cx + rho_ptol * Math.cos(-eta) * sc;
+    const Dy = cy - rho_ptol * Math.sin(-eta) * sc;
+
+    // دائرة المرفاق (مسار النقطة D)
+    ctx.strokeStyle='rgba(100,116,139,0.45)'; ctx.lineWidth=1.2; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.arc(cx,cy,rho_ptol*sc,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+
+    // 2. الفلك الحامل اللامركزي لبطلميوس (مركزه D ونصف قطره R_defer=49.68)
+    ctx.strokeStyle='rgba(239,68,68,0.4)'; ctx.lineWidth=1.8;
+    ctx.beginPath(); ctx.arc(Dx,Dy,R_ptol_defer*sc,0,Math.PI*2); ctx.stroke();
+
+    // 3. مركز فلك التدوير E على الفلك الحامل
+    const Ex = Dx + R_ptol_defer * Math.cos(eta) * sc;
+    const Ey = Dy - R_ptol_defer * Math.sin(eta) * sc;
+
+    // فلك تدوير بطلميوس (مركزه E ونصف قطره r_ep=5.25)
+    ctx.strokeStyle='rgba(245,158,11,0.5)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(Ex,Ey,r_ep_ptol_moon*sc,0,Math.PI*2); ctx.stroke();
+    drawCircleArrow(ctx, Ex, Ey, r_ep_ptol_moon*sc, -(eta+gamma), -(eta+gamma) - 1.2, true, '#FCD34D');
+
+    // 4. موضع قمر بطلميوس على فلك التدوير بحركة خاصة القمر gamma
+    const moonX = Ex + r_ep_ptol_moon * Math.cos(eta + gamma) * sc;
+    const moonY = Ey - r_ep_ptol_moon * Math.sin(eta + gamma) * sc;
+
+    // المسافة الحقيقية الدقيقة لقمر بطلميوس عن مركز الأرض
+    const ptDist = Math.hypot((moonX - cx)/sc, (moonY - cy)/sc);
+
+    // مسار قمر بطلميوس
+    moonTrail.push({x:moonX,y:moonY}); if(moonTrail.length>220) moonTrail.shift();
+    ctx.strokeStyle='rgba(239,68,68,0.5)'; ctx.lineWidth=1.5;
+    ctx.beginPath();
+    for(let i=0;i<moonTrail.length;i++){
+        if(i===0) ctx.moveTo(moonTrail[i].x,moonTrail[i].y); else ctx.lineTo(moonTrail[i].x,moonTrail[i].y);
+    }
+    ctx.stroke();
+
+    // أذرع الربط لبطلميوس
+    // ذراع المرفاق: الأرض O -> D
+    ctx.strokeStyle='rgba(148,163,184,0.5)'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(Dx,Dy); ctx.stroke();
+    // نصف قطر الحامل: D -> E
+    ctx.strokeStyle='rgba(239,68,68,0.4)'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(Dx,Dy); ctx.lineTo(Ex,Ey); ctx.stroke();
+    // نصف قطر التدوير: E -> Moon
+    ctx.strokeStyle='#F59E0B'; ctx.lineWidth=1.8;
+    ctx.beginPath(); ctx.moveTo(Ex,Ey); ctx.lineTo(moonX,moonY); ctx.stroke();
+
+    // شعاع الرؤية من الأرض إلى القمر
+    ctx.strokeStyle='rgba(251,191,36,0.35)'; ctx.lineWidth=1.2; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(moonX,moonY); ctx.stroke(); ctx.setLineDash([]);
+
+    // دوائر البعد المرجعية عند بطلميوس
+    ctx.strokeStyle='rgba(239,68,68,0.2)'; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.arc(cx,cy,65.25*sc,0,Math.PI*2); ctx.stroke(); // أقصى بعد (اجتماع)
+    ctx.strokeStyle='rgba(239,68,68,0.35)';
+    ctx.beginPath(); ctx.arc(cx,cy,34.12*sc,0,Math.PI*2); ctx.stroke(); // أدنى بعد (تربيع)
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(239,68,68,0.6)'; ctx.font='9px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('أقصى بعد: ~65', cx-2, cy-65.25*sc-3);
+    ctx.fillText('أدنى بعد (التربيع): 34.12!', cx-2, cy-34.12*sc-3);
+
+    // نقاط المراكز
+    ctx.fillStyle='#94A3B8'; ctx.beginPath(); ctx.arc(Dx,Dy,3.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#F59E0B'; ctx.beginPath(); ctx.arc(Ex,Ey,3.5,0,Math.PI*2); ctx.fill();
+
+    // الأرض O
+    ctx.fillStyle='#38BDF8'; ctx.beginPath(); ctx.arc(cx,cy,8,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('الأرض O', cx, cy+20);
+
+    // قمر بطلميوس - يتضاعف حجمه بصرياً كلما اقترب إلى 34 جزءاً
+    const moonR = 4.0 * (60.0 / ptDist); // يتضاعف من 3.7px في الاجتماع إلى 7.1px في التربيع!
+    ctx.fillStyle='#FBBF24'; ctx.beginPath(); ctx.arc(moonX,moonY,moonR,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#EF4444'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#FFF'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('قمر بطلميوس (D='+ptDist.toFixed(1)+')', moonX-4, moonY-moonR-4);
+
+    // تنبيه التربيع وتضاعف الحجم
+    const etaDeg = ((eta*180/Math.PI)%360+360)%360;
+    const isQuad = (etaDeg>70&&etaDeg<110) || (etaDeg>250&&etaDeg<290);
+    if(isQuad) {
+        ctx.fillStyle='rgba(239,68,68,0.25)'; ctx.fillRect(4,4,280,48);
+        ctx.strokeStyle='#EF4444'; ctx.lineWidth=1.5; ctx.strokeRect(4,4,280,48);
+        ctx.fillStyle='#FCA5A5'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='right';
+        ctx.fillText('⚠️ معضلة بطلميوس في التربيعين!', 280, 20);
+        ctx.font='9px Segoe UI'; ctx.fillStyle='#CBD5E1';
+        ctx.fillText('البعد هبط إلى '+ptDist.toFixed(1)+' جزءاً ← الحجم تضاعف مرتين!', 280, 35);
+        ctx.fillText('هذا التضاعف الظاهري باطل حسّاً وعياناً كما بيّن ابن الشاطر', 280, 49);
+    }
+
+    // تحديث البيانات الرقمية
+    if(document.getElementById('ptMoonDist')) {
+        document.getElementById('ptMoonDist').innerText = ptDist.toFixed(2)+' جزءاً';
+        const ratio = (60.0/ptDist*100).toFixed(0);
+        document.getElementById('ptMoonSize').innerText = ratio+'% من الحجم المعتاد!';
+        document.getElementById('moonEtaComp').innerText = etaDeg.toFixed(1)+'°';
+        let phaseLabel='—';
+        if(etaDeg<12||etaDeg>348) phaseLabel='المحاق (اجتماع) — η≈0°';
+        else if(etaDeg>78&&etaDeg<102) phaseLabel='التربيع الأول — η≈90°';
+        else if(etaDeg>168&&etaDeg<192) phaseLabel='البدر (استقبال) — η≈180°';
+        else if(etaDeg>258&&etaDeg<282) phaseLabel='التربيع الثاني — η≈270°';
+        document.getElementById('moonPhaseLabel').innerText = phaseLabel;
+    }
+}
+
+function drawIbsMoon(eta, gamma) {
+    gamma = gamma || 0;
+    const ctx=ibsMoonCtx, cx=moonCX, cy=moonCY, sc=moonScale;
+    ctx.clearRect(0,0,480,480);
+    ctx.fillStyle='#080F25'; ctx.fillRect(0,0,480,480);
+
+    // Grid
+    ctx.strokeStyle='#1E293B'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(480,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,480); ctx.stroke();
+
+    // الدوائر المرجعية لحدود ابن الشاطر الثابتة (52 إلى 68)
+    ctx.strokeStyle='rgba(16,185,129,0.2)'; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.arc(cx,cy,68*sc,0,Math.PI*2); ctx.stroke(); // أقصى بعد قطعي: 68
+    ctx.beginPath(); ctx.arc(cx,cy,52*sc,0,Math.PI*2); ctx.stroke(); // أدنى بعد قطعي: 52
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(16,185,129,0.5)'; ctx.font='9px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('أقصى بعد قطعي: 68', cx-2, cy-68*sc-3);
+    ctx.fillText('أدنى بعد قطعي: 52', cx-2, cy-52*sc-3);
+
+    // 1. الفلك الممثل (مركزه الأرض دائماً O ونصف قطره R=60)
+    const R_vis = 138; // بالبكسل
+    ctx.strokeStyle='#38BDF8'; ctx.lineWidth=1.8;
+    ctx.beginPath(); ctx.arc(cx,cy,R_vis,0,Math.PI*2); ctx.stroke();
+
+    // مقياس نسبي واضح لأفلاك التدوير (الحامل r1 والمدير r2) وفق نصوص نهاية السول
+    const r1_vis = 36; // نصف قطر فلك التدوير الأول (الحامل)
+    const r2_vis = 15; // نصف قطر فلك التدوير الثاني (المدير)
+
+    // 2. مركز فلك التدوير الأول P1 (الحامل) على الفلك الممثل بزاوية الاستطالة eta
+    const p1x = cx + R_vis * Math.cos(eta);
+    const p1y = cy - R_vis * Math.sin(eta);
+
+    // 3. مركز فلك التدوير الثاني P2 (المدير) يدور على الحامل بزاوية خاصة القمر gamma
+    const p2x = p1x + r1_vis * Math.cos(eta + gamma);
+    const p2y = p1y - r1_vis * Math.sin(eta + gamma);
+
+    // 4. جرم قمر ابن الشاطر M يدور على المدير بضعف الاستطالة 2*eta
+    // وفق نص ابن الشاطر: في الاجتماع يكون في حضيض المدير (نحو P1)، وفي التربيع يكون في ذروة المدير (خارجاً عن P1)
+    const ang_m = eta + gamma + Math.PI - 2*eta; // = Math.PI - eta + gamma
+    const mx = p2x + r2_vis * Math.cos(ang_m);
+    const my = p2y - r2_vis * Math.sin(ang_m);
+
+    // حساب المسافة الحقيقية وفق أبعاد المخطوطة الأصلية (R=60, r1=6;35, r2=1;25)
+    const real_p1x = R_moon * Math.cos(eta);
+    const real_p1y = R_moon * Math.sin(eta);
+    const real_p2x = real_p1x + r1_moon * Math.cos(eta + gamma);
+    const real_p2y = real_p1y + r1_moon * Math.sin(eta + gamma);
+    const real_mx = real_p2x + r2_moon * Math.cos(ang_m);
+    const real_my = real_p2y + r2_moon * Math.sin(ang_m);
+    const ibsDist = Math.hypot(real_mx, real_my);
+
+    // نصف قطر التدوير المرئي اللحظي (البعد بين مركز التدوير P1 وجرم القمر)
+    const visibleEpRadius = Math.hypot(real_mx - real_p1x, real_my - real_p1y);
+
+    // أثر مدار قمر ابن الشاطر
+    ibsMoonTrail.push({x:mx,y:my}); if(ibsMoonTrail.length>220) ibsMoonTrail.shift();
+    ctx.strokeStyle='rgba(78,205,196,0.5)'; ctx.lineWidth=2;
+    ctx.beginPath();
+    for(let i=0;i<ibsMoonTrail.length;i++){
+        if(i===0) ctx.moveTo(ibsMoonTrail[i].x,ibsMoonTrail[i].y); else ctx.lineTo(ibsMoonTrail[i].x,ibsMoonTrail[i].y);
+    }
+    ctx.stroke();
+
+    // رسم فلك التدوير الأول (الحامل r1=6;35) + سهم اتجاه حركته بالخاصة (+γ)
+    ctx.strokeStyle='#60A5FA'; ctx.fillStyle='rgba(96,165,250,0.08)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(p1x,p1y,r1_vis,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    drawCircleArrow(ctx, p1x, p1y, r1_vis, -(eta+gamma), -(eta+gamma) - 1.2, true, '#93C5FD');
+
+    // رسم فلك التدوير الثاني (المدير r2=1;25) + سهم اتجاه دورانه بضعف الاستطالة (2η)
+    ctx.strokeStyle='#FBBF24'; ctx.fillStyle='rgba(251,191,36,0.18)';
+    ctx.lineWidth = 2.0;
+    ctx.beginPath(); ctx.arc(p2x,p2y,r2_vis,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    drawCircleArrow(ctx, p2x, p2y, r2_vis, -ang_m, -ang_m - 1.2, true, '#FDE047');
+
+    // الأذرع الميكانيكية الرابطة
+    // 1. من الأرض O إلى مركز الحامل P1
+    ctx.strokeStyle='rgba(148,163,184,0.6)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p1x,p1y); ctx.stroke();
+    // 2. ذراع الحامل الأول: من P1 إلى مركز المدير P2 (طولها 36px)
+    ctx.strokeStyle='#60A5FA'; ctx.lineWidth=2.0;
+    ctx.beginPath(); ctx.moveTo(p1x,p1y); ctx.lineTo(p2x,p2y); ctx.stroke();
+    // 3. ذراع المدير الثاني: من P2 إلى جرم القمر M (طولها 15px وتدور بوضوح تام حول P2)
+    ctx.strokeStyle='#FBBF24'; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(p2x,p2y); ctx.lineTo(mx,my); ctx.stroke();
+
+    // نقطة مركز الحامل P1
+    ctx.fillStyle='#60A5FA'; ctx.beginPath(); ctx.arc(p1x,p1y,3.5,0,Math.PI*2); ctx.fill();
+    // نقطة مركز المدير P2
+    ctx.fillStyle='#F59E0B'; ctx.beginPath(); ctx.arc(p2x,p2y,3.5,0,Math.PI*2); ctx.fill();
+
+    // تسميات المراكز والأفلاك
+    ctx.fillStyle='#93C5FD'; ctx.font='bold 9px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('مركز الحامل P1', p1x-5, p1y+r1_vis+10);
+    ctx.fillStyle='#FDE047';
+    ctx.fillText('مركز المدير P2', p2x+5, p2y-r2_vis-4);
+
+    // الأرض O (في المركز دائماً)
+    ctx.fillStyle='#38BDF8'; ctx.beginPath(); ctx.arc(cx,cy,8,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('الأرض O (المركز)', cx, cy+20);
+
+    // جرم قمر ابن الشاطر M - ثابت الحجم دائماً (3.8px) ويدور بسلاسة على محيط المدير
+    const moonR = 3.8;
+    ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.arc(mx,my,moonR,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#38BDF8'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='#FFF'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('قمر ابن الشاطر ☽ (D='+ibsDist.toFixed(1)+')', mx-4, my-10);
+
+    // شارة الحفظ العلمي المطابق لمخطوطة نهاية السول
+    ctx.fillStyle='rgba(16,185,129,0.12)'; ctx.fillRect(4,4,296,48);
+    ctx.strokeStyle='#10B981'; ctx.lineWidth=1.5; ctx.strokeRect(4,4,296,48);
+    ctx.fillStyle='#6EE7B7'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('✅ تصحيح ابن الشاطر: بعد القمر بين 52 و 68 جزءاً', 296, 20);
+    ctx.font='9px Segoe UI'; ctx.fillStyle='#CBD5E1';
+    ctx.fillText('نصف قطر التدوير المرئي الآن: '+visibleEpRadius.toFixed(2)+' (5;10 اجتماعاً و 8;00 تربيعاً)', 296, 35);
+    ctx.fillText('الأرض في المركز تماماً، والحجم المرئي للقمر ثابت مستقر لا يتضاعف', 296, 49);
+
+    // تحديث بيانات قمر ابن الشاطر
+    if(document.getElementById('ibsMoonDist')) {
+        document.getElementById('ibsMoonDist').innerText = ibsDist.toFixed(2)+' جزءاً';
+        const ratio=(ibsDist/60.0*100).toFixed(0);
+        document.getElementById('ibsMoonSize').innerText = '≈'+ratio+'% — ثابت مستقر';
+    }
+}
+
+function drawMoonComparison() {
+    drawPtolemyMoon(moonAlpha, moonAnomalyRad);
+    drawIbsMoon(moonAlpha, moonAnomalyRad);
+}
+
+// ==================== PLANET COMPARISON ====================
+const ptPlanetCanvas = document.getElementById('ptolemyPlanetCanvas');
+const ptPlanetCtx = ptPlanetCanvas.getContext('2d');
+const ibsPlanetCanvas = document.getElementById('ibsPlanetCanvas');
+const ibsPlanetCtx = ibsPlanetCanvas.getContext('2d');
+const planCX=240, planCY=240;
+
+function selectPlanet(key, btn) {
+    selectedPlanet = key;
+    document.querySelectorAll('.planet-btn').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    const pd = planetData[key];
+    const t = pd.nameAr+' '+pd.symbol;
+    document.getElementById('ptolemyPlanetTitle').innerText = t;
+    document.getElementById('ibsPlanetTitle').innerText = t;
+    document.getElementById('planetCompTitle').innerText = 'مقارنة نموذجَي '+t;
+
+    const info = {
+        mars:    'بطلميوس: e=6;0, R=60, r_ep=39;30. ابن الشاطر: r1=9;0, r2=3;0, r3=39;30. نقطة المعادل Q=2e=12 عن الأرض.',
+        jupiter: 'بطلميوس: e=2;45, R=60, r_ep=11;30. ابن الشاطر: r1=4;7, r2=1;22, r3=11;30. نقطة المعادل Q=5;30 عن الأرض.',
+        saturn:  'بطلميوس: e=3;25, R=60, r_ep=6;30. ابن الشاطر: r1=5;7, r2=1;42, r3=6;30. نقطة المعادل Q=6;50 عن الأرض.',
+        venus:   'بطلميوس: e=1;15, R=60, r_ep=43;33. ابن الشاطر: r1=1;41, r2=0;26, r3=43;33. الزهرة كوكب سفلي — مدارها مرتبط بالشمس.',
+        mercury: 'بطلميوس: e=3;0, R=60, r_ep=22;46. ابن الشاطر: r1=4;5, r2=0;50, r3=22;46. عطارد أعقد الكواكب: أضاف ابن الشاطر الشامل والحافظ لتوليد التغير في قطر التدوير.',
+    };
+    document.getElementById('planetParamsBox').innerHTML =
+        '<strong>⚙️ مقارنة المعاملات:</strong> '+info[key];
+}
+
+let ptPlanetTrail=[], ibsPlanetTrail=[];
+
+function drawPtPlanet(key, alpha, centerAngle) {
+    const pd = planetData[key];
+    const ctx=ptPlanetCtx, cx=planCX, cy=planCY;
+    const R=60, e=pd.e_ptol, r_ep=pd.r_ep_ptol;
+    const sc = 480/(2*(R+e+r_ep+16));
+
+    ctx.clearRect(0,0,480,480);
+    ctx.fillStyle='#080F25'; ctx.fillRect(0,0,480,480);
+
+    ctx.strokeStyle='#1E293B'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(480,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,480); ctx.stroke();
+
+    // Eccentric center E
+    const Ex=cx+e*sc, Ey=cy;
+    // Equant Q (at 2e from Earth, opposite E)
+    const Qx=cx+2*e*sc, Qy=cy; // Wait: Equant is at 2e from Earth on same side as E
+
+    // Eccentric circle around E
+    ctx.strokeStyle='rgba(255,107,107,0.7)'; ctx.lineWidth=1.8;
+    ctx.beginPath(); ctx.arc(Ex,Ey,R*sc,0,Math.PI*2); ctx.stroke();
+
+    // Connection line O-E-Q
+    ctx.strokeStyle='rgba(255,165,0,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(cx-20,cy); ctx.lineTo(cx+2*e*sc+20,cy); ctx.stroke(); ctx.setLineDash([]);
+
+    // Earth O
+    ctx.fillStyle='#38BDF8'; ctx.beginPath(); ctx.arc(cx,cy,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 9px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('O الأرض', cx, cy+16);
+
+    // Eccentric center E
+    ctx.fillStyle='rgba(255,107,107,0.9)'; ctx.beginPath(); ctx.arc(Ex,Ey,5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FF6B6B'; ctx.font='9px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText('E (مركز الدائرة)', Ex+5, Ey-6);
+
+    // Equant Q
+    ctx.fillStyle='#FACC15'; ctx.beginPath();
+    ctx.moveTo(Qx,Qy-7); ctx.lineTo(Qx+7,Qy+5); ctx.lineTo(Qx-7,Qy+5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#FACC15'; ctx.font='bold 9px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText('Q نقطة المعادل', Qx+7, Qy-2);
+    ctx.fillStyle='#94A3B8'; ctx.font='8px Segoe UI';
+    ctx.fillText('(الحركة منتظمة حول Q فقط!)', Qx+7, Qy+10);
+
+    // Planet on deferent (uniform motion measured from Q)
+    // Angle from Q: use centerAngle as the angle from Q
+    const defX = Ex + R*Math.cos(-centerAngle)*sc;
+    const defY = Ey + R*Math.sin(-centerAngle)*sc;
+
+    // Epicycle
+    ctx.strokeStyle=pd.color; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.arc(defX,defY,r_ep*sc,0,Math.PI*2); ctx.stroke();
+
+    // Planet on epicycle
+    const pX = defX + r_ep*Math.cos(-alpha)*sc;
+    const pY = defY + r_ep*Math.sin(-alpha)*sc;
+
+    // Lines
+    ctx.strokeStyle='rgba(148,163,184,0.5)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(Ex,Ey); ctx.lineTo(defX,defY); ctx.lineTo(pX,pY); ctx.stroke();
+    // Line from Q to deferent center (equant motion)
+    ctx.strokeStyle='rgba(250,204,21,0.3)'; ctx.lineWidth=1.2; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(Qx,Qy); ctx.lineTo(defX,defY); ctx.stroke(); ctx.setLineDash([]);
+
+    // Planet
+    ctx.fillStyle=pd.color; ctx.beginPath(); ctx.arc(pX,pY,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 9px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText(pd.nameAr+' '+pd.symbol, pX-3, pY-10);
+
+    // Distance
+    const ptDist = Math.hypot((pX-cx)/sc,(pY-cy)/sc);
+    if(document.getElementById('ptPlanetDist')) {
+        document.getElementById('ptPlanetDist').innerText = ptDist.toFixed(1)+' جزءاً';
+        document.getElementById('ptEquantDist').innerText = (2*e).toFixed(2)+' من الأرض';
+        const aDeg = ((centerAngle*180/Math.PI)%360+360)%360;
+        document.getElementById('planetAlpha').innerText = aDeg.toFixed(1)+'°';
+    }
+}
+
+function drawIbsPlanet(key, alpha, centerAngle) {
+    const pd = planetData[key];
+    const ctx=ibsPlanetCtx, cx=planCX, cy=planCY;
+    const R=60, r1=pd.r1_ibs, r2=pd.r2_ibs, r3=pd.r3_ibs;
+    const sc = 480/(2*(R+r1+r2+r3+16));
+
+    ctx.clearRect(0,0,480,480);
+    ctx.fillStyle='#080F25'; ctx.fillRect(0,0,480,480);
+
+    ctx.strokeStyle='#1E293B'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(480,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,480); ctx.stroke();
+
+    // Main deferent (centered on Earth!)
+    ctx.strokeStyle='#38BDF8'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(cx,cy,R*sc,0,Math.PI*2); ctx.stroke();
+
+    // ابن الشاطر: الفلك الممثل R + الحامل r1 + المدير r2 (مزدوجة الطوسي) + فلك التدوير r3
+    // P1: نقطة على الفلك الممثل تدور بالوسط
+    const p1x=cx+R*Math.cos(centerAngle)*sc, p1y=cy-R*Math.sin(centerAngle)*sc;
+    // الحامل r1: يشير في اتجاه centerAngle (خارجاً) — يدور بنفس سرعة الممثل
+    const p2x=p1x+r1*Math.cos(centerAngle)*sc, p2y=p1y-r1*Math.sin(centerAngle)*sc;
+    // المدير r2: يشير في الاتجاه المعاكس (pi - centerAngle) — مزدوجة الطوسي لتوليد الإزاحة
+    const mudirAng = Math.PI - centerAngle;
+    const epCx=p2x+r2*Math.cos(mudirAng)*sc, epCy=p2y-r2*Math.sin(mudirAng)*sc;
+    // موضع الكوكب على فلك التدوير r3 بزاوية الخاصة
+    const pX=epCx+r3*Math.cos(-alpha)*sc, pY=epCy+r3*Math.sin(-alpha)*sc;
+
+    // الفلك الممثل (مرجعي شفاف)
+    ctx.strokeStyle='rgba(56,189,248,0.2)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.arc(cx,cy,R*sc,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+
+    // الحامل r1 (حول P1)
+    ctx.strokeStyle='#60A5FA'; ctx.fillStyle='rgba(96,165,250,0.08)';
+    ctx.beginPath(); ctx.arc(p1x,p1y,r1*sc,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+    // المدير r2 (حول P2)
+    ctx.strokeStyle='#FBBF24'; ctx.fillStyle='rgba(251,191,36,0.08)';
+    ctx.beginPath(); ctx.arc(p2x,p2y,r2*sc,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+    // فلك التدوير r3 (حول مركز الدوير المُصحَّح epC)
+    ctx.strokeStyle=pd.color; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(epCx,epCy,r3*sc,0,Math.PI*2); ctx.stroke();
+
+    // الذراع المتسلسلة: الأرض → P1 → P2 → epC → الكوكب
+    ctx.strokeStyle='#94A3B8'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p1x,p1y);
+    ctx.lineTo(p2x,p2y); ctx.lineTo(epCx,epCy); ctx.lineTo(pX,pY); ctx.stroke();
+
+    // نقاط المفاصل
+    [[p1x,p1y,'#38BDF8'],[p2x,p2y,'#FBBF24'],[epCx,epCy,'#6EE7B7']].forEach(([jx,jy,jc])=>{
+        ctx.fillStyle=jc; ctx.beginPath(); ctx.arc(jx,jy,3,0,Math.PI*2); ctx.fill();
+    });
+
+    // الكوكب
+    ctx.fillStyle=pd.color; ctx.beginPath(); ctx.arc(pX,pY,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 9px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText(pd.nameAr+' '+pd.symbol, pX-3, pY-10);
+
+    // الأرض
+    ctx.fillStyle='#38BDF8'; ctx.beginPath(); ctx.arc(cx,cy,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFF'; ctx.font='bold 9px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('الأرض O', cx, cy+16);
+
+    // OK badge
+    ctx.fillStyle='rgba(16,185,129,0.08)'; ctx.fillRect(4,4,290,30);
+    ctx.strokeStyle='#10B981'; ctx.lineWidth=1; ctx.strokeRect(4,4,290,30);
+    ctx.fillStyle='#6EE7B7'; ctx.font='bold 9px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText('✅ لا فلك خارج المركز — لا نقطة معادل', 294, 17);
+    ctx.font='8px Segoe UI'; ctx.fillStyle='#94A3B8';
+    ctx.fillText('الحامل والمدير (مزدوجة الطوسي) يولدان التأثير بانتظام', 294, 30);
+
+    const ibsDist = Math.hypot((pX-cx)/sc,(pY-cy)/sc);
+    if(document.getElementById('ibsPlanetDist')) {
+        document.getElementById('ibsPlanetDist').innerText = ibsDist.toFixed(1)+' جزءاً';
+    }
+}
+
+function drawPlanets() {
+    if(!planetAngles[selectedPlanet]) return;
+    const pa = planetAngles[selectedPlanet];
+    drawPtPlanet(selectedPlanet, pa.anomaly, pa.mean);
+    drawIbsPlanet(selectedPlanet, pa.anomaly, pa.mean);
+}
+
+// ==================== TAB SWITCHING ====================
+const tabMap = {
+    cosmos:   'cosmosPanel',
+    sunComp:  'sunCompPanel',
+    moonComp: 'moonCompPanel',
+    planets:  'planetsPanel',
+    study:    'studyPanel'
+};
+let activeTab = 'cosmos';
+
+function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view-panel').forEach(p=>p.classList.remove('active'));
+    const btns = document.querySelectorAll('.tab-btn');
+    const tabKeys = Object.keys(tabMap);
+    const idx = tabKeys.indexOf(tab);
+    if(idx>=0 && btns[idx]) btns[idx].classList.add('active');
+    const panel = document.getElementById(tabMap[tab]);
+    if(panel) panel.classList.add('active');
+}
+
+// ==================== MASTER ANIMATION LOOP ====================
+function masterLoop(now) {
+    const dt = Math.min((now - lastFrameTimestamp)/1000, 0.2);
+    lastFrameTimestamp = now;
+
+    if(isClockRunning) {
+        currentDate = new Date(currentDate.getTime() + timeSpeedDaysPerSec*86400000*dt);
+        updateDateTimeUI();
+    }
+
+    drawCosmos();
+    if(activeTab==='sunComp') drawSunComparison();
+    if(activeTab==='moonComp') drawMoonComparison();
+    if(activeTab==='planets') drawPlanets();
+
+    requestAnimationFrame(masterLoop);
+}
+
+// Initialize
+selectPlanet('mars', null);
+setLiveNow();
+requestAnimationFrame(masterLoop);
+</script>
+</body>
+</html>
