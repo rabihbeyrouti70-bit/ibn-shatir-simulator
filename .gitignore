@@ -26,6 +26,28 @@ manuscript_page_2_view.png
 scratch/
 test_figures/
 
+# OCR conversion tools and unrelated files
+ai_pdf_to_word.py
+audit_and_fix.py
+audit_cache.py
+gui_app.py
+inspect_and_clean.py
+manuscript_lexicon.py
+review_and_fix_all.py
+run_gui.bat
+scratch_code.py
+محاكي_ابن_الشاطر_المقارن_نسخة_احتياطية.html
+
+# Unrelated books and manuscripts
+*.md
+!README.md
+!مرجع_محاكي_ابن_الشاطر_وبطلميوس_الفلكي_الشامل.md
+!ibn-shatir-react/README.md
+
+# Non-planetary diagrams
+مخططات_الرسالة_الجيبية/
+مخططات_كتاب_الفجر/
+
 # OS files
 Thumbs.db
 Desktop.ini
