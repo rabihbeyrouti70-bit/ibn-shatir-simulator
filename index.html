@@ -2456,7 +2456,7 @@
         <!-- الصف الثاني: تدفق الزمن والسرعات -->
         <div class="bar-row">
             <div class="bar-group">
-                <button id="btnPlay3D" class="btn-ui btn-play" onclick="setClockRunning(!isClockRunning)">⏸️ إيقاف</button>
+                <button id="btnPlay" class="btn-ui btn-play" onclick="togglePlay()">⏸️ إيقاف</button>
                 <button class="btn-ui" onclick="stepTime(-1, 'hour')">⏪ -ساعة</button>
                 <button class="btn-ui" onclick="stepTime(1, 'hour')">⏩ +ساعة</button>
                 <button class="btn-ui" onclick="stepTime(-1, 'day')">⏪ -يوم</button>
@@ -2741,7 +2741,7 @@ function setClockRunning(running) {
         btnPlayPause.innerText = running ? '⏸️ إيقاف مؤقت' : '▶️ تشغيل';
         btnPlayPause.classList.toggle('active', running);
     }
-    const btnPlay3D = document.getElementById('btnPlay');
+    const btnPlay3D = document.getElementById('btnPlay') || document.getElementById('btnPlay3D');
     if (btnPlay3D) {
         btnPlay3D.innerText = running ? '⏸️ إيقاف' : '▶️ تشغيل';
         btnPlay3D.classList.toggle('active', running);
@@ -3975,9 +3975,11 @@ function switchTab(tab) {
     if(tab === 'cosmos3D') {
         if(!cosmos3DInitialized && typeof init3D === 'function') {
             init3D();
-        } else if(typeof onCosmos3DResize === 'function') {
-            setTimeout(onCosmos3DResize, 50);
         }
+        setTimeout(() => {
+            if(typeof onCosmos3DResize === 'function') onCosmos3DResize();
+            if(cosmos3DInitialized && typeof updateAstronomy === 'function') updateAstronomy(currentDate);
+        }, 60);
     }
 }
 
@@ -4654,8 +4656,33 @@ let cosmos3DInitialized = false;
             'القوس ♐', 'الجدي ♑', 'الدلو ♒', 'الحوت ♓'
         ];
 
+        // Polyfill for roundRect on older browsers
+        if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, radii) {
+                if (!Array.isArray(radii)) radii = [radii || 0];
+                const r = radii[0] || 0;
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.lineTo(x + w - r, y);
+                this.quadraticCurveTo(x + w, y, x + w, y + r);
+                this.lineTo(x + w, y + h - r);
+                this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                this.lineTo(x + r, y + h);
+                this.quadraticCurveTo(x, y + h, x, y + h - r);
+                this.lineTo(x, y + r);
+                this.quadraticCurveTo(x, y, x + r, y);
+                this.closePath();
+                return this;
+            };
+        }
+
         function init3D() {
             if (cosmos3DInitialized) return;
+            if (typeof THREE === 'undefined' || typeof THREE.OrbitControls === 'undefined') {
+                console.warn('Three.js / OrbitControls is still loading, will retry in 120ms...');
+                setTimeout(init3D, 120);
+                return;
+            }
             const container = document.getElementById('webgl-container');
             if (!container) return;
             const width = container.clientWidth || 1100;
@@ -5289,14 +5316,16 @@ let cosmos3DInitialized = false;
         // حلقة الحركة الرئيسية المدمجة
         function drawCosmos3D(dt) {
             if (!cosmos3DInitialized) return;
-            updateAstronomy(currentDate);
-            if (controls) {
-                controls.autoRotate = is3DAutoRotate;
-                controls.autoRotateSpeed = 1.0;
-                controls.update();
-            }
-            if (renderer && scene && camera) {
-                renderer.render(scene, camera);
+            try {
+                updateAstronomy(currentDate);
+                if (controls) {
+                    controls.update();
+                }
+                if (renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            } catch (err) {
+                console.error('Error in drawCosmos3D:', err);
             }
         }
 
