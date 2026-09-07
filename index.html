@@ -1111,17 +1111,28 @@
         }
 
     
-        /* ==================== 3D CELESTIAL SIMULATOR STYLES ==================== */
-        #cosmos3DPanel { width: 100%; max-width: 1280px; }
+                /* ==================== 3D CELESTIAL SIMULATOR STYLES ==================== */
+        #cosmos3DPanel {
+            width: 100%;
+            max-width: 1320px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+        }
+        #cosmos3DPanel.active {
+            display: flex;
+        }
+
+        /* Hero 3D Viewport Box */
         #cosmos3DContainer {
             position: relative;
             width: 100%;
-            height: 750px;
+            height: 680px;
             min-height: 520px;
-            border-radius: 16px;
+            border-radius: 18px;
             overflow: hidden;
             border: 1.5px solid rgba(99, 102, 241, 0.45);
-            box-shadow: 0 14px 45px rgba(0, 0, 0, 0.85);
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.85);
             background: #020617;
             user-select: none;
         }
@@ -1132,6 +1143,8 @@
             border-radius: 0 !important;
             border: none !important;
         }
+
+        /* 3D Canvas */
         #cosmos3DContainer #webgl-container {
             width: 100%;
             height: 100%;
@@ -1140,348 +1153,309 @@
             left: 0;
             z-index: 1;
             cursor: grab;
+            overscroll-behavior: none !important;
+            touch-action: none !important;
         }
+        #cosmos3DContainer #webgl-container:active { cursor: grabbing; }
         #cosmos3DContainer #webgl-container canvas {
             display: block;
             width: 100% !important;
             height: 100% !important;
+            overscroll-behavior: none !important;
+            touch-action: none !important;
         }
-        #cosmos3DContainer #webgl-container:active { cursor: grabbing; }
 
-        
-                
-                
-                
-        
-                /* 3D WebGL Canvas */
-        #cosmos3DContainer #webgl-container {
-                    width: 100%;
-                    height: 100%;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    z-index: 1;
-                    cursor: grab;
-                    overscroll-behavior: none !important;
-                    touch-action: none !important;
-                }
-        #cosmos3DContainer #webgl-container canvas {
-                    overscroll-behavior: none !important;
-                    touch-action: none !important;
-                    display: block;
-                }
-        #cosmos3DContainer #webgl-container:active { cursor: grabbing; }
-        
-                /* Top Overlay Header */
-        #cosmos3DContainer .top-nav {
-                    position: absolute;
-                    top: 12px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    z-index: 10;
-                    background: var(--card-bg);
-                    backdrop-filter: blur(16px);
-                    border: 1.5px solid var(--border);
-                    border-radius: 9999px;
-                    padding: 8px 22px;
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-                    pointer-events: auto;
-                }
-        #cosmos3DContainer .top-nav h1 {
-                    font-size: 1.05em;
-                    font-weight: 800;
-                    color: var(--gold);
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    white-space: nowrap;
-                }
-        
-        #cosmos3DContainer .btn-view {
-                    background: rgba(49, 46, 129, 0.8);
-                    border: 1px solid #6366F1;
-                    color: #E0E7FF;
-                    padding: 5px 12px;
-                    border-radius: 20px;
-                    font-family: inherit;
-                    font-size: 0.82em;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 5px;
-                }
-        #cosmos3DContainer .btn-view:hover { background: #4338CA; color: #FFF; transform: translateY(-1px); }
-        #cosmos3DContainer .btn-view.active {
-                    background: #D97706;
-                    border-color: #FBBF24;
-                    color: #FFF;
-                    box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
-                }
-        
-                /* City Selector Floating Bar (Top Left) */
-        #cosmos3DContainer .city-bar {
-                    position: absolute;
-                    top: 74px;
-                    left: 18px;
-                    z-index: 10;
-                    background: var(--card-bg);
-                    backdrop-filter: blur(16px);
-                    border: 1.5px solid var(--border);
-                    border-radius: 16px;
-                    padding: 12px 16px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-                    pointer-events: auto;
-                    width: 320px;
-                }
-        #cosmos3DContainer .panel-header-row {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    width: 100%;
-                }
-        #cosmos3DContainer .btn-collapse {
-                    background: rgba(255,255,255,0.08);
-                    border: 1px solid rgba(255,255,255,0.2);
-                    color: #E2E8F0;
-                    width: 24px;
-                    height: 24px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-family: var(--mono);
-                    font-size: 0.85em;
-                    font-weight: bold;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: all 0.2s;
-                }
-        #cosmos3DContainer .btn-collapse:hover { background: #4338CA; color: #FFF; }
-        #cosmos3DContainer .city-bar label {
-                    color: var(--gold);
-                    font-weight: 800;
-                    font-size: 0.86em;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                }
-        #cosmos3DContainer select.city-select {
-                    background: var(--card-inner);
-                    color: #FFF;
-                    border: 1px solid rgba(99, 102, 241, 0.5);
-                    padding: 7px 10px;
-                    border-radius: 8px;
-                    font-family: inherit;
-                    font-size: 0.86em;
-                    font-weight: 700;
-                    outline: none;
-                    cursor: pointer;
-                    width: 100%;
-                }
-        #cosmos3DContainer select.city-select option { background: #0F172A; color: #FFF; }
+        /* Top Integrated Viewport Toolbar */
+        #cosmos3DContainer .c3d-toolbar {
+            position: absolute;
+            top: 14px;
+            left: 16px;
+            right: 16px;
+            z-index: 10;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            pointer-events: none;
+        }
+        #cosmos3DContainer .c3d-toolbar > * {
+            pointer-events: auto;
+        }
+        #cosmos3DContainer .c3d-toolgroup {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: 30px;
+            padding: 5px 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.5);
+        }
+        #cosmos3DContainer .c3d-city-select {
+            background: rgba(30, 41, 59, 0.95);
+            color: #F8FAFC;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 0.82em;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+            max-width: 260px;
+        }
+        #cosmos3DContainer .c3d-city-select option {
+            background: #0F172A;
+            color: #FFF;
+        }
         #cosmos3DContainer .custom-coord-row {
-                    display: flex;
-                    gap: 8px;
-                    align-items: center;
-                    background: rgba(0,0,0,0.25);
-                    padding: 6px 10px;
-                    border-radius: 8px;
-                    border: 1px dashed rgba(255,255,255,0.15);
-                }
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+        }
         #cosmos3DContainer .custom-coord-row input {
-                    background: var(--card-inner);
-                    color: var(--gold);
-                    border: 1px solid rgba(255,255,255,0.2);
-                    padding: 4px 6px;
-                    border-radius: 6px;
-                    font-family: var(--mono);
-                    font-size: 0.86em;
-                    width: 70px;
-                    text-align: center;
-                }
-        
-        #cosmos3DContainer .mouse-helper {
-                    font-size: 0.78em;
-                    color: #94A3B8;
-                    line-height: 1.5;
-                    border-top: 1px solid rgba(255,255,255,0.08);
-                    padding-top: 6px;
-                }
-        
-                /* Floating Telemetry HUD (Right) */
-        #cosmos3DContainer .telemetry-hud {
-                    position: absolute;
-                    top: 74px;
-                    right: 18px;
-                    z-index: 10;
-                    width: 330px;
-                    background: var(--card-bg);
-                    backdrop-filter: blur(16px);
-                    border: 1.5px solid var(--border);
-                    border-radius: 16px;
-                    padding: 14px 16px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 9px;
-                    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
-                    pointer-events: auto;
-                    max-height: calc(100vh - 220px);
-                    overflow-y: auto;
-                }
-        #cosmos3DContainer .telemetry-hud::-webkit-scrollbar { width: 4px; }
-        #cosmos3DContainer .telemetry-hud::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 4px; }
-        
-        #cosmos3DContainer .telemetry-hud h3 {
-                    font-size: 1.05em;
-                    color: var(--gold);
-                    border-bottom: 1px solid rgba(255,255,255,0.1);
-                    padding-bottom: 5px;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                }
-        #cosmos3DContainer .hud-row {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    font-size: 0.86em;
-                }
-        #cosmos3DContainer .hud-label { color: var(--subtext); }
-        #cosmos3DContainer .hud-val {
-                    font-family: var(--mono);
-                    font-weight: 700;
-                    color: #FFF;
-                }
-        #cosmos3DContainer .hud-val.gold { color: var(--gold); }
-        #cosmos3DContainer .hud-val.blue { color: var(--blue); }
-        #cosmos3DContainer .hud-val.purple { color: var(--purple); }
-        #cosmos3DContainer .hud-val.silver { color: #E2E8F0; }
-        
-        #cosmos3DContainer .azimuth-bar-wrap {
-                    background: var(--card-inner);
-                    border-radius: 10px;
-                    padding: 8px 10px;
-                    border: 1px solid rgba(255,255,255,0.06);
-                }
-        #cosmos3DContainer .azimuth-title {
-                    font-size: 0.82em;
-                    color: var(--gold);
-                    font-weight: 700;
-                    margin-bottom: 4px;
-                }
-        
-                /* Moon Specific Box */
-        #cosmos3DContainer .moon-box {
-                    background: rgba(147, 51, 234, 0.12);
-                    border: 1.5px solid rgba(192, 132, 252, 0.5);
-                    border-radius: 10px;
-                    padding: 8px 10px;
-                }
-        
-        #cosmos3DContainer .spheres-toggle-group {
-                    background: var(--card-inner);
-                    border-radius: 10px;
-                    padding: 8px 10px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 6px;
-                    border: 1px solid rgba(255,255,255,0.06);
-                }
-        #cosmos3DContainer .toggle-item {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    font-size: 0.82em;
-                    color: #CBD5E1;
-                    cursor: pointer;
-                }
-        #cosmos3DContainer .toggle-item input {
-                    cursor: pointer;
-                    accent-color: var(--gold);
-                }
-        
-                /* Bottom Floating Controls Bar */
-        #cosmos3DContainer .bottom-bar {
-                    position: absolute;
-                    bottom: 16px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    z-index: 10;
-                    width: 92%;
-                    max-width: 1220px;
-                    background: var(--card-bg);
-                    backdrop-filter: blur(16px);
-                    border: 1.5px solid var(--border);
-                    border-radius: 16px;
-                    padding: 12px 20px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
-                    pointer-events: auto;
-                }
-        #cosmos3DContainer .bar-row {
-                    display: flex;
-                    flex-wrap: wrap;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 10px;
-                }
-        #cosmos3DContainer .bar-group {
-                    display: flex;
-                    align-items: center;
-                    gap: 7px;
-                    flex-wrap: wrap;
-                }
-        #cosmos3DContainer .btn-ui {
-                    background: rgba(49, 46, 129, 0.7);
-                    border: 1px solid rgba(99, 102, 241, 0.5);
-                    color: #E0E7FF;
-                    padding: 5px 11px;
-                    border-radius: 8px;
-                    font-family: inherit;
-                    font-size: 0.83em;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-        #cosmos3DContainer .btn-ui:hover {
-                    background: #4338CA;
-                    color: #FFF;
-                    transform: translateY(-1px);
-                }
-        #cosmos3DContainer .btn-ui.active {
-                    background: #D97706;
-                    border-color: #FBBF24;
-                    color: #FFF;
-                }
-        #cosmos3DContainer .btn-moon-phase {
-                    background: rgba(147, 51, 234, 0.5);
-                    border-color: #C084FC;
-                    color: #F3E8FF;
-                }
-        #cosmos3DContainer .btn-moon-phase:hover {
-                    background: #9333EA;
-                    color: #FFF;
-                }
-        #cosmos3DContainer .btn-play {
-                    background: linear-gradient(135deg, #2563EB, #1D4ED8);
-                    border: 1px solid #60A5FA;
-                    color: #FFF;
-                    padding: 6px 16px;
-                    border-radius: 9999px;
-                    font-weight: 800;
-                }
-            
+            background: #1E293B;
+            color: var(--gold);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-size: 0.8em;
+            width: 65px;
+            text-align: center;
+        }
+
+        #cosmos3DContainer .btn-view {
+            background: rgba(49, 46, 129, 0.75);
+            border: 1px solid rgba(129, 140, 248, 0.4);
+            color: #E0E7FF;
+            padding: 5px 11px;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 0.8em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        #cosmos3DContainer .btn-view:hover {
+            background: #4338CA;
+            color: #FFF;
+            transform: translateY(-1px);
+        }
+        #cosmos3DContainer .btn-view.active {
+            background: #D97706;
+            border-color: #FBBF24;
+            color: #FFF;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Floating Hint Pill at bottom-right of viewport */
+        #cosmos3DContainer .c3d-hint-pill {
+            position: absolute;
+            bottom: 12px;
+            right: 14px;
+            z-index: 5;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94A3B8;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.76em;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ==================== 3D DASHBOARD GRID (BELOW VIEWPORT) ==================== */
+        .c3d-dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            width: 100%;
+        }
+        @media (max-width: 1100px) {
+            .c3d-dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            #cosmos3DContainer {
+                height: 560px;
+            }
+        }
+
+        .c3d-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        .c3d-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 8px;
+        }
+        .c3d-card-header h3 {
+            font-size: 1.02em;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .c3d-badge {
+            font-size: 0.74em;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        /* Telemetry Table Inside Card 1 */
+        .c3d-telemetry-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .c3d-telemetry-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.84em;
+            padding: 3px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.05);
+        }
+        .c3d-telemetry-row:last-child {
+            border-bottom: none;
+        }
+        .c3d-telemetry-label {
+            color: var(--subtext);
+        }
+        .c3d-telemetry-val {
+            font-family: var(--mono);
+            font-weight: 700;
+            color: #FFF;
+        }
+        .c3d-telemetry-val.gold { color: var(--gold); }
+        .c3d-telemetry-val.blue { color: var(--blue); }
+        .c3d-telemetry-val.purple { color: #D8B4FE; }
+        .c3d-telemetry-val.silver { color: #E2E8F0; }
+
+        .c3d-section-box {
+            background: var(--card-inner);
+            border-radius: 10px;
+            padding: 9px 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* Checkbox Toggles Inside Card 2 */
+        .c3d-layers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .c3d-toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.84em;
+            color: #CBD5E1;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+        .c3d-toggle-item:hover {
+            background: rgba(255,255,255,0.04);
+        }
+        .c3d-toggle-item input {
+            cursor: pointer;
+            accent-color: var(--gold);
+            width: 17px;
+            height: 17px;
+        }
+
+        /* Action Buttons Inside Card 3 */
+        .c3d-actions-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .c3d-sub-title {
+            font-size: 0.82em;
+            font-weight: 800;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .c3d-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .c3d-btn-ui {
+            background: rgba(49, 46, 129, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #E0E7FF;
+            padding: 6px 11px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.81em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .c3d-btn-ui:hover {
+            background: #4338CA;
+            color: #FFF;
+            transform: translateY(-1px);
+        }
+        .c3d-btn-ui.active {
+            background: #D97706;
+            border-color: #FBBF24;
+            color: #FFF;
+        }
+        .c3d-btn-moon {
+            background: rgba(147, 51, 234, 0.35);
+            border-color: rgba(192, 132, 252, 0.45);
+            color: #F3E8FF;
+        }
+        .c3d-btn-moon:hover {
+            background: #9333EA;
+            color: #FFF;
+        }
+        .c3d-btn-play {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            border: 1px solid #60A5FA;
+            color: #FFF;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+        }
     </style>
-    <!-- Three.js and OrbitControls for 3D Celestial Simulator -->
+<!-- Three.js and OrbitControls for 3D Celestial Simulator -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
@@ -2253,230 +2227,241 @@
 
 <!-- ===== VIEW 7: 3D CELESTIAL & CONCENTRIC ORBS SIMULATOR ===== -->
 <div id="cosmos3DPanel" class="view-panel" style="flex-direction:column; align-items:center; gap:16px;">
-    <div style="text-align:center; max-width:1280px; width:100%; margin-top:4px; padding:12px 18px; background:rgba(15,23,42,0.65); border:1px solid rgba(99,102,241,0.3); border-radius:14px;">
-        <h2 style="color:var(--gold); font-size:1.5em; font-weight:900; margin-bottom:4px;">
+    <!-- Title & Intro Header -->
+    <div style="text-align:center; max-width:1320px; width:100%; margin-top:4px; padding:14px 20px; background:rgba(15,23,42,0.65); border:1px solid rgba(99,102,241,0.3); border-radius:14px;">
+        <h2 style="color:var(--gold); font-size:1.45em; font-weight:900; margin-bottom:4px;">
             🌐 المحاكي الفلكي ثلاثي الأبعاد (3D): قبة السماء والأفلاك التسعة وتغير المشارق والمغارب
         </h2>
-        <p style="color:var(--subtext); font-size:0.92em; max-width:960px; margin:0 auto; line-height:1.6;">
-            رؤية تجسيدية كاملة في الفضاء ثلاثي الأبعاد لنماذج ابن الشاطر الفلكية: حركة الشمس على فلك البروج المائل بزاوية &epsilon; = 23&deg; 31' ومسارات الانقلابين والاعتدالين، ودورة القمر وأوجهه وتغير مواضع الشروق والغروب على أفق دمشق وسائر الأمصار، مع دوران الفلك التاسع (الأطلس) المحرك للكون.
+        <p style="color:var(--subtext); font-size:0.9em; max-width:980px; margin:0 auto; line-height:1.6;">
+            تجسيد كامل في الفضاء ثلاثي الأبعاد لنماذج ابن الشاطر الفلكية: حركة الشمس على فلك البروج المائل بزاوية &epsilon; = 23&deg; 31' ومسارات الانقلابين والاعتدالين، ودورة القمر وأوجهه وتغير مواضع الشروق والغروب على أفق دمشق وسائر الأمصار، مع دوران الفلك التاسع (الأطلس) المحرك للكون.
         </p>
     </div>
 
+    <!-- Hero 3D Viewport Box -->
     <div id="cosmos3DContainer">
         <!-- 3D WebGL Canvas -->
-    <div id="webgl-container"></div>
+        <div id="webgl-container"></div>
 
-    <!-- Top Navigation Header with Camera Presets -->
-    <div class="top-nav">
-        <h1>🪐 محاكي الأفلاك التسعة وتغير المشارق والمغارب ودورة القمر</h1>
-        <div style="display: flex; gap: 6px;">
-            <button id="btnViewHorizon" class="btn-view active" onclick="setCameraPreset('horizon')">👁️ منظور الأفق</button>
-            <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')">★ نحو النجم القطبي</button>
-            <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')">🌙 تتبع القمر</button>
-            <button id="btnViewSun" class="btn-view" onclick="setCameraPreset('sun')">☀️ تتبع الشمس</button>
-            <button id="btnViewOrbit" class="btn-view" onclick="setCameraPreset('orbit')">🌌 منظور كوني مائل</button>
-            <button id="btnViewPolar" class="btn-view" onclick="setCameraPreset('polar')">🧭 منظور رأسي</button>
-            <button id="btnAutoRotate" class="btn-view" onclick="toggleAutoRotate()">🔄 تدوير تلقائي</button>
-        <button class="btn-view" style="background:#059669; border-color:#34D399; color:#FFF;" onclick="toggleCosmos3DFullscreen()">⛶ ملء الشاشة</button>
+        <!-- Sleek Top Integrated Viewport Toolbar -->
+        <div class="c3d-toolbar">
+            <!-- Observer Location Group -->
+            <div class="c3d-toolgroup">
+                <label for="citySelect" style="color:var(--gold); font-weight:800; font-size:0.82em; display:flex; align-items:center; gap:4px;">📍 المرصد:</label>
+                <select id="citySelect" class="c3d-city-select" onchange="onCityChange(this.value)">
+                    <option value="damascus" selected>دمشق — مرصد ابن الشاطر (33.51°N)</option>
+                    <option value="mecca">مكة المكرمة — الكعبة المشرفة (21.42°N)</option>
+                    <option value="medina">المدينة المنورة (24.47°N)</option>
+                    <option value="jerusalem">القدس الشريف (31.78°N)</option>
+                    <option value="cairo">القاهرة — مرصد ابن يونس (30.04°N)</option>
+                    <option value="alexandria">الإسكندرية — مرصد بطلميوس (31.20°N)</option>
+                    <option value="baghdad">بغداد — مرصد بيت الحكمة (33.31°N)</option>
+                    <option value="maragha">مراغة — مرصد الطوسي (37.39°N)</option>
+                    <option value="samarkand">سمرقند — مرصد ألغ بك (39.65°N)</option>
+                    <option value="equator">خط الاستواء — الفلك المستقيم (0.0°)</option>
+                    <option value="pole">القطب الشمالي (90.0°N)</option>
+                    <option value="sydney">سيدني — نصف الكرة الجنوبي (-33.87°S)</option>
+                    <option value="custom">⚙️ إحداثيات مخصصة...</option>
+                </select>
+                <div id="customCoordRow" class="custom-coord-row" style="display:none;">
+                    <span style="font-size:0.8em; color:var(--gold);">عرض:</span>
+                    <input type="number" id="inputLat" value="33.51" step="0.5" min="-90" max="90" onchange="onCustomCoordChange()">
+                    <span style="font-size:0.8em; color:var(--blue);">طول:</span>
+                    <input type="number" id="inputLon" value="36.29" step="0.5" min="-180" max="180" onchange="onCustomCoordChange()">
+                </div>
+            </div>
+
+            <!-- Camera Presets Group -->
+            <div class="c3d-toolgroup">
+                <span style="color:#94A3B8; font-size:0.8em; font-weight:bold;">👁️ الكاميرا:</span>
+                <button id="btnViewHorizon" class="btn-view active" onclick="setCameraPreset('horizon')">الأفق</button>
+                <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')">★ القطب</button>
+                <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')">🌙 القمر</button>
+                <button id="btnViewSun" class="btn-view" onclick="setCameraPreset('sun')">☀️ الشمس</button>
+                <button id="btnViewOrbit" class="btn-view" onclick="setCameraPreset('orbit')">🌌 كوني</button>
+                <button id="btnViewPolar" class="btn-view" onclick="setCameraPreset('polar')">🧭 رأسي</button>
+                <button id="btnAutoRotate" class="btn-view" onclick="toggleAutoRotate()">🔄 تدوير</button>
+            </div>
+
+            <!-- Fullscreen Action -->
+            <div class="c3d-toolgroup" style="padding:4px 8px;">
+                <button class="btn-view" style="background:#059669; border-color:#34D399; color:#FFF;" onclick="toggleCosmos3DFullscreen()">⛶ ملء الشاشة</button>
+            </div>
+        </div>
+
+        <!-- Floating Hint Pill at Bottom Right -->
+        <div class="c3d-hint-pill">
+            <span>💡 <strong>التحكم:</strong> سحب بالماوس للتدوير 360° | عجلة الماوس للتقريب | الزر الأيمن للإزاحة</span>
         </div>
     </div>
 
-    <!-- City & Coordinates Bar (Left) -->
-    <div class="city-bar" id="cityPanel">
-        <div class="panel-header-row">
-            <label for="citySelect">📍 مرصد المدينة وموقع الراصد:</label>
-            <button class="btn-collapse" id="btnCollapseCity" onclick="togglePanel('city')">−</button>
-        </div>
-        <div id="cityPanelContent" style="display:flex; flex-direction:column; gap:8px;">
-        <select id="citySelect" class="city-select" onchange="onCityChange(this.value)">
-            <option value="damascus" selected>دمشق — مرصد ابن الشاطر والجامع الأموي (33.51°N)</option>
-            <option value="mecca">مكة المكرمة — الكعبة المشرفة (21.42°N)</option>
-            <option value="medina">المدينة المنورة (24.47°N)</option>
-            <option value="jerusalem">القدس الشريف (31.78°N)</option>
-            <option value="cairo">القاهرة — مرصد ابن يونس (30.04°N)</option>
-            <option value="alexandria">الإسكندرية — مرصد بطلميوس (31.20°N)</option>
-            <option value="baghdad">بغداد — مرصد بيت الحكمة (33.31°N)</option>
-            <option value="maragha">مراغة — مرصد الطوسي (37.39°N)</option>
-            <option value="samarkand">سمرقند — مرصد ألغ بك (39.65°N)</option>
-            <option value="equator">خط الاستواء — الفلك المستقيم (0.0°)</option>
-            <option value="pole">القطب الشمالي — شمس منتصف الليل (90.0°N)</option>
-            <option value="sydney">سيدني — نصف الكرة الجنوبي (-33.87°S)</option>
-            <option value="custom">⚙️ إحداثيات مخصصة (Custom Lat/Lon)...</option>
-        </select>
-
-        <div id="customCoordRow" class="custom-coord-row" style="display:none;">
-            <span style="font-size:0.82em; color:var(--gold);">خط العرض:</span>
-            <input type="number" id="inputLat" value="33.51" step="0.5" min="-90" max="90" onchange="onCustomCoordChange()">
-            <span style="font-size:0.82em; color:var(--blue);">خط الطول:</span>
-            <input type="number" id="inputLon" value="36.29" step="0.5" min="-180" max="180" onchange="onCustomCoordChange()">
-        </div>
-
-        <div class="mouse-helper">
-            💡 <strong>تحريك الكاميرا:</strong> سحب بالماوس للتدوير الحر 360° | عجلة الماوس للتقريب | الزر الأيمن للإزاحة.
-        </div>
-        </div>
-    </div>
-
-    <!-- Right Floating Telemetry & Spheres HUD -->
-    <div class="telemetry-hud" id="hudPanel">
-        <div class="panel-header-row">
-            <h3>📐 قياسات الشمس والمشارق والمغارب</h3>
-            <button class="btn-collapse" id="btnCollapseHud" onclick="togglePanel('hud')">−</button>
-        </div>
-        <div id="hudPanelContent" style="display:flex; flex-direction:column; gap:9px;">
-        <div class="hud-row">
-            <span class="hud-label">المرصد المحدد:</span>
-            <span id="hudCityName" class="hud-val gold">دمشق (33.51°N)</span>
-        </div>
-        <div class="hud-row">
-            <span class="hud-label">التاريخ والوقت:</span>
-            <span id="hudDateTime" class="hud-val gold">2026-06-21 12:00</span>
-        </div>
-        <div class="hud-row">
-            <span class="hud-label">ميل الشمس (δ):</span>
-            <span id="hudSunDecl" class="hud-val gold">+23° 26'</span>
-        </div>
-        <div class="hud-row">
-            <span class="hud-label">ارتفاع الشمس:</span>
-            <span id="hudSunAlt" class="hud-val gold">79.9°</span>
-        </div>
-        <div class="hud-row">
-            <span class="hud-label">سمت الشروق والغروب:</span>
-            <span id="hudSunriseAz" class="hud-val gold">61.5° (شمال الشرق)</span>
-        </div>
-
-        <!-- مشارق ومغارب الأبراج والطالع اللحظي -->
-        <div class="azimuth-bar-wrap" style="border-right: 3px solid #C084FC; background: rgba(168,85,247,0.12); padding: 8px 10px; border-radius: 8px;">
-            <div class="azimuth-title" style="color:#E9D5FF; font-weight:800; font-size:0.86em; margin-bottom:5px;">
-                ✨ مشارق ومغارب الأبراج (سماء الواقع):
+    <!-- Structured 3-Column Dashboard Grid (Below the Canvas) -->
+    <div class="c3d-dashboard-grid">
+        <!-- Card 1: Astronomical Telemetry & Calculations -->
+        <div class="c3d-card" id="hudPanel">
+            <div class="c3d-card-header">
+                <h3 style="color:var(--gold);">📐 1. التيليمترية الفلكية والرصد اللحظي</h3>
+                <span class="c3d-badge" style="background:rgba(217,119,6,0.25); color:var(--gold); border:1px solid rgba(245,158,11,0.4);" id="hudCityName">دمشق (33.51°N)</span>
             </div>
-            <div class="hud-row">
-                <span class="hud-label">البرج الطالع الآن (مشرقاً):</span>
-                <span id="hudAscendantSign" class="hud-val purple" style="font-weight:bold; color:#D8B4FE;">الحمل ♈ (يشرق)</span>
-            </div>
-            <div class="hud-row">
-                <span class="hud-label">البرج الغارب الآن (مغرباً):</span>
-                <span id="hudDescendantSign" class="hud-val silver" style="color:#CBD5E1;">الميزان ♎ (يغيب)</span>
-            </div>
-            <div class="hud-row">
-                <span class="hud-label">نطاق مشارق الأبراج:</span>
-                <span id="hudZodiacAmpRange" class="hud-val gold" style="font-size:0.82em;">57.0° (61.5° إلى 118.5°)</span>
+            
+            <div class="c3d-telemetry-list" id="hudPanelContent">
+                <div class="c3d-telemetry-row">
+                    <span class="c3d-telemetry-label">التاريخ والوقت (UTC):</span>
+                    <span id="hudDateTime" class="c3d-telemetry-val gold">2026-06-21 12:00</span>
+                </div>
+                <div class="c3d-telemetry-row">
+                    <span class="c3d-telemetry-label">ميل الشمس (δ):</span>
+                    <span id="hudSunDecl" class="c3d-telemetry-val gold">+23° 26'</span>
+                </div>
+                <div class="c3d-telemetry-row">
+                    <span class="c3d-telemetry-label">ارتفاع الشمس اللحظي:</span>
+                    <span id="hudSunAlt" class="c3d-telemetry-val gold">79.9°</span>
+                </div>
+                <div class="c3d-telemetry-row">
+                    <span class="c3d-telemetry-label">سمت الشروق والغروب:</span>
+                    <span id="hudSunriseAz" class="c3d-telemetry-val gold">61.5° (شمال الشرق)</span>
+                </div>
+
+                <!-- مشارق ومغارب الأبراج -->
+                <div class="c3d-section-box" style="border-right: 3px solid #C084FC; background: rgba(168,85,247,0.12);">
+                    <div style="color:#E9D5FF; font-weight:800; font-size:0.84em;">✨ مشارق ومغارب الأبراج (الطالع والغارب):</div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">البرج الطالع شرقاً:</span>
+                        <span id="hudAscendantSign" class="c3d-telemetry-val purple">الحمل ♈ (يشرق)</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">البرج الغارب غرباً:</span>
+                        <span id="hudDescendantSign" class="c3d-telemetry-val silver">الميزان ♎ (يغيب)</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">نطاق مشارق الأبراج:</span>
+                        <span id="hudZodiacAmpRange" class="c3d-telemetry-val gold" style="font-size:0.8em;">57.0° (61.5° إلى 118.5°)</span>
+                    </div>
+                </div>
+
+                <!-- تفاصيل دورة القمر -->
+                <div class="c3d-section-box" style="border-right: 3px solid #A855F7; background: rgba(147,51,234,0.12);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:var(--purple); font-weight:800; font-size:0.84em;">🌙 دورة القمر وأوجهه:</span>
+                        <span id="hudMoonPhaseName" style="color:#FFF; font-weight:800; font-size:0.82em;">بدر تام (100%)</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">طور القمر ونسبة الإضاءة:</span>
+                        <span id="hudMoonIllum" class="c3d-telemetry-val purple">100% مضاء</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">استطالة القمر عن الشمس (D):</span>
+                        <span id="hudMoonElong" class="c3d-telemetry-val purple">180.0°</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">ارتفاع القمر الحالي:</span>
+                        <span id="hudMoonAlt" class="c3d-telemetry-val silver">15.2°</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">مطلع ومغيب القمر اليوم:</span>
+                        <span style="font-size:0.78em; color:#D8B4FE;"><span id="hudMoonriseAz">56.2°</span> / <span id="hudMoonsetAz">303.8°</span></span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- دورة القمر التفصيلية -->
-        <div class="moon-box">
-            <div class="azimuth-title" style="color:var(--purple); display:flex; justify-content:space-between;">
-                <span>🌙 دورة القمر وأوجهه الشهرية:</span>
-                <span id="hudMoonPhaseName" style="color:#FFF; font-weight:800;">بدر تام (100%)</span>
+        <!-- Card 2: 9 Spheres & Astronomical Layers -->
+        <div class="c3d-card">
+            <div class="c3d-card-header">
+                <h3 style="color:var(--blue);">🌐 2. طبقات الأفلاك التسعة والمحاور</h3>
+                <span class="c3d-badge" style="background:rgba(37,99,235,0.2); color:var(--blue); border:1px solid rgba(59,130,246,0.4);">8 طبقات تفاعلية</span>
             </div>
-            <div class="hud-row">
-                <span class="hud-label">طور القمر وإضاءته:</span>
-                <span id="hudMoonIllum" class="hud-val purple">100% مضاء</span>
-            </div>
-            <div class="hud-row">
-                <span class="hud-label">استطالة القمر (D):</span>
-                <span id="hudMoonElong" class="hud-val purple">180.0° (مقابل للشمس)</span>
-            </div>
-            <div class="hud-row">
-                <span class="hud-label">ارتفاع القمر الحالي:</span>
-                <span id="hudMoonAlt" class="hud-val silver">15.2°</span>
-            </div>
-            <div class="hud-row">
-                <span class="hud-label">مطلع القمر اليوم:</span>
-                <span id="hudMoonriseAz" class="hud-val purple">56.2° (شمال الشرق)</span>
-            </div>
-            <div class="hud-row">
-                <span class="hud-label">مغيب القمر اليوم:</span>
-                <span id="hudMoonsetAz" class="hud-val purple">303.8° (شمال الغرب)</span>
+
+            <div class="c3d-layers-list">
+                <label class="c3d-toggle-item">
+                    <span style="color:#E9D5FF; font-weight:bold;">🌙 مدار وقوس مسار القمر في السماء</span>
+                    <input type="checkbox" id="chkMoonArc" checked onchange="toggleLayer('moonArc', this.checked)">
+                </label>
+                <label class="c3d-toggle-item">
+                    <span style="color:#FCA5A5;">🔴 مسارات الشمس الموسمية (الانقلابين والاعتدالين)</span>
+                    <input type="checkbox" id="chkSunArcs" checked onchange="toggleLayer('sunArcs', this.checked)">
+                </label>
+                <label class="c3d-toggle-item">
+                    <span style="color:#6EE7B7;">🟢 دائرة الزوال وأول السموت (Meridian &amp; Prime Vertical)</span>
+                    <input type="checkbox" id="chkMeridian" checked onchange="toggleLayer('meridian', this.checked)">
+                </label>
+                <label class="c3d-toggle-item">
+                    <span style="color:#FDA4AF;">🪐 أجرام الكواكب السيارة (عطارد، الزهرة، المريخ، المشتري، زحل)</span>
+                    <input type="checkbox" id="chkPlanetBodies" checked onchange="toggleLayer('planetBodies', this.checked)">
+                </label>
+                <label class="c3d-toggle-item">
+                    <span style="color:#FDE047; font-weight:bold;">⭕ دوائر أفلاك ومدارات الكواكب الخمسة</span>
+                    <input type="checkbox" id="chkOrbitCircles" checked onchange="toggleLayer('orbitCircles', this.checked)">
+                </label>
+                <label class="c3d-toggle-item">
+                    <span style="color:#C4B5FD;">✨ الفلك الثامن (البروج السماوية والنجوم الثوابت)</span>
+                    <input type="checkbox" id="chkZodiac" checked onchange="toggleLayer('zodiac', this.checked)">
+                </label>
+                <label class="c3d-toggle-item">
+                    <span style="color:#93C5FD;">🌌 الفلك التاسع (فلك الأطلس المحرك للكون 24h)</span>
+                    <input type="checkbox" id="chkAtlas" checked onchange="toggleLayer('atlas', this.checked)">
+                </label>
+                <label class="c3d-toggle-item">
+                    <span style="color:#A7F3D0;">🟢 قرص الأفق المحلي والجهات الأصلية الأربعة</span>
+                    <input type="checkbox" id="chkHorizon" checked onchange="toggleLayer('horizon', this.checked)">
+                </label>
             </div>
         </div>
 
-        <!-- الطبقات والأفلاك التسعة -->
-        <div class="spheres-toggle-group">
-            <div class="azimuth-title" style="color:#60A5FA;">🌐 طبقات الأفلاك ومسار القمر:</div>
-            <label class="toggle-item">
-                <span style="color:#E9D5FF; font-weight:bold;">🌙 مدار وقوس مسار القمر في السماء</span>
-                <input type="checkbox" id="chkMoonArc" checked onchange="toggleLayer('moonArc', this.checked)">
-            </label>
-            <label class="toggle-item">
-                <span>🔴 أقواس مسارات الشمس الموسمية</span>
-                <input type="checkbox" id="chkSunArcs" checked onchange="toggleLayer('sunArcs', this.checked)">
-            </label>
-            <label class="toggle-item">
-                <span>🟢 دائرة الزوال وأول السموت (Meridian & Prime Vertical)</span>
-                <input type="checkbox" id="chkMeridian" checked onchange="toggleLayer('meridian', this.checked)">
-            </label>
-            <label class="toggle-item">
-                <span>🪐 أجرام الكواكب السيارة</span>
-                <input type="checkbox" id="chkPlanetBodies" checked onchange="toggleLayer('planetBodies', this.checked)">
-            </label>
-            <label class="toggle-item">
-                <span style="color:#FDE047; font-weight:bold;">⭕ دوائر أفلاك ومدارات الكواكب</span>
-                <input type="checkbox" id="chkOrbitCircles" checked onchange="toggleLayer('orbitCircles', this.checked)">
-            </label>
-            <label class="toggle-item">
-                <span>✨ الفلك الثامن (البروج والثوابت)</span>
-                <input type="checkbox" id="chkZodiac" checked onchange="toggleLayer('zodiac', this.checked)">
-            </label>
-            <label class="toggle-item">
-                <span>🌌 الفلك التاسع (الأطلس 24h)</span>
-                <input type="checkbox" id="chkAtlas" checked onchange="toggleLayer('atlas', this.checked)">
-            </label>
-            <label class="toggle-item">
-                <span>🟢 قرص الأفق والجهات الأربعة</span>
-                <input type="checkbox" id="chkHorizon" checked onchange="toggleLayer('horizon', this.checked)">
-            </label>
-        </div>
-        </div>
-    </div>
-
-    <!-- Bottom Controls Bar -->
-    <div class="bottom-bar">
-        <!-- الصف الأول: دورة القمر وأوجهه الأربعة -->
-        <div class="bar-row" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
-            <div class="bar-group">
-                <span style="color:var(--purple); font-weight:800; font-size:0.86em;">🌙 دورة القمر (القفز لأوجه القمر):</span>
-                <button class="btn-ui btn-moon-phase" onclick="jumpToMoonPhase(0)">🌑 محاق (D=0°)</button>
-                <button class="btn-ui btn-moon-phase" onclick="jumpToMoonPhase(90)">🌓 تربيع أول (D=90°)</button>
-                <button class="btn-ui btn-moon-phase" onclick="jumpToMoonPhase(180)">🌕 بدر تام (D=180°)</button>
-                <button class="btn-ui btn-moon-phase" onclick="jumpToMoonPhase(270)">🌗 تربيع أخير (D=270°)</button>
-                <button class="btn-ui" onclick="setCameraPreset('moon')">🔭 قفل الكاميرا على القمر</button>
+        <!-- Card 3: Astronomical Jumps, Moon Phases & Time Flow -->
+        <div class="c3d-card">
+            <div class="c3d-card-header">
+                <h3 style="color:var(--purple);">⏱️ 3. القفزات الفلكية وأوجه القمر والزمن</h3>
+                <span class="c3d-badge" style="background:rgba(147,51,234,0.25); color:var(--purple); border:1px solid rgba(192,132,252,0.4);">تحكم متزامن</span>
             </div>
 
-            <div class="bar-group">
-                <span style="color:var(--gold); font-weight:800; font-size:0.86em;">☀️ فصول السنة للشمس:</span>
-                <button class="btn-ui" onclick="jumpToSeason('spring')">🌸 اعتدال ربيعي</button>
-                <button class="btn-ui" onclick="jumpToSeason('summer')">☀️ انقلاب صيفي</button>
-                <button class="btn-ui" onclick="jumpToSeason('autumn')">🍂 اعتدال خريفي</button>
-                <button class="btn-ui" onclick="jumpToSeason('winter')">❄️ انقلاب شتوي</button>
-            </div>
-        </div>
+            <div class="c3d-actions-section">
+                <!-- Moon Phases -->
+                <div>
+                    <div class="c3d-sub-title">🌙 القفز المباشر لأوجه القمر الأربعة:</div>
+                    <div class="c3d-btn-group" style="margin-top:6px;">
+                        <button class="c3d-btn-ui c3d-btn-moon" onclick="jumpToMoonPhase(0)">🌑 محاق (0°)</button>
+                        <button class="c3d-btn-ui c3d-btn-moon" onclick="jumpToMoonPhase(90)">🌓 تربيع أول (90°)</button>
+                        <button class="c3d-btn-ui c3d-btn-moon" onclick="jumpToMoonPhase(180)">🌕 بدر (180°)</button>
+                        <button class="c3d-btn-ui c3d-btn-moon" onclick="jumpToMoonPhase(270)">🌗 تربيع أخير (270°)</button>
+                        <button class="c3d-btn-ui" onclick="setCameraPreset('moon')" style="color:#E9D5FF;">🔭 قفل الكاميرا على القمر</button>
+                    </div>
+                </div>
 
-        <!-- الصف الثاني: تدفق الزمن والسرعات -->
-        <div class="bar-row">
-            <div class="bar-group">
-                <button id="btnPlay" class="btn-ui btn-play" onclick="togglePlay()">⏸️ إيقاف</button>
-                <button class="btn-ui" onclick="stepTime(-1, 'hour')">⏪ -ساعة</button>
-                <button class="btn-ui" onclick="stepTime(1, 'hour')">⏩ +ساعة</button>
-                <button class="btn-ui" onclick="stepTime(-1, 'day')">⏪ -يوم</button>
-                <button class="btn-ui" onclick="stepTime(1, 'day')">⏩ +يوم</button>
-            </div>
+                <!-- Sun Seasons -->
+                <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
+                    <div class="c3d-sub-title">☀️ فصول السنة ومسار الشمس:</div>
+                    <div class="c3d-btn-group" style="margin-top:6px;">
+                        <button class="c3d-btn-ui" onclick="jumpToSeason('spring')">🌸 اعتدال ربيعي</button>
+                        <button class="c3d-btn-ui" onclick="jumpToSeason('summer')">☀️ انقلاب صيفي</button>
+                        <button class="c3d-btn-ui" onclick="jumpToSeason('autumn')">🍂 اعتدال خريفي</button>
+                        <button class="c3d-btn-ui" onclick="jumpToSeason('winter')">❄️ انقلاب شتوي</button>
+                    </div>
+                </div>
 
-            <div class="bar-group">
-                <label style="color:var(--gold);font-weight:bold;font-size:0.85em;">⚡ السرعة:</label>
-                <button class="btn-ui" onclick="applyUnifiedSpeed(0.0417)">1 س/ث</button>
-                <button class="btn-ui active" onclick="applyUnifiedSpeed(1)">1 يوم/ث (حركة يومية)</button>
-                <button class="btn-ui" onclick="applyUnifiedSpeed(7)">أسبوع/ث (تغير أوجه القمر)</button>
-                <button class="btn-ui" onclick="applyUnifiedSpeed(27.32)">شهر/ث (دورة قمرية كاملة)</button>
+                <!-- Time Flow & Speeds -->
+                <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
+                    <div class="c3d-sub-title">⏱️ خطوة الزمن وتدفق المحاكاة:</div>
+                    <div class="c3d-btn-group" style="margin-top:6px;">
+                        <button id="btnPlay" class="c3d-btn-ui c3d-btn-play" onclick="togglePlay()">⏸️ إيقاف</button>
+                        <button class="c3d-btn-ui" onclick="stepTime(-1, 'hour')">⏪ -ساعة</button>
+                        <button class="c3d-btn-ui" onclick="stepTime(1, 'hour')">⏩ +ساعة</button>
+                        <button class="c3d-btn-ui" onclick="stepTime(-1, 'day')">⏪ -يوم</button>
+                        <button class="c3d-btn-ui" onclick="stepTime(1, 'day')">⏩ +يوم</button>
+                    </div>
+                    <div class="c3d-btn-group" style="margin-top:8px;">
+                        <span style="font-size:0.8em; color:var(--subtext); align-self:center; margin-left:4px;">السرعة:</span>
+                        <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(0.0417)">1 س/ث</button>
+                        <button class="c3d-btn-ui active" onclick="applyUnifiedSpeed(1)">1 يوم/ث</button>
+                        <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(7)">أسبوع/ث</button>
+                        <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(27.32)">شهر/ث</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Three.js Astronomical Engine -->
-    </div>
-
-    <div style="max-width:1280px; width:100%; display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; margin-top:8px;">
+    <!-- Educational Cards Below Dashboard -->
+    <div style="max-width:1320px; width:100%; display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; margin-top:4px;">
         <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:14px 18px;">
             <h4 style="color:var(--gold); font-size:1.02em; font-weight:800; margin-bottom:6px;">📐 1. الميل الكلي للأفلاك (Obliquity of Ecliptic)</h4>
             <p style="color:var(--subtext); font-size:0.86em; line-height:1.6;">
@@ -2497,6 +2482,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
 
