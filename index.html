@@ -2172,17 +2172,17 @@
 
 <!-- Tab buttons -->
 <div class="tabs">
-    <button class="tab-btn" onclick="switchTab('cosmos')">🌌 1. هيأة الأفلاك التسعة</button>
+    <button class="tab-btn active" onclick="switchTab('cosmos')">🌌 1. هيأة الأفلاك التسعة</button>
     <button class="tab-btn" onclick="switchTab('sunComp')">☀️ 2. مقارنة نموذج الشمس</button>
     <button class="tab-btn" onclick="switchTab('moonComp')">🌙 3. مقارنة نموذج القمر</button>
     <button class="tab-btn" onclick="switchTab('planets')">🪐 4. الكواكب ومعادل بطلميوس</button>
     <button class="tab-btn" onclick="switchTab('study')">📚 5. الدراسة المقارنة الشاملة</button>
-    <button class="tab-btn active" onclick="switchTab('revolution')" style="color:#FDE047; border:1.5px solid rgba(245,158,11,0.5); background:rgba(245,158,11,0.12); box-shadow:0 0 15px rgba(245,158,11,0.2);">🔭 6. ثورة كوبرنيكوس وكيبلر (الشاطر vs المركزية الشمسية)</button>
+    <button class="tab-btn" onclick="switchTab('revolution')" style="color:#FDE047; border:1.5px solid rgba(245,158,11,0.5); background:rgba(245,158,11,0.12); box-shadow:0 0 15px rgba(245,158,11,0.2);">🔭 6. ثورة كوبرنيكوس وكيبلر (الشاطر vs المركزية الشمسية)</button>
     <button class="tab-btn" onclick="switchTab('cosmos3D')" style="color:#67E8F9; border:1.5px solid rgba(56,189,248,0.5); background:rgba(56,189,248,0.12); box-shadow:0 0 15px rgba(56,189,248,0.2);">🌐 7. المحاكي ثلاثي الأبعاد 3D (قبة السماء والأفلاك)</button>
 </div>
 
 <!-- ===== PANEL 1: COSMOS ===== -->
-<div id="cosmosPanel" class="view-panel">
+<div id="cosmosPanel" class="view-panel active">
     <div class="canvas-wrap" style="flex:1 1 600px;">
         <h4 style="color:var(--gold);">🌌 هيأة الأفلاك التسعة — متزامن مع التاريخ والوقت</h4>
         <canvas id="cosmosCanvas" width="660" height="660"></canvas>
@@ -2541,7 +2541,7 @@
 
 
 <!-- ===== PANEL 6: COPERNICUS & KEPLER REVOLUTION ===== -->
-<div id="revolutionPanel" class="view-panel active" style="flex-direction:column; align-items:center; gap:16px;">
+<div id="revolutionPanel" class="view-panel" style="flex-direction:column; align-items:center; gap:16px;">
     <!-- Revolution Header Banner -->
     <div style="text-align:center; max-width:1280px; width:100%; margin-top:4px; padding:12px 18px; background:rgba(15,23,42,0.65); border:1px solid rgba(245,158,11,0.3); border-radius:14px;">
         <h2 style="color:var(--gold); font-size:1.5em; font-weight:900; margin-bottom:4px;">
@@ -4951,7 +4951,7 @@ const tabMap = {
     revolution: 'revolutionPanel',
     cosmos3D:   'cosmos3DPanel'
 };
-let activeTab = 'revolution';
+let activeTab = 'cosmos';
 
 function switchTab(tab) {
     activeTab = tab;
@@ -5695,7 +5695,7 @@ setLiveNow();
 initRevolution();
 applyUnifiedSpeed(5.0);
 setClockRunning(true);
-switchTab('revolution');
+switchTab('cosmos');
 requestAnimationFrame(masterLoop);
 
 /* ==================== 3D CELESTIAL & CONCENTRIC ORBS SIMULATOR ENGINE ==================== */
