@@ -2833,7 +2833,7 @@
 
         <!-- Floating Hint Pill at Top Right below toolbar -->
         <div class="c3d-hint-pill">
-            <span>💡 <strong>التحكم:</strong> تدوير 360° | تقريب | سحب مدارات الفصول مباشرة</span>
+            <span>💡 <strong>التحكم:</strong> سحب بالماوس للتدوير 360° | عجلة الماوس للتقريب | الزر الأيمن للإزاحة</span>
         </div>
 
         <!-- Interactive Seasonal Orbit Scrubber & Isha Twilight Comparison Bar -->
@@ -2842,7 +2842,7 @@
             <div class="seasonal-header-row">
                 <div class="seasonal-title-wrap">
                     <span style="font-size:1.1em;">☀️</span>
-                    <span>تحريك المدارات بالماوس:</span>
+                    <span>تحريك المدارات بالسلايدر:</span>
                     <span id="c3dDeclBadge" class="c3d-decl-badge">⚖️ الاعتدالين (0.0°)</span>
                 </div>
                 <!-- Quick Snap Buttons -->
@@ -5744,7 +5744,6 @@ let cosmos3DInitialized = false;
             createTwilightDepressionCircles();
             createStarfield();
 
-            setupSeasonalOrbitMouseInteraction(container);
             window.addEventListener('resize', onCosmos3DResize);
             cosmos3DInitialized = true;
             updateAstronomy(currentDate);
@@ -7439,56 +7438,6 @@ let cosmos3DInitialized = false;
             }
         }
 
-        // تفاعل الماوس المباشر على شاشة الـ 3D لسحب المدارات الفلكية
-        function setupSeasonalOrbitMouseInteraction(containerElem) {
-            if (!containerElem) return;
-
-            const raycaster = new THREE.Raycaster();
-            raycaster.params.Line.threshold = 14;
-
-            containerElem.addEventListener('pointerdown', (e) => {
-                if (e.button !== 0 || !camera || !seasonalArcsGroup) return;
-                const rect = renderer.domElement.getBoundingClientRect();
-                const mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-                const mouseY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-                raycaster.setFromCamera(new THREE.Vector2(mouseX, mouseY), camera);
-                const intersects = raycaster.intersectObjects(seasonalArcsGroup.children, true);
-
-                if (intersects.length > 0) {
-                    const hitObj = intersects[0].object;
-                    if (hitObj.userData && hitObj.userData.season) {
-                        if (hitObj.userData.season === 'summer') snapSeason(23.516);
-                        else if (hitObj.userData.season === 'equinox') snapSeason(0.0);
-                        else if (hitObj.userData.season === 'winter') snapSeason(-23.516);
-                    }
-                    isDraggingSeasonalOrbit = true;
-                    dragStartY = e.clientY;
-                    const curVal = parseFloat(document.getElementById('seasonalSlider')?.value) || 0;
-                    dragStartDecl = curVal;
-                    if (controls) controls.enabled = false;
-                    document.body.style.cursor = 'ns-resize';
-                    e.stopPropagation();
-                }
-            });
-
-            window.addEventListener('pointermove', (e) => {
-                if (isDraggingSeasonalOrbit) {
-                    const dy = dragStartY - e.clientY;
-                    const newDecl = Math.max(-23.516, Math.min(23.516, dragStartDecl + dy * 0.18));
-                    setSeasonalDeclination(newDecl);
-                }
-            });
-
-            window.addEventListener('pointerup', () => {
-                if (isDraggingSeasonalOrbit) {
-                    isDraggingSeasonalOrbit = false;
-                    if (controls) controls.enabled = true;
-                    document.body.style.cursor = 'default';
-                }
-            });
-        }
-
-</script>
+    </script>
 </body>
 </html>
