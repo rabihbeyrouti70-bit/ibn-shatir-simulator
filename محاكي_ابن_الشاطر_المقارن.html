@@ -2610,6 +2610,9 @@
                 <button type="button" id="btnOpenWorldMap" class="btn-view" style="background:linear-gradient(135deg,#0284c7,#2563eb); border-color:#38bdf8; color:#fff; font-weight:800; box-shadow:0 0 10px rgba(56,189,248,0.35);" onclick="openWorldMapModal()" title="فتح خريطة العالم التفاعلية والبحث عن أي مدينة حول العالم">
                     🗺️ الخريطة والبحث
                 </button>
+                <button type="button" id="btnToggleTwilight" class="btn-view active" style="background:linear-gradient(135deg,#7c2d12,#9a3412); border-color:#f97316; color:#fed7aa; font-weight:700;" onclick="toggleTwilightCircles()" title="إظهار/إخفاء دوائر العشائين الشافعي (16°) والحنفي (18°) تحت الأفق">
+                    🕌 العشائين (16°/18°)
+                </button>
                 <div id="customCoordRow" class="custom-coord-row" style="display:none;">
                     <span style="font-size:0.8em; color:var(--gold);">عرض:</span>
                     <input type="number" id="inputLat" value="33.51" step="0.5" min="-90" max="90" oninput="onCustomCoordChange()" onchange="onCustomCoordChange()">
@@ -2838,6 +2841,30 @@
                 <div class="c3d-telemetry-row">
                     <span class="c3d-telemetry-label">سمت الشروق والغروب:</span>
                     <span id="hudSunriseAz" class="c3d-telemetry-val gold">61.5° (شمال الشرق)</span>
+                </div>
+
+                <!-- ميقات العشائين وزوايا انحطاط الشمس عند رئيس المؤقتين ابن الشاطر -->
+                <div class="c3d-section-box" style="border-right: 3px solid #F97316; background: rgba(249, 115, 22, 0.1);">
+                    <div style="color:#FED7AA; font-weight:800; font-size:0.84em; display:flex; justify-content:space-between; align-items:center;">
+                        <span>🕌 ميقات العشائين وزوايا انحطاط الشمس (المؤقت ابن الشاطر):</span>
+                        <span id="hudSunTwilightStatus" style="font-size:0.8em; color:#FDE047; background:rgba(0,0,0,0.5); padding:2px 8px; border-radius:10px; border:1px solid rgba(245,158,11,0.4);">☀️ نهار</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">غروب الشمس (المغرب 0°):</span>
+                        <span id="hudSunsetTime" class="c3d-telemetry-val gold">--:--</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">العشاء الشافعي (16° تحت الأفق):</span>
+                        <span id="hudIshaShafiTime" class="c3d-telemetry-val" style="color:#F97316; font-weight:bold;">--:--</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">العشاء الحنفي (18° تحت الأفق):</span>
+                        <span id="hudIshaHanafiTime" class="c3d-telemetry-val" style="color:#818CF8; font-weight:bold;">--:--</span>
+                    </div>
+                    <div class="c3d-telemetry-row">
+                        <span class="c3d-telemetry-label">فارق ما بين العشائين:</span>
+                        <span id="hudIshaDiffTime" class="c3d-telemetry-val silver">-- دقيقة</span>
+                    </div>
                 </div>
 
                 <!-- مشارق ومغارب الأبراج -->
@@ -5244,7 +5271,13 @@ let cosmos3DInitialized = false;
 
         // كائنات Three.js
         let scene, camera, renderer, controls;
-        let horizonGroup, seasonalArcsGroup, planetsGroup, zodiacGroup, atlasGroup, moonArcGroup;
+        let horizonGroup, seasonalArcsGroup, planetsGroup, zodiacGroup, atlasGroup, moonArcGroup, twilightGroup;
+        let ishaShafiLine, ishaHanafiLine, ishaShafiSector, ishaHanafiSector;
+        let ishaShafiLabelSprite, ishaHanafiLabelSprite;
+        let ishaShafiWaypointMesh, ishaHanafiWaypointMesh;
+        let ishaShafiWaypointSprite, ishaHanafiWaypointSprite;
+        let twilightDescendingArcLine;
+        let showTwilightCircles = true;
         let celestialAxisLine, celestialEquatorLine, polarisStar, polarisOrbitLine, polarisLabelSprite;
         let sunMesh, moonMesh, moonLight, moonLabelSprite;
         let zodiacLine, zodiacSprites = [];
@@ -5382,6 +5415,7 @@ let cosmos3DInitialized = false;
             createPlanetarySpheres();
             createZodiacBelt();
             createAtlasSphere();
+            createTwilightDepressionCircles();
             createStarfield();
 
             window.addEventListener('resize', onCosmos3DResize);
@@ -5801,6 +5835,161 @@ let cosmos3DInitialized = false;
             geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
             const starPoints = new THREE.Points(geom, new THREE.PointsMaterial({ color: 0xFFFFFF, size: 2.2, transparent: true, opacity: 0.85 }));
             atlasGroup.add(starPoints); // ربط النجوم الثوابت بالفلك الأطلس لتدور القبة السماوية بأكملها كل 24 ساعة
+        }
+
+
+        // ==========================================
+        // 🕌 دوائر العشائين الشافعي (16°) والحنفي (18°) وميقات الشفق
+        // ==========================================
+        function createTextBadgeSprite(text, color, scaleX = 32, scaleY = 7) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 380;
+            canvas.height = 70;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3.5;
+            ctx.beginPath();
+            ctx.roundRect(8, 8, 364, 54, 14);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#F8FAFC';
+            ctx.font = 'bold 20px "Cairo", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 190, 35);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMat);
+            sprite.scale.set(scaleX, scaleY, 1);
+            return sprite;
+        }
+
+        function updateTextBadgeSprite(sprite, text, color) {
+            if (!sprite || !sprite.material || !sprite.material.map) return;
+            const canvas = sprite.material.map.image;
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3.5;
+            ctx.beginPath();
+            ctx.roundRect(8, 8, canvas.width - 16, canvas.height - 16, 14);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#F8FAFC';
+            ctx.font = 'bold 20px "Cairo", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+            sprite.material.map.needsUpdate = true;
+        }
+
+        function createTwilightDepressionCircles() {
+            twilightGroup = new THREE.Group();
+            scene.add(twilightGroup);
+
+            const R = DOME_R; // 260
+            const h16 = 16.0 * Math.PI / 180;
+            const h18 = 18.0 * Math.PI / 180;
+
+            const y16 = -R * Math.sin(h16); // -71.67
+            const r16 = R * Math.cos(h16);  // 249.93
+
+            const y18 = -R * Math.sin(h18); // -80.34
+            const r18 = R * Math.cos(h18);  // 247.27
+
+            // 1. دائرة العشاء الشافعي (16° تحت الأفق - مغيب الشفق الأحمر)
+            const pts16 = [];
+            for (let i = 0; i <= 72; i++) {
+                const th = (i / 72) * Math.PI * 2;
+                pts16.push(new THREE.Vector3(r16 * Math.sin(th), y16, -r16 * Math.cos(th)));
+            }
+            const geom16 = new THREE.BufferGeometry().setFromPoints(pts16);
+            ishaShafiLine = new THREE.Line(
+                geom16,
+                new THREE.LineDashedMaterial({ color: 0xF97316, dashSize: 6, gapSize: 4, transparent: true, opacity: 0.85 })
+            );
+            ishaShafiLine.computeLineDistances();
+            twilightGroup.add(ishaShafiLine);
+
+            // قطاع شريط شفق الغرب للشافعي (نطاق مغيب الشمس سمت 210° إلى 330°)
+            const sec16Geom = new THREE.RingGeometry(r16 - 4, r16 + 3, 36, 1, Math.PI - 60 * Math.PI / 180, 120 * Math.PI / 180);
+            const sec16Mat = new THREE.MeshBasicMaterial({ color: 0xF97316, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+            ishaShafiSector = new THREE.Mesh(sec16Geom, sec16Mat);
+            ishaShafiSector.rotation.x = -Math.PI / 2;
+            ishaShafiSector.position.y = y16;
+            twilightGroup.add(ishaShafiSector);
+
+            // 2. دائرة العشاء الحنفي (18° تحت الأفق - مغيب الشفق الأبيض)
+            const pts18 = [];
+            for (let i = 0; i <= 72; i++) {
+                const th = (i / 72) * Math.PI * 2;
+                pts18.push(new THREE.Vector3(r18 * Math.sin(th), y18, -r18 * Math.cos(th)));
+            }
+            const geom18 = new THREE.BufferGeometry().setFromPoints(pts18);
+            ishaHanafiLine = new THREE.Line(
+                geom18,
+                new THREE.LineDashedMaterial({ color: 0x818CF8, dashSize: 6, gapSize: 4, transparent: true, opacity: 0.85 })
+            );
+            ishaHanafiLine.computeLineDistances();
+            twilightGroup.add(ishaHanafiLine);
+
+            // قطاع شريط شفق الغرب للحنفي
+            const sec18Geom = new THREE.RingGeometry(r18 - 4, r18 + 3, 36, 1, Math.PI - 60 * Math.PI / 180, 120 * Math.PI / 180);
+            const sec18Mat = new THREE.MeshBasicMaterial({ color: 0x818CF8, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+            ishaHanafiSector = new THREE.Mesh(sec18Geom, sec18Mat);
+            ishaHanafiSector.rotation.x = -Math.PI / 2;
+            ishaHanafiSector.position.y = y18;
+            twilightGroup.add(ishaHanafiSector);
+
+            // 3. شارات الأسماء الدائمة على الدائرتين في جهة الغرب
+            ishaShafiLabelSprite = createTextBadgeSprite('🟠 دائرة العشاء الشافعي (16° — مغيب الشفق الأحمر)', '#F97316', 38, 7.5);
+            ishaShafiLabelSprite.position.set(-r16 + 25, y16 - 2, 0);
+            twilightGroup.add(ishaShafiLabelSprite);
+
+            ishaHanafiLabelSprite = createTextBadgeSprite('🟣 دائرة العشاء الحنفي (18° — مغيب الشفق الأبيض)', '#818CF8', 38, 7.5);
+            ishaHanafiLabelSprite.position.set(-r18 + 25, y18 - 2, 0);
+            twilightGroup.add(ishaHanafiLabelSprite);
+
+            // 4. خرزتا التقاطع اللحظيتان مع مسار الشمس الغارب
+            const wpGeom16 = new THREE.SphereGeometry(4.2, 16, 16);
+            const wpMat16 = new THREE.MeshBasicMaterial({ color: 0xF97316 });
+            ishaShafiWaypointMesh = new THREE.Mesh(wpGeom16, wpMat16);
+            twilightGroup.add(ishaShafiWaypointMesh);
+
+            const wpGeom18 = new THREE.SphereGeometry(4.2, 16, 16);
+            const wpMat18 = new THREE.MeshBasicMaterial({ color: 0x818CF8 });
+            ishaHanafiWaypointMesh = new THREE.Mesh(wpGeom18, wpMat18);
+            twilightGroup.add(ishaHanafiWaypointMesh);
+
+            // 5. قوس هبوط الشمس الشفقي من الغروب إلى زاوية -18°
+            const descGeom = new THREE.BufferGeometry();
+            twilightDescendingArcLine = new THREE.Line(
+                descGeom,
+                new THREE.LineBasicMaterial({ color: 0xFDE047, transparent: true, opacity: 0.85, linewidth: 2 })
+            );
+            twilightGroup.add(twilightDescendingArcLine);
+
+            // 6. شارات بيانات التقاطع اللحظية (الوقت والمدة من الغروب)
+            ishaShafiWaypointSprite = createTextBadgeSprite('🔴 العشاء الشافعي: --:--', '#F97316', 36, 7.2);
+            twilightGroup.add(ishaShafiWaypointSprite);
+
+            ishaHanafiWaypointSprite = createTextBadgeSprite('🟣 العشاء الحنفي: --:--', '#818CF8', 36, 7.2);
+            twilightGroup.add(ishaHanafiWaypointSprite);
+        }
+
+        function toggleTwilightCircles() {
+            showTwilightCircles = !showTwilightCircles;
+            if (twilightGroup) twilightGroup.visible = showTwilightCircles;
+            const btn = document.getElementById('btnToggleTwilight');
+            if (btn) btn.classList.toggle('active', showTwilightCircles);
+            showC3DToast(showTwilightCircles ? '🕌 تم تفعيل دوائر العشائين (16° و 18°)' : 'تم إخفاء دوائر العشائين');
         }
 
         // إدارة المدينة والموقع الفلكي
@@ -6328,6 +6517,137 @@ let cosmos3DInitialized = false;
                     ampDeg = 90 - riseAzDeg;
                 }
             }
+
+            // ==========================================
+            // 🕌 حسابات ميقات العشائين الشافعي (16°) والحنفي (18°)
+            // ==========================================
+            function getSettingHourAngle(altRad) {
+                if (Math.abs(Math.cos(phi) * Math.cos(deltaSun)) < 0.0001) return null;
+                const cosH = (Math.sin(altRad) - Math.sin(phi) * Math.sin(deltaSun)) / (Math.cos(phi) * Math.cos(deltaSun));
+                if (Math.abs(cosH) > 1.0) return null;
+                return Math.acos(cosH); // زاوية الساعة موجبة للغروب غرباً
+            }
+
+            const hSetRad = -0.833 * Math.PI / 180; // الغروب المماس
+            const h16Rad = -16.0 * Math.PI / 180;   // العشاء الشافعي
+            const h18Rad = -18.0 * Math.PI / 180;   // العشاء الحنفي
+
+            const H_sunset = getSettingHourAngle(hSetRad);
+            const H_isha16 = getSettingHourAngle(h16Rad);
+            const H_isha18 = getSettingHourAngle(h18Rad);
+
+            function calcSolarTimeStr(H_val) {
+                if (H_val === null) return '--:--';
+                const hoursFromNoon = H_val * (180 / Math.PI) / 15.0;
+                // الوقت بالساعة المحلية الشمسية
+                const totalHours = (12.0 + hoursFromNoon + 24.0) % 24.0;
+                const hh = Math.floor(totalHours);
+                const mm = Math.floor((totalHours - hh) * 60);
+                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+            }
+
+            let sunsetTimeStr = calcSolarTimeStr(H_sunset);
+            let isha16TimeStr = calcSolarTimeStr(H_isha16);
+            let isha18TimeStr = calcSolarTimeStr(H_isha18);
+
+            let diff16Min = 0, diff18Min = 0, diffBetweenIshas = 0;
+            if (H_sunset !== null && H_isha16 !== null) {
+                diff16Min = Math.round(((H_isha16 - H_sunset) * (180 / Math.PI) / 15.0) * 60);
+            }
+            if (H_sunset !== null && H_isha18 !== null) {
+                diff18Min = Math.round(((H_isha18 - H_sunset) * (180 / Math.PI) / 15.0) * 60);
+            }
+            diffBetweenIshas = diff18Min - diff16Min;
+
+            // حساب مواضع نقاط التقاطع ثلاثية الأبعاد على القبة السماوية
+            function getPointAtDepression(altRad, H_val) {
+                if (H_val === null) return null;
+                const cosAlt = Math.cos(altRad);
+                let az = 0;
+                if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                    const cosAz = (Math.sin(deltaSun) - Math.sin(phi) * Math.sin(altRad)) / (Math.cos(phi) * cosAlt);
+                    az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+                    if (Math.sin(H_val) > 0) az = 2 * Math.PI - az;
+                }
+                return new THREE.Vector3(
+                    DOME_R * Math.cos(altRad) * Math.sin(az),
+                    DOME_R * Math.sin(altRad),
+                    -DOME_R * Math.cos(altRad) * Math.cos(az)
+                );
+            }
+
+            const p16 = getPointAtDepression(h16Rad, H_isha16);
+            const p18 = getPointAtDepression(h18Rad, H_isha18);
+            const pSet = getPointAtDepression(hSetRad, H_sunset);
+
+            if (p16 && ishaShafiWaypointMesh) {
+                ishaShafiWaypointMesh.position.copy(p16);
+                if (ishaShafiWaypointSprite) {
+                    ishaShafiWaypointSprite.position.set(p16.x, p16.y - 7, p16.z);
+                    updateTextBadgeSprite(ishaShafiWaypointSprite, `🔴 العشاء الشافعي (16°): ${isha16TimeStr} • بعد ${diff16Min}د من الغروب`, '#F97316');
+                }
+            }
+
+            if (p18 && ishaHanafiWaypointMesh) {
+                ishaHanafiWaypointMesh.position.copy(p18);
+                if (ishaHanafiWaypointSprite) {
+                    ishaHanafiWaypointSprite.position.set(p18.x, p18.y - 7, p18.z);
+                    updateTextBadgeSprite(ishaHanafiWaypointSprite, `🟣 العشاء الحنفي (18°): ${isha18TimeStr} • بعد ${diff18Min}د من الغروب`, '#818CF8');
+                }
+            }
+
+            // رسم قوس هبوط الشمس الشفقي الغاطس من الغروب إلى زاوية 18°
+            if (twilightDescendingArcLine && H_sunset !== null && H_isha18 !== null) {
+                const descPts = [];
+                for (let k = 0; k <= 24; k++) {
+                    const hCur = H_sunset + (k / 24) * (H_isha18 - H_sunset);
+                    const sinA = Math.sin(phi) * Math.sin(deltaSun) + Math.cos(phi) * Math.cos(deltaSun) * Math.cos(hCur);
+                    const a = Math.asin(Math.max(-1, Math.min(1, sinA)));
+                    let az = 0;
+                    const cosA = Math.cos(a);
+                    if (Math.abs(cosA) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
+                        const cosAz = (Math.sin(deltaSun) - Math.sin(phi) * sinA) / (Math.cos(phi) * cosA);
+                        az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+                        if (Math.sin(hCur) > 0) az = 2 * Math.PI - az;
+                    }
+                    descPts.push(new THREE.Vector3(DOME_R * Math.cos(a) * Math.sin(az), DOME_R * Math.sin(a), -DOME_R * Math.cos(a) * Math.cos(az)));
+                }
+                twilightDescendingArcLine.geometry.setFromPoints(descPts);
+            }
+
+            // تحديد الحالة اللحظية للشمس والشفق
+            const altSunDeg = altSun * 180 / Math.PI;
+            let twilightStatusText = '☀️ نهار';
+            let twilightStatusColor = '#FDE047';
+
+            if (altSunDeg >= 0) {
+                twilightStatusText = `☀️ نهار (+${altSunDeg.toFixed(1)}°)`;
+                twilightStatusColor = '#FDE047';
+            } else if (altSunDeg < 0 && altSunDeg >= -16.0) {
+                twilightStatusText = `🌅 وقت الشفق الأحمر (انحطاط ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                twilightStatusColor = '#F97316';
+            } else if (altSunDeg < -16.0 && altSunDeg >= -18.0) {
+                twilightStatusText = `🌌 دخل العشاء الشافعي (شفق أبيض ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                twilightStatusColor = '#C084FC';
+            } else {
+                twilightStatusText = `🌑 دخل العشاء الحنفي (ليل دامس ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                twilightStatusColor = '#818CF8';
+            }
+
+            // تحديث قيم الميقات في لوحة HUD
+            const elStatus = document.getElementById('hudSunTwilightStatus');
+            if (elStatus) {
+                elStatus.innerText = twilightStatusText;
+                elStatus.style.color = twilightStatusColor;
+            }
+            const elSet = document.getElementById('hudSunsetTime');
+            if (elSet) elSet.innerText = `${sunsetTimeStr} (سمت الغروب ${setAzDeg.toFixed(1)}°)`;
+            const elIsha16 = document.getElementById('hudIshaShafiTime');
+            if (elIsha16) elIsha16.innerText = `${isha16TimeStr} (بعد ${diff16Min} دقيقة من الغروب)`;
+            const elIsha18 = document.getElementById('hudIshaHanafiTime');
+            if (elIsha18) elIsha18.innerText = `${isha18TimeStr} (بعد ${diff18Min} دقيقة من الغروب)`;
+            const elIshaDiff = document.getElementById('hudIshaDiffTime');
+            if (elIshaDiff) elIshaDiff.innerText = `${diffBetweenIshas} دقيقة (الفارق بين مغيب الشفقين الأحمر والأبيض)`;
 
             // 2. حساب حركة القمر الدقيقة ودورته في السماء
             // طول القمر λ_moon وسرعته ~13.18° في اليوم
