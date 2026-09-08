@@ -2814,8 +2814,8 @@
                 <button type="button" id="btnOpenWorldMap" class="btn-view" style="background:linear-gradient(135deg,#0284c7,#2563eb); border-color:#38bdf8; color:#fff; font-weight:800; box-shadow:0 0 10px rgba(56,189,248,0.35);" onclick="openWorldMapModal()" title="فتح خريطة العالم التفاعلية والبحث عن أي مدينة حول العالم">
                     🗺️ الخريطة والبحث
                 </button>
-                <button type="button" id="btnToggleTwilight" class="btn-view active" style="background:linear-gradient(135deg,#7c2d12,#9a3412); border-color:#f97316; color:#fed7aa; font-weight:700;" onclick="toggleTwilightCircles()" title="إظهار/إخفاء دائرتي العشائين الشافعي (16°) والحنفي (18°) تحت الأفق">
-                    🕌 دوائر العشائين (16°/18°)
+                <button type="button" id="btnToggleTwilight" class="btn-view" style="background:linear-gradient(135deg,#7c2d12,#9a3412); border-color:#f97316; color:#fed7aa; font-weight:700;" onclick="toggleTwilightCircles()" title="التركيز على العشائين: إخفاء الكواكب والنجوم وإبراز المدارات والشمس والقمر والعشائين بحجم مقروء">
+                    🕌 وضع العشائين (16°/18°)
                 </button>
                 <div id="customCoordRow" class="custom-coord-row" style="display:none;">
                     <span style="font-size:0.8em; color:var(--gold);">عرض:</span>
@@ -5641,7 +5641,9 @@ let cosmos3DInitialized = false;
         let ishaShafiLine, ishaHanafiLine, ishaShafiSector, ishaHanafiSector;
         let ishaShafiLabelSprite, ishaHanafiLabelSprite;
         let twilightDescendingArcLine;
-        let showTwilightCircles = true;
+        let showTwilightCircles = false;
+        let isIshaFocusMode = false;
+        let savedVisibilityBeforeIsha = null;
         let celestialAxisLine, celestialEquatorLine, polarisStar, polarisOrbitLine, polarisLabelSprite;
         let currentSunOrbitLine = null;
         let currentSunsetSolarH = null;
@@ -6223,27 +6225,27 @@ let cosmos3DInitialized = false;
         // ==========================================
         // 🕌 دوائر العشائين الشافعي (16°) والحنفي (18°) وميقات الشفق
         // ==========================================
-        function createTextBadgeSprite(text, color, scaleX = 32, scaleY = 7) {
+        function createTextBadgeSprite(text, color, scaleX = 88, scaleY = 16) {
             const canvas = document.createElement('canvas');
-            canvas.width = 380;
-            canvas.height = 70;
+            canvas.width = 720;
+            canvas.height = 120;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.96)';
             ctx.strokeStyle = color;
-            ctx.lineWidth = 3.5;
+            ctx.lineWidth = 5;
             ctx.beginPath();
-            ctx.roundRect(8, 8, 364, 54, 14);
+            ctx.roundRect(10, 10, 700, 100, 18);
             ctx.fill();
             ctx.stroke();
 
-            ctx.fillStyle = '#F8FAFC';
-            ctx.font = 'bold 20px "Cairo", sans-serif';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 30px "Cairo", "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(text, 190, 35);
+            ctx.fillText(text, 360, 60);
 
             const texture = new THREE.CanvasTexture(canvas);
-            const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
             const sprite = new THREE.Sprite(spriteMat);
             sprite.scale.set(scaleX, scaleY, 1);
             return sprite;
@@ -6256,16 +6258,16 @@ let cosmos3DInitialized = false;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.96)';
             ctx.strokeStyle = color;
-            ctx.lineWidth = 3.5;
+            ctx.lineWidth = 5;
             ctx.beginPath();
-            ctx.roundRect(8, 8, canvas.width - 16, canvas.height - 16, 14);
+            ctx.roundRect(10, 10, canvas.width - 20, canvas.height - 20, 18);
             ctx.fill();
             ctx.stroke();
 
-            ctx.fillStyle = '#F8FAFC';
-            ctx.font = 'bold 20px "Cairo", sans-serif';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 30px "Cairo", "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -6339,19 +6341,78 @@ let cosmos3DInitialized = false;
             twilightGroup.add(twilightDescendingArcLine);
 
             // 4. وسمان رئيسيان فقط (واحد لكل دائرة كبرى، بدون تكرار)
-            ishaShafiLabelSprite = createTextBadgeSprite('🟠 دائرة العشاء الشافعي (16°): --:--', '#F97316', 36, 7.2);
+            ishaShafiLabelSprite = createTextBadgeSprite('🟠 دائرة العشاء الشافعي (16°): --:--', '#F97316', 88, 16);
             twilightGroup.add(ishaShafiLabelSprite);
 
-            ishaHanafiLabelSprite = createTextBadgeSprite('🟣 دائرة العشاء الحنفي (18°): --:--', '#818CF8', 36, 7.2);
+            ishaHanafiLabelSprite = createTextBadgeSprite('🟣 دائرة العشاء الحنفي (18°): --:--', '#818CF8', 88, 16);
             twilightGroup.add(ishaHanafiLabelSprite);
+
+            // دوائر العشائين مخفية حتى يتم النقر على زر العشائين
+            twilightGroup.visible = false;
         }
 
         function toggleTwilightCircles() {
-            showTwilightCircles = !showTwilightCircles;
-            if (twilightGroup) twilightGroup.visible = showTwilightCircles;
+            isIshaFocusMode = !isIshaFocusMode;
+
             const btn = document.getElementById('btnToggleTwilight');
-            if (btn) btn.classList.toggle('active', showTwilightCircles);
-            showC3DToast(showTwilightCircles ? '🕌 تم تفعيل دوائر العشائين (16° و 18°)' : 'تم إخفاء دوائر العشائين');
+            if (btn) btn.classList.toggle('active', isIshaFocusMode);
+
+            if (isIshaFocusMode) {
+                // حفظ حالة الطبقات قبل تفعيل وضع العشائين
+                savedVisibilityBeforeIsha = {
+                    planets: planetsGroup ? planetsGroup.visible : true,
+                    atlas: atlasGroup ? atlasGroup.visible : true,
+                    zodiac: zodiacGroup ? zodiacGroup.visible : true
+                };
+
+                // إخفاء كل ما له علاقة بالكواكب والنجوم والبروج والأطلس
+                if (planetsGroup) planetsGroup.visible = false;
+                if (atlasGroup) atlasGroup.visible = false;
+                if (zodiacGroup) zodiacGroup.visible = false;
+
+                // تحديث مربعات الاختيار في لوحة الطبقات لتعكس الإخفاء
+                const chkPlanets = document.getElementById('chkPlanetBodies');
+                const chkOrbits = document.getElementById('chkOrbitCircles');
+                const chkAtlas = document.getElementById('chkAtlas');
+                const chkZodiac = document.getElementById('chkZodiac');
+                if (chkPlanets) chkPlanets.checked = false;
+                if (chkOrbits) chkOrbits.checked = false;
+                if (chkAtlas) chkAtlas.checked = false;
+                if (chkZodiac) chkZodiac.checked = false;
+
+                // التأكد من بقاء دوائر المدارات والشمس والقمر والأفق والعشائين ظاهرة بوضوح تام
+                if (seasonalArcsGroup) seasonalArcsGroup.visible = true;
+                if (horizonGroup) horizonGroup.visible = true;
+                if (twilightGroup) twilightGroup.visible = true;
+                if (moonArcGroup) moonArcGroup.visible = true;
+                showTwilightCircles = true;
+
+                showC3DToast('🕌 تم تفعيل وضع العشائين: التركيز على المدارات والشمس والقمر والعشائين بحجم مقروء وإخفاء الكواكب والنجوم');
+            } else {
+                // استعادة الحالة السابقة للطبقات (الكواكب، النجوم، البروج)
+                if (savedVisibilityBeforeIsha) {
+                    if (planetsGroup) planetsGroup.visible = savedVisibilityBeforeIsha.planets;
+                    if (atlasGroup) atlasGroup.visible = savedVisibilityBeforeIsha.atlas;
+                    if (zodiacGroup) zodiacGroup.visible = savedVisibilityBeforeIsha.zodiac;
+
+                    const chkPlanets = document.getElementById('chkPlanetBodies');
+                    const chkAtlas = document.getElementById('chkAtlas');
+                    const chkZodiac = document.getElementById('chkZodiac');
+                    if (chkPlanets) chkPlanets.checked = savedVisibilityBeforeIsha.planets;
+                    if (chkAtlas) chkAtlas.checked = savedVisibilityBeforeIsha.atlas;
+                    if (chkZodiac) chkZodiac.checked = savedVisibilityBeforeIsha.zodiac;
+                } else {
+                    if (planetsGroup) planetsGroup.visible = true;
+                    if (atlasGroup) atlasGroup.visible = true;
+                    if (zodiacGroup) zodiacGroup.visible = true;
+                }
+
+                // إخفاء دوائر العشائين عند إنهاء الوضع
+                if (twilightGroup) twilightGroup.visible = false;
+                showTwilightCircles = false;
+
+                showC3DToast('تم إنهاء وضع العشائين واستعادة مشهد الكواكب والنجوم');
+            }
         }
 
         // إدارة المدينة والموقع الفلكي
@@ -6949,14 +7010,14 @@ let cosmos3DInitialized = false;
             const pSet = getPointAtDepression(hSetRad, H_sunset);
 
             if (p16 && ishaShafiLabelSprite) {
-                // وضع شارة الدائرة الشافعية عند نقطة وصول الشمس للدائرة غرباً (بدون طابة ملونة)
-                ishaShafiLabelSprite.position.set(p16.x + 8, p16.y + 5, p16.z);
+                // وضع شارة الدائرة الشافعية بحجم كبير ومقروء غرباً
+                ishaShafiLabelSprite.position.set(p16.x + 12, p16.y + 8, p16.z);
                 updateTextBadgeSprite(ishaShafiLabelSprite, `🟠 دائرة العشاء الشافعي (16°): ${isha16TimeStr} • بعد ${diff16Min}د من الغروب`, '#F97316');
             }
 
             if (p18 && ishaHanafiLabelSprite) {
-                // وضع شارة الدائرة الحنفية عند نقطة وصول الشمس للدائرة غرباً (بدون طابة ملونة)
-                ishaHanafiLabelSprite.position.set(p18.x - 8, p18.y - 7, p18.z);
+                // وضع شارة الدائرة الحنفية بحجم كبير ومقروء غرباً
+                ishaHanafiLabelSprite.position.set(p18.x - 12, p18.y - 12, p18.z);
                 updateTextBadgeSprite(ishaHanafiLabelSprite, `🟣 دائرة العشاء الحنفي (18°): ${isha18TimeStr} • بعد ${diff18Min}د من الغروب`, '#818CF8');
             }
 
