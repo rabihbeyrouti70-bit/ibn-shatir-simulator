@@ -1581,6 +1581,85 @@
 
         
         /* ==================== RIGHT & LEFT VERTICAL PANELS + BOTTOM ISHA PILL ==================== */
+        /* Top Center Floating Isha Difference Hero Banner */
+        #cosmos3DContainer .c3d-diff-banner {
+            position: absolute;
+            top: 58px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 12;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            border-radius: 18px;
+            padding: 5px 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        #cosmos3DContainer .c3d-diff-banner:hover {
+            border-color: #38BDF8;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 28px rgba(56, 189, 248, 0.5);
+            transform: translateX(-50%) translateY(-2px);
+        }
+        .diff-badge-main {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.92em;
+            font-weight: 800;
+        }
+        .diff-badge-main .diff-icon {
+            font-size: 1.15em;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+        }
+        .diff-badge-main .diff-label {
+            color: #E2E8F0;
+        }
+        .diff-badge-main .diff-highlight {
+            color: #38BDF8;
+            font-size: 1.18em;
+            font-weight: 900;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+        }
+        .diff-badge-sub {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78em;
+            color: #94A3B8;
+        }
+        .diff-badge-sub b {
+            color: #F8FAFC;
+        }
+        .diff-arrow {
+            color: #38BDF8;
+            font-weight: 800;
+            font-size: 0.9em;
+        }
+        .telem-diff-highlight {
+            background: rgba(56, 189, 248, 0.18);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            padding: 2px 8px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            #cosmos3DContainer .c3d-diff-banner {
+                top: 54px;
+                padding: 4px 10px;
+            }
+            .diff-badge-main { font-size: 0.82em; }
+            .diff-badge-sub { font-size: 0.72em; gap: 5px; }
+        }
+
         /* Right Vertical Panel (Seasons / Sun Declination) */
         #cosmos3DContainer .c3d-side-panel-right {
             position: absolute;
@@ -2882,6 +2961,20 @@
             <span>💡 <strong>التحكم:</strong> سحب بالماوس للتدوير 360° | عجلة الماوس للتقريب | الزر الأيمن للإزاحة</span>
         </div>
 
+        <!-- Top Center Floating Isha Difference Hero Banner -->
+        <div id="c3dIshaDiffBanner" class="c3d-diff-banner" onclick="toggleSeasonalComparisonTable()" title="نقر لعرض جدول المقارنة الفصلي الشامل لاختلاف وقت العشائين">
+            <div class="diff-badge-main">
+                <span class="diff-icon">⚡</span>
+                <span class="diff-label">الفارق بين العشائين:</span>
+                <span id="bannerIshaDiffVal" class="diff-highlight">10 دقائق</span>
+            </div>
+            <div class="diff-badge-sub">
+                <span>🟠 الشافعي (16°): <b id="bannerIsha16">19:17</b> (+<span id="bannerIsha16Diff">77</span>د)</span>
+                <span class="diff-arrow">⟵ <b id="bannerIshaGap">10د</b> ⟶</span>
+                <span>🟣 الحنفي (18°): <b id="bannerIsha18">19:27</b> (+<span id="bannerIsha18Diff">87</span>د)</span>
+            </div>
+        </div>
+
         <!-- Right Vertical Panel: Seasonal Sun Declination -->
         <div id="c3dRightPanel" class="c3d-side-panel-right">
             <div class="panel-header-title" style="color:var(--gold);">
@@ -2944,9 +3037,9 @@
                 <span id="telemIsha18Diff" class="telem-sub">(+87د)</span>
             </div>
             <div class="telem-sep">•</div>
-            <div class="telem-item">
+            <div class="telem-item telem-diff-highlight">
                 <span class="telem-lbl">⚡ الفارق:</span>
-                <span id="telemIshaDiff" class="telem-val" style="color:#38BDF8;">10 دقائق</span>
+                <span id="telemIshaDiff" class="telem-val" style="color:#38BDF8; font-weight:900;">10 دقائق</span>
             </div>
             <div class="telem-sep">•</div>
             <button type="button" id="btnToggleSeasonTable" class="btn-season-action" onclick="toggleSeasonalComparisonTable()">📊 مقارنة</button>
@@ -5643,7 +5736,7 @@ let cosmos3DInitialized = false;
         let scene, camera, renderer, controls;
         let horizonGroup, seasonalArcsGroup, planetsGroup, zodiacGroup, atlasGroup, moonArcGroup, twilightGroup;
         let ishaShafiLine, ishaHanafiLine, ishaShafiSector, ishaHanafiSector;
-        let ishaShafiLabelSprite, ishaHanafiLabelSprite;
+        let ishaShafiLabelSprite, ishaHanafiLabelSprite, ishaDiffLabelSprite;
         let twilightDescendingArcLine;
         let showTwilightCircles = false;
         let isIshaFocusMode = false;
@@ -5794,7 +5887,7 @@ let cosmos3DInitialized = false;
             createStarfield();
 
             // منع تدوير كاميرا Three.js عند التفاعل مع اللوحتين الجانبيتين أو الكبسولة السفلية
-            ['c3dRightPanel', 'c3dLeftPanel', 'c3dBottomPill', 'seasonalComparisonDrawer'].forEach(id => {
+            ['c3dRightPanel', 'c3dLeftPanel', 'c3dBottomPill', 'seasonalComparisonDrawer', 'c3dIshaDiffBanner'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     el.addEventListener('pointerdown', e => e.stopPropagation());
@@ -6356,9 +6449,13 @@ let cosmos3DInitialized = false;
             );
             twilightGroup.add(twilightDescendingArcLine);
 
-            // 4. وسمان مصغران وأنيقان (Micro-badges) خارج مسار هبوط الشمس لتفريغ الرؤية تماماً
+            // 4. وسوم مصغرة وأنيقة (Micro-badges) خارج مسار هبوط الشمس لتفريغ الرؤية تماماً
             ishaShafiLabelSprite = createTextBadgeSprite('🟠 16° شافعي', '#F97316', 24, 6);
             twilightGroup.add(ishaShafiLabelSprite);
+
+            // وسم الفارق بين العشائين في الفضاء ثلاثي الأبعاد بين الدائرتين
+            ishaDiffLabelSprite = createTextBadgeSprite('⚡ الفارق: 10د', '#38BDF8', 22, 5.5);
+            twilightGroup.add(ishaDiffLabelSprite);
 
             ishaHanafiLabelSprite = createTextBadgeSprite('🟣 18° حنفي', '#818CF8', 24, 6);
             twilightGroup.add(ishaHanafiLabelSprite);
@@ -6402,6 +6499,7 @@ let cosmos3DInitialized = false;
                 if (twilightGroup) twilightGroup.visible = true;
                 if (moonArcGroup) moonArcGroup.visible = true;
                 if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
+                if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = show3DLabels;
                 if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = show3DLabels;
                 showTwilightCircles = true;
 
@@ -7039,6 +7137,15 @@ let cosmos3DInitialized = false;
                 updateTextBadgeSprite(ishaHanafiLabelSprite, `🟣 18° (${isha18TimeStr})`, '#818CF8');
             }
 
+            if (p16 && p18 && ishaDiffLabelSprite) {
+                // وضع وسم الفارق في منتصف المسافة بين دائرتي 16° و 18° جانباً
+                const midX = (p16.x + p18.x) / 2 + 16;
+                const midY = (p16.y + p18.y) / 2;
+                const midZ = (p16.z + p18.z) / 2;
+                ishaDiffLabelSprite.position.set(midX, midY, midZ);
+                updateTextBadgeSprite(ishaDiffLabelSprite, `⚡ الفارق: ${diffBetweenIshas}د`, '#38BDF8');
+            }
+
             // تحديث مدار الشمس اليومي الحالي المتحرك بلون ذهبي
             if (currentSunOrbitLine) {
                 const curPts = [];
@@ -7403,6 +7510,7 @@ let cosmos3DInitialized = false;
         function toggle3DLabels() {
             show3DLabels = !show3DLabels;
             if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
+            if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = show3DLabels;
             if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = show3DLabels;
             const btn = document.getElementById('btnToggle3DLabels');
             if (btn) btn.classList.toggle('active', show3DLabels);
@@ -7546,6 +7654,21 @@ let cosmos3DInitialized = false;
             if (el18) el18.innerText = isha18Str;
             if (el18Diff) el18Diff.innerText = `(بعد ${diff18}د)`;
             if (elDiff) elDiff.innerText = `${diffBetween} دقيقة`;
+
+            // تحديث شارة الفارق البارزة في أعلى المشهد
+            const elBDiff = document.getElementById('bannerIshaDiffVal');
+            const elB16 = document.getElementById('bannerIsha16');
+            const elB16D = document.getElementById('bannerIsha16Diff');
+            const elB18 = document.getElementById('bannerIsha18');
+            const elB18D = document.getElementById('bannerIsha18Diff');
+            const elBGap = document.getElementById('bannerIshaGap');
+
+            if (elBDiff) elBDiff.innerText = `${diffBetween} دقائق`;
+            if (elB16) elB16.innerText = isha16Str;
+            if (elB16D) elB16D.innerText = diff16;
+            if (elB18) elB18.innerText = isha18Str;
+            if (elB18D) elB18D.innerText = diff18;
+            if (elBGap) elBGap.innerText = `${diffBetween}د`;
 
             // تحديث جدول المقارنة الفوري
             const tSummer = computeTwilightForDecl(phi, EPSILON);
