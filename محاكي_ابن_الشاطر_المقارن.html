@@ -2624,11 +2624,11 @@
             <!-- Camera Presets Group -->
             <div class="c3d-toolgroup">
                 <span style="color:#94A3B8; font-size:0.8em; font-weight:bold;">👁️ الكاميرا:</span>
-                <button id="btnViewHorizon" class="btn-view active" onclick="setCameraPreset('horizon')">الأفق</button>
+                <button id="btnViewHorizon" class="btn-view" onclick="setCameraPreset('horizon')">الأفق</button>
                 <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')">★ القطب</button>
                 <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')">🌙 القمر</button>
                 <button id="btnViewSun" class="btn-view" onclick="setCameraPreset('sun')">☀️ الشمس</button>
-                <button id="btnViewOrbit" class="btn-view" onclick="setCameraPreset('orbit')">🌌 كوني</button>
+                <button id="btnViewOrbit" class="btn-view active" onclick="setCameraPreset('orbit')">🌌 كوني موسع</button>
                 <button id="btnViewPolar" class="btn-view" onclick="setCameraPreset('polar')">🧭 رأسي</button>
                 <button id="btnAutoRotate" class="btn-view" onclick="toggleAutoRotate()">🔄 تدوير</button>
             </div>
@@ -2936,7 +2936,7 @@
                 </label>
                 <label class="c3d-toggle-item">
                     <span style="color:#FDE047; font-weight:bold;">⭕ دوائر أفلاك ومدارات الكواكب الخمسة</span>
-                    <input type="checkbox" id="chkOrbitCircles" checked onchange="toggleLayer('orbitCircles', this.checked)">
+                    <input type="checkbox" id="chkOrbitCircles" onchange="toggleLayer('orbitCircles', this.checked)">
                 </label>
                 <label class="c3d-toggle-item">
                     <span style="color:#C4B5FD;">✨ الفلك الثامن (البروج السماوية والنجوم الثوابت)</span>
@@ -2996,8 +2996,8 @@
                     </div>
                     <div class="c3d-btn-group" style="margin-top:8px;">
                         <span style="font-size:0.8em; color:var(--subtext); align-self:center; margin-left:4px;">السرعة:</span>
-                        <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(0.0417)">1 س/ث</button>
-                        <button class="c3d-btn-ui active" onclick="applyUnifiedSpeed(1)">1 يوم/ث</button>
+                        <button class="c3d-btn-ui active" onclick="applyUnifiedSpeed(0.0417)">1 س/ث</button>
+                        <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(1)">1 يوم/ث</button>
                         <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(7)">أسبوع/ث</button>
                         <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(27.32)">شهر/ث</button>
                     </div>
@@ -3301,7 +3301,7 @@ function onSliderSpeedChange(v) {
     applyUnifiedSpeed(parseFloat(v));
 }
 
-function applyUnifiedSpeed(d) {
+function applyUnifiedSpeed(d, silent = false) {
     timeSpeedDaysPerSec = d;
     timeSpeed = d;
 
@@ -3311,7 +3311,10 @@ function applyUnifiedSpeed(d) {
 
     // Update top badge
     const badge = document.getElementById('speedDisplayBadge');
-    if (badge) badge.innerText = `⏱️ التدفق: ${d>0?'+':''}${d.toFixed(d>=1?1:2)} يوم/ث`;
+    if (badge) {
+        const isHour = Math.abs(d - 0.0417) < 0.005;
+        badge.innerText = isHour ? '⏱️ التدفق: 1 ساعة/ث' : `⏱️ التدفق: ${d>0?'+':''}${d.toFixed(d>=1?1:2)} يوم/ث`;
+    }
 
     // Update top speed buttons
     document.querySelectorAll('.time-group .btn-time').forEach(b => {
@@ -3336,11 +3339,11 @@ function applyUnifiedSpeed(d) {
         }
     });
 
-    // Update 3D bottom bar speed buttons
-    document.querySelectorAll('#cosmos3DPanel .btn-ui').forEach(b => {
+    // Update 3D bottom bar speed buttons (.btn-ui and .c3d-btn-ui)
+    document.querySelectorAll('#cosmos3DPanel .btn-ui, #cosmos3DPanel .c3d-btn-ui').forEach(b => {
         if (b.innerText.includes('س/ث') || b.innerText.includes('يوم/ث') || b.innerText.includes('شهر/ث') || b.innerText.includes('أسبوع/ث')) {
             b.classList.remove('active');
-            if (Math.abs(d - 0.04167) < 0.01 && b.innerText.includes('س/ث')) b.classList.add('active');
+            if (Math.abs(d - 0.0417) < 0.005 && b.innerText.includes('س/ث')) b.classList.add('active');
             else if (Math.abs(d - 1.0) < 0.1 && b.innerText.includes('يوم/ث')) b.classList.add('active');
             else if (Math.abs(d - 7.0) < 0.5 && b.innerText.includes('أسبوع/ث')) b.classList.add('active');
             else if (Math.abs(d - 30.0) < 1.0 && b.innerText.includes('شهر/ث')) b.classList.add('active');
@@ -3355,7 +3358,10 @@ function applyUnifiedSpeed(d) {
     const rBtn = document.getElementById('spd' + Math.round(d));
     if (rBtn) rBtn.classList.add('active');
 
-    showToast(`⏱️ سرعة المحاكاة: ${d>0?'+':''}${d.toFixed(1)} يوم/ث`);
+    if (!silent && typeof showToast === 'function') {
+        const speedText = Math.abs(d - 0.0417) < 0.005 ? '1 ساعة/ث' : `${d>0?'+':''}${d.toFixed(1)} يوم/ث`;
+        showToast(`⏱️ سرعة المحاكاة: ${speedText}`);
+    }
 }
 function jumpToEpoch(yr) {
     currentDate = new Date(yr, 2, 21, 12, 0);
@@ -4505,6 +4511,7 @@ function switchTab(tab) {
         initRevolution();
     }
     if(tab === 'cosmos3D') {
+        applyUnifiedSpeed(0.0417, true);
         if(!cosmos3DInitialized && typeof init3D === 'function') {
             init3D();
         }
@@ -5283,7 +5290,7 @@ let cosmos3DInitialized = false;
         let meridianLine, primeVerticalLine;
         let sunSightlineRay, moonSightlineRay;
         let planetMeshes = {};
-        let cameraPreset = 'horizon';
+        let cameraPreset = 'orbit';
 
         // نصف قطر القبة السماوية
         const DOME_R = 140;
@@ -5366,7 +5373,8 @@ let cosmos3DInitialized = false;
             controls.minDistance = 5;
             controls.maxDistance = 1500;
 
-            setCameraPreset('horizon');
+            setCameraPreset('orbit');
+            applyUnifiedSpeed(0.0417, true);
 
             const ambient = new THREE.AmbientLight(0x334155, 1.2);
             scene.add(ambient);
@@ -5739,6 +5747,8 @@ let cosmos3DInitialized = false;
                     new THREE.BufferGeometry(),
                     new THREE.LineBasicMaterial({ color: cfg.color, transparent: true, opacity: 0.45 })
                 );
+                // دوائر الكواكب مطفية افتراضياً بناءً على رغبة المستخدم
+                orbitRing.visible = false;
                 planetsGroup.add(orbitRing);
                 planetOrbitLines[cfg.key] = orbitRing;
 
@@ -6366,7 +6376,8 @@ let cosmos3DInitialized = false;
                 preset === 'horizon' ? 'btnViewHorizon' :
                 preset === 'moon' ? 'btnViewMoon' :
                 preset === 'sun' ? 'btnViewSun' :
-                preset === 'orbit' ? 'btnViewOrbit' : 'btnViewPolar'
+                (preset === 'orbit' || preset === 'extended') ? 'btnViewOrbit' :
+                preset === 'polaris' ? 'btnViewPolaris' : 'btnViewPolar'
             );
             if (activeBtn) activeBtn.classList.add('active');
 
@@ -6380,8 +6391,9 @@ let cosmos3DInitialized = false;
             } else if (preset === 'sun' && sunMesh) {
                 camera.position.set(0, 18, 50);
                 controls.target.copy(sunMesh.position);
-            } else if (preset === 'orbit') {
-                camera.position.set(280, 240, 360);
+            } else if (preset === 'orbit' || preset === 'extended') {
+                // المنظور الكوني الموسع (Extended Cosmic View): رؤية بانورامية شاملة تغطي كامل أفلاك الكون والأطلس والبروج
+                camera.position.set(420, 340, 540);
                 controls.target.set(0, 0, 0);
             } else if (preset === 'polar') {
                 camera.position.set(0, 520, 0);
