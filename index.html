@@ -6548,20 +6548,7 @@ let cosmos3DInitialized = false;
             const city = CITIES_DB[cityKey];
             if (!city) return;
 
-            currentCityName = city.name;
-            currentLatDeg = city.lat;
-            currentLonDeg = city.lon;
-            currentLatRad = currentLatDeg * Math.PI / 180;
-
-            const inLat = document.getElementById('inputLat');
-            const inLon = document.getElementById('inputLon');
-            if (inLat) inLat.value = currentLatDeg;
-            if (inLon) inLon.value = currentLonDeg;
-
-            applyCityChanges();
-            const latSlider = document.getElementById('latAngleSlider');
-            if (latSlider) latSlider.value = currentLatDeg;
-            if (typeof updateCityAngleBadge === 'function') updateCityAngleBadge(currentLatDeg);
+            applyCitySelection(city.lat, city.lon, city.name, cityKey, false);
             showC3DToast(`📍 تم توجيه القبة إلى: ${currentCityName}`);
         }
 
@@ -6574,15 +6561,17 @@ let cosmos3DInitialized = false;
             lat = Math.max(-90, Math.min(90, lat));
             lon = Math.max(-180, Math.min(180, lon));
 
-            currentLatDeg = lat;
-            currentLonDeg = lon;
-            currentLatRad = currentLatDeg * Math.PI / 180;
-            currentCityName = `مخصص (${currentLatDeg >= 0 ? '+' : ''}${currentLatDeg.toFixed(2)}°)`;
-
-            applyCityChanges();
+            const near = typeof findNearestCity === 'function' ? findNearestCity(lat, lon, 2.5) : null;
+            const name = near ? `${near.nameAr} (${near.country})` : `مخصص (${lat >= 0 ? '+' : ''}${lat.toFixed(2)}°)`;
+            applyCitySelection(lat, lon, name, near ? near.id : 'custom', false);
         }
 
         function applyCityChanges() {
+            if (!cosmos3DInitialized) {
+                if (typeof init3D === 'function') init3D();
+                if (!cosmos3DInitialized) return;
+            }
+
             updateCelestialAxesGeometry();
             rebuildSeasonalArcs();
 
@@ -6594,7 +6583,81 @@ let cosmos3DInitialized = false;
             if (hudBadge) {
                 hudBadge.innerText = `${currentCityName} (${currentLatDeg.toFixed(1)}°)`;
             }
-            updateAstronomy();
+            updateAstronomy(currentDate);
+        }
+
+        // دالة موحدة لتطبيق اختيار المدينة وتحديث كافة المدارات والسلايدرات والشارات فوراً
+        function applyCitySelection(lat, lon, name, cityKey = null, closeDialog = false) {
+            const clampedLat = Math.max(-90, Math.min(90, lat));
+            const clampedLon = Math.max(-180, Math.min(180, lon));
+
+            modalLat = clampedLat;
+            modalLon = clampedLon;
+            currentLatDeg = clampedLat;
+            currentLonDeg = clampedLon;
+            currentLatRad = clampedLat * Math.PI / 180;
+
+            if (name) {
+                modalCityName = name;
+                currentCityName = name;
+            } else {
+                currentCityName = `موقع مخصص (${clampedLat >= 0 ? '+' : ''}${clampedLat.toFixed(2)}°)`;
+                modalCityName = currentCityName;
+            }
+
+            // 1. تحديث عناصر نافذة المودال نفسها (الموقع على الخريطة والحقول الحسابية)
+            if (typeof updateModalUI === 'function') {
+                updateModalUI(clampedLat, clampedLon, currentCityName);
+            }
+
+            // 2. تحديث مدخلات شريط الأدوات العلوي
+            const inLat = document.getElementById('inputLat');
+            const inLon = document.getElementById('inputLon');
+            if (inLat) inLat.value = clampedLat.toFixed(2);
+            if (inLon) inLon.value = clampedLon.toFixed(2);
+
+            // 3. تحديث القائمة المنسدلة في الشريط العلوي
+            const selectEl = document.getElementById('citySelect');
+            const customRow = document.getElementById('customCoordRow');
+
+            let matchedKey = cityKey;
+            if (!matchedKey && typeof CITIES_DB !== 'undefined') {
+                for (let key in CITIES_DB) {
+                    if (Math.abs(CITIES_DB[key].lat - clampedLat) < 0.15 && Math.abs(CITIES_DB[key].lon - clampedLon) < 0.15) {
+                        matchedKey = key;
+                        break;
+                    }
+                }
+            }
+
+            if (matchedKey && typeof CITIES_DB !== 'undefined' && CITIES_DB[matchedKey] && selectEl) {
+                selectEl.value = matchedKey;
+                currentCityKey = matchedKey;
+                if (customRow) customRow.style.display = 'none';
+            } else if (selectEl) {
+                selectEl.value = 'custom';
+                currentCityKey = 'custom';
+                if (customRow) customRow.style.display = 'flex';
+            }
+
+            // 4. تحديث سلايدر زاوية ميل المدارات الجانبي في اللوحة اليسرى
+            const latSlider = document.getElementById('latAngleSlider');
+            if (latSlider) {
+                latSlider.value = Math.abs(clampedLat).toFixed(2);
+            }
+
+            // 5. تحديث شارة المدينة وزاوية المدارات وأزرار القفز السريع في اللوحة اليسرى
+            if (typeof updateCityAngleBadge === 'function') {
+                updateCityAngleBadge(clampedLat);
+            }
+
+            // 6. تطبيق الإمالة الهندسية وتحديث القبة والشهب والمدارات فوراً
+            applyCityChanges();
+
+            if (closeDialog) {
+                if (typeof closeWorldMapModal === 'function') closeWorldMapModal();
+                showC3DToast(`📍 تم توجيه القبة والمدارات بنجاح إلى: ${currentCityName} (عرض ${clampedLat.toFixed(2)}°، طول ${clampedLon.toFixed(2)}°)`);
+            }
         }
 
         // ==========================================
@@ -6621,6 +6684,10 @@ let cosmos3DInitialized = false;
         function openWorldMapModal() {
             const modal = document.getElementById('worldMapModal');
             if (!modal) return;
+
+            if (!cosmos3DInitialized && typeof init3D === 'function') {
+                init3D();
+            }
 
             modalLat = currentLatDeg;
             modalLon = currentLonDeg;
@@ -6700,18 +6767,22 @@ let cosmos3DInitialized = false;
             if (isNaN(lat)) lat = modalLat;
             if (isNaN(lon)) lon = modalLon;
 
-            const name = `إحداثيات مخصصة (${lat >= 0 ? '+' : ''}${lat.toFixed(1)}°, ${lon >= 0 ? '+' : ''}${lon.toFixed(1)}°)`;
-            updateModalUI(lat, lon, name);
+            const near = findNearestCity(lat, lon, 2.5);
+            const name = near ? `${near.nameAr} (${near.country})` : `إحداثيات مخصصة (${lat >= 0 ? '+' : ''}${lat.toFixed(1)}°, ${lon >= 0 ? '+' : ''}${lon.toFixed(1)}°)`;
+            applyCitySelection(lat, lon, name, near ? near.id : null, false);
         }
 
         function adjustModalCoord(type, delta) {
+            let newLat = modalLat;
+            let newLon = modalLon;
             if (type === 'lat') {
-                modalLat = Math.max(-90, Math.min(90, modalLat + delta));
+                newLat = Math.max(-90, Math.min(90, modalLat + delta));
             } else if (type === 'lon') {
-                modalLon = Math.max(-180, Math.min(180, modalLon + delta));
+                newLon = Math.max(-180, Math.min(180, modalLon + delta));
             }
-            const name = `إحداثيات (${modalLat.toFixed(1)}°, ${modalLon.toFixed(1)}°)`;
-            updateModalUI(modalLat, modalLon, name);
+            const near = findNearestCity(newLat, newLon, 2.5);
+            const name = near ? `${near.nameAr} (${near.country})` : `إحداثيات (${newLat.toFixed(1)}°, ${newLon.toFixed(1)}°)`;
+            applyCitySelection(newLat, newLon, name, near ? near.id : null, false);
         }
 
         function findNearestCity(lat, lon, maxDistDeg = 2.5) {
@@ -6746,7 +6817,7 @@ let cosmos3DInitialized = false;
                 const near = findNearestCity(coords.lat, coords.lon, 2.5);
                 const name = near ? `${near.nameAr} (${near.country})` : `موقع مخصص (${coords.lat >= 0 ? '+' : ''}${coords.lat.toFixed(1)}°, ${coords.lon >= 0 ? '+' : ''}${coords.lon.toFixed(1)}°)`;
 
-                updateModalUI(coords.lat, coords.lon, name);
+                applyCitySelection(coords.lat, coords.lon, name, near ? near.id : null, false);
             }
 
             svg.addEventListener('mousedown', (e) => {
@@ -6859,7 +6930,7 @@ let cosmos3DInitialized = false;
             if (!city) return;
 
             const name = `${city.nameAr} (${city.country})`;
-            updateModalUI(city.lat, city.lon, name);
+            applyCitySelection(city.lat, city.lon, name, cityId, true);
             clearMapSearch();
         }
 
@@ -6868,47 +6939,15 @@ let cosmos3DInitialized = false;
             if (!city) return;
 
             const name = `${city.nameAr} (${city.note || city.country})`;
-            updateModalUI(city.lat, city.lon, name);
+            applyCitySelection(city.lat, city.lon, name, cityId, true);
             clearMapSearch();
         }
 
         // تأكيد وتطبيق الإحداثيات المختارة
         function confirmWorldMapSelection() {
             const inName = document.getElementById('modalInputCityName');
-            currentCityName = (inName && inName.value.trim()) ? inName.value.trim() : `مخصص (${modalLat.toFixed(1)}°)`;
-            currentLatDeg = modalLat;
-            currentLonDeg = modalLon;
-            currentLatRad = currentLatDeg * Math.PI / 180;
-
-            // تحديث مدخلات شريط الأدوات
-            const inLat = document.getElementById('inputLat');
-            const inLon = document.getElementById('inputLon');
-            if (inLat) inLat.value = currentLatDeg.toFixed(2);
-            if (inLon) inLon.value = currentLonDeg.toFixed(2);
-
-            // تحديث القائمة المنسدلة
-            const selectEl = document.getElementById('citySelect');
-            const customRow = document.getElementById('customCoordRow');
-
-            let matchedKey = null;
-            for (let key in CITIES_DB) {
-                if (Math.abs(CITIES_DB[key].lat - currentLatDeg) < 0.05 && Math.abs(CITIES_DB[key].lon - currentLonDeg) < 0.05) {
-                    matchedKey = key;
-                    break;
-                }
-            }
-
-            if (matchedKey && selectEl) {
-                selectEl.value = matchedKey;
-                if (customRow) customRow.style.display = 'none';
-            } else if (selectEl) {
-                selectEl.value = 'custom';
-                if (customRow) customRow.style.display = 'flex';
-            }
-
-            applyCityChanges();
-            closeWorldMapModal();
-            showC3DToast(`📍 تم توجيه القبة بنجاح إلى: ${currentCityName} (عرض ${currentLatDeg.toFixed(2)}°، طول ${currentLonDeg.toFixed(2)}°)`);
+            const chosenName = (inName && inName.value.trim()) ? inName.value.trim() : modalCityName;
+            applyCitySelection(modalLat, modalLon, chosenName, null, true);
         }
 
         function showC3DToast(msg) {
@@ -7675,32 +7714,14 @@ let cosmos3DInitialized = false;
 
         function setOrbitLatitude(latVal) {
             const lat = Math.max(-90, Math.min(90, latVal));
-            currentLatDeg = lat;
-            currentLatRad = lat * Math.PI / 180;
-
-            // مطابقة أقرب مدينة فلكية في قاعدة البيانات
             const closestKey = findClosestCity(lat);
-            const citySelect = document.getElementById('citySelect');
+            let name = null;
+            let lon = currentLonDeg;
             if (closestKey !== 'custom' && CITIES_DB[closestKey]) {
-                currentCityKey = closestKey;
-                currentCityName = CITIES_DB[closestKey].name;
-                currentLonDeg = CITIES_DB[closestKey].lon;
-                if (citySelect) citySelect.value = closestKey;
-            } else {
-                currentCityKey = 'custom';
-                currentCityName = `خط عرض مخصص (${lat >= 0 ? '+' : ''}${lat.toFixed(1)}°)`;
-                if (citySelect) citySelect.value = 'custom';
+                name = CITIES_DB[closestKey].name;
+                lon = CITIES_DB[closestKey].lon;
             }
-
-            // تحديث حقول الإحداثيات المخصصة
-            const inLat = document.getElementById('inputLat');
-            if (inLat) inLat.value = lat.toFixed(2);
-
-            // تطبيق الإمالة الهندسية وتحديث القبة والشهب والغروب والعشائين
-            applyCityChanges();
-
-            // تحديث الشارة وأزرار المدن النشطة
-            updateCityAngleBadge(lat);
+            applyCitySelection(lat, lon, name, closestKey, false);
         }
 
         function findClosestCity(lat) {
@@ -7720,11 +7741,17 @@ let cosmos3DInitialized = false;
         function updateCityAngleBadge(lat) {
             const badge = document.getElementById('c3dCityAngleBadge');
             if (!badge) return;
-            const orbitAngle = (90 - Math.abs(lat)).toFixed(1);
-            const closestKey = findClosestCity(lat);
-            let cityNameStr = currentCityName;
-            if (closestKey !== 'custom' && CITIES_DB[closestKey]) {
-                cityNameStr = CITIES_DB[closestKey].name.split('(')[0].trim();
+            let cityNameStr = currentCityName || '';
+            const isGeneric = !cityNameStr || cityNameStr.includes('مخصص') || cityNameStr.includes('إحداثيات');
+            if (isGeneric) {
+                const closestKey = findClosestCity(lat);
+                if (closestKey !== 'custom' && CITIES_DB[closestKey]) {
+                    cityNameStr = CITIES_DB[closestKey].name.split('(')[0].trim();
+                } else {
+                    cityNameStr = 'موقع مخصص';
+                }
+            } else {
+                cityNameStr = cityNameStr.split('(')[0].trim();
             }
             badge.innerText = `📍 ${cityNameStr} (${lat.toFixed(1)}°)`;
 
