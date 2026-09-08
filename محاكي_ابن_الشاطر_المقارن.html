@@ -1617,6 +1617,18 @@
             font-weight: 800;
             color: var(--gold);
         }
+        .c3d-city-badge {
+            background: rgba(56, 189, 248, 0.18);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            color: #7DD3FC;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.84em;
+            font-weight: 700;
+        }
+        #latAngleSlider {
+            background: linear-gradient(to right, #0284C7, #38BDF8 40%, #818CF8) !important;
+        }
         .c3d-decl-badge {
             background: rgba(245, 158, 11, 0.2);
             border: 1px solid rgba(245, 158, 11, 0.4);
@@ -2877,6 +2889,37 @@
                            title="اسحب بالماوس لتحريك المدار الشمسي صعوداً وهبوطاً بين الشتاء والاعتدال والصيف">
                 </div>
                 <span class="slider-end-label" onclick="snapSeason(23.516)" title="نقر للانتقال للصيف">☀️ صيف (+23.5°)</span>
+            </div>
+
+            <!-- Orbit Tilt Angle & Cities Slider Row -->
+            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:6px; margin-top:1px;">
+                <div class="seasonal-header-row">
+                    <div class="seasonal-title-wrap">
+                        <span style="font-size:1.1em;">🌐</span>
+                        <span>زاوية المدارات والمدن (خط العرض):</span>
+                        <span id="c3dCityAngleBadge" class="c3d-city-badge">📍 دمشق (33.5°N) • زاوية المدار: 56.5°</span>
+                    </div>
+                    <!-- City Quick Snap Buttons -->
+                    <div class="seasonal-snap-group">
+                        <button type="button" class="btn-season-snap" onclick="snapCityLat(0.0, 'equator')" title="خط الاستواء: الفلك المستقيم (عمودي 90°)">استواء (0°)</button>
+                        <button type="button" class="btn-season-snap" onclick="snapCityLat(21.42, 'mecca')" title="مكة المكرمة">مكة (21.4°)</button>
+                        <button type="button" class="btn-season-snap" onclick="snapCityLat(30.04, 'cairo')" title="القاهرة">القاهرة (30°)</button>
+                        <button type="button" class="btn-season-snap" onclick="snapCityLat(31.78, 'jerusalem')" title="القدس الشريف">القدس (31.8°)</button>
+                        <button type="button" class="btn-season-snap active" id="btnSnapDamascus" onclick="snapCityLat(33.51, 'damascus')" title="دمشق — مرصد ابن الشاطر">دمشق (33.5°)</button>
+                        <button type="button" class="btn-season-snap" onclick="snapCityLat(37.89, 'cordoba')" title="قرطبة — الأندلس">قرطبة (37.9°)</button>
+                        <button type="button" class="btn-season-snap" onclick="snapCityLat(41.01, 'istanbul')" title="إسطنبول — مرصد تقي الدين">إسطنبول (41°)</button>
+                        <button type="button" class="btn-season-snap" onclick="snapCityLat(90.0, 'pole')" title="القطب الشمالي: الفلك الدائر (أفقي 0°)">القطب (90°)</button>
+                    </div>
+                </div>
+                <div class="seasonal-slider-row" style="margin-top:4px;">
+                    <span class="slider-end-label" onclick="snapCityLat(0.0, 'equator')" title="خط الاستواء (المدارات عمودية 90° على الأفق)">0° الاستواء (عمودي 90°)</span>
+                    <div class="slider-track-wrap">
+                        <input type="range" id="latAngleSlider" min="0" max="90" step="0.25" value="33.51" 
+                               oninput="onLatAngleSliderInput(parseFloat(this.value))" 
+                               title="اسحب بالماوس لتعديل زاوية ميل المدارات على الأفق ومطابقة مدن العالم معها تلقائياً">
+                    </div>
+                    <span class="slider-end-label" onclick="snapCityLat(90.0, 'pole')" title="القطب الشمالي (المدارات موازية للأفق 0°)">90° القطب (أفقي 0°)</span>
+                </div>
             </div>
 
             <!-- Live Twilight Telemetry Strip -->
@@ -6337,6 +6380,9 @@ let cosmos3DInitialized = false;
             if (inLon) inLon.value = currentLonDeg;
 
             applyCityChanges();
+            const latSlider = document.getElementById('latAngleSlider');
+            if (latSlider) latSlider.value = currentLatDeg;
+            if (typeof updateCityAngleBadge === 'function') updateCityAngleBadge(currentLatDeg);
             showC3DToast(`📍 تم توجيه القبة إلى: ${currentCityName}`);
         }
 
@@ -7436,6 +7482,93 @@ let cosmos3DInitialized = false;
                 document.getElementById('tdCurrIsha18').innerText = `${isha18Str} (+${diff18}د)`;
                 document.getElementById('tdCurrDiff').innerText = `${diffBetween} دقيقة`;
             }
+        }
+
+    
+        // ==========================================
+        // 🌐 دوال تعديل زاوية المدارات ومطابقة المدن تلقائياً
+        // ==========================================
+        function onLatAngleSliderInput(latVal) {
+            setOrbitLatitude(latVal);
+        }
+
+        function snapCityLat(latVal, cityKey) {
+            if (cityKey && CITIES_DB[cityKey]) {
+                onCityChange(cityKey);
+                const slider = document.getElementById('latAngleSlider');
+                if (slider) slider.value = latVal;
+                updateCityAngleBadge(latVal);
+            } else {
+                setOrbitLatitude(latVal);
+            }
+        }
+
+        function setOrbitLatitude(latVal) {
+            const lat = Math.max(-90, Math.min(90, latVal));
+            currentLatDeg = lat;
+            currentLatRad = lat * Math.PI / 180;
+
+            // مطابقة أقرب مدينة فلكية في قاعدة البيانات
+            const closestKey = findClosestCity(lat);
+            const citySelect = document.getElementById('citySelect');
+            if (closestKey !== 'custom' && CITIES_DB[closestKey]) {
+                currentCityKey = closestKey;
+                currentCityName = CITIES_DB[closestKey].name;
+                currentLonDeg = CITIES_DB[closestKey].lon;
+                if (citySelect) citySelect.value = closestKey;
+            } else {
+                currentCityKey = 'custom';
+                currentCityName = `خط عرض مخصص (${lat >= 0 ? '+' : ''}${lat.toFixed(1)}°)`;
+                if (citySelect) citySelect.value = 'custom';
+            }
+
+            // تحديث حقول الإحداثيات المخصصة
+            const inLat = document.getElementById('inputLat');
+            if (inLat) inLat.value = lat.toFixed(2);
+
+            // تطبيق الإمالة الهندسية وتحديث القبة والشهب والغروب والعشائين
+            applyCityChanges();
+
+            // تحديث الشارة وأزرار المدن النشطة
+            updateCityAngleBadge(lat);
+        }
+
+        function findClosestCity(lat) {
+            let closestKey = 'custom';
+            let minDiff = 1.8; // نطاق التقريب بالدرجات
+            for (const [key, city] of Object.entries(CITIES_DB)) {
+                if (key === 'custom' || key === 'sydney') continue;
+                const diff = Math.abs(city.lat - lat);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestKey = key;
+                }
+            }
+            return closestKey;
+        }
+
+        function updateCityAngleBadge(lat) {
+            const badge = document.getElementById('c3dCityAngleBadge');
+            if (!badge) return;
+            const orbitAngle = (90 - Math.abs(lat)).toFixed(1);
+            const closestKey = findClosestCity(lat);
+            let cityNameStr = currentCityName;
+            if (closestKey !== 'custom' && CITIES_DB[closestKey]) {
+                cityNameStr = CITIES_DB[closestKey].name.split('(')[0].trim();
+            }
+            badge.innerText = `📍 ${cityNameStr} (${lat.toFixed(1)}°N) • زاوية المدار: ${orbitAngle}°`;
+
+            // تحديث حالة الأزرار النشطة للمدن
+            document.querySelectorAll('#c3dSeasonalBar .btn-season-snap').forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick') || '';
+                if (onclickAttr.includes('snapCityLat')) {
+                    const m = onclickAttr.match(/snapCityLat\(([-0-9.]+)/);
+                    if (m) {
+                        const bLat = parseFloat(m[1]);
+                        btn.classList.toggle('active', Math.abs(lat - bLat) < 1.6);
+                    }
+                }
+            });
         }
 
     </script>
