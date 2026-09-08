@@ -6148,6 +6148,35 @@ let cosmos3DInitialized = false;
             }
         }
 
+                // ==========================================
+        // 🌐 دالة التحويل الفلكي من الإحداثيات الاستوائية إلى الأفقية (مع معالجة القطبين الشمالي والجنوبي)
+        // ==========================================
+        function computeHorizontalCoords(decl, H, phi) {
+            const sinA = Math.sin(phi) * Math.sin(decl) + Math.cos(phi) * Math.cos(decl) * Math.cos(H);
+            const alt = Math.asin(Math.max(-1.0, Math.min(1.0, sinA)));
+
+            let az = 0.0;
+            const cosPhi = Math.cos(phi);
+            const cosAlt = Math.cos(alt);
+
+            if (Math.abs(cosPhi) < 0.0005) {
+                // عند القطبين الجغرافيين (الفلك الدائر): السمت يعادل مباشرة زاوية الساعة H حول المحور الرأسي
+                if (phi > 0) {
+                    // القطب الشمالي (90°N): الحركة من الجنوب إلى الغرب فالشمال فالشرق
+                    az = ((Math.PI + H) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+                } else {
+                    // القطب الجنوبي (-90°S)
+                    az = ((2 * Math.PI - H) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+                }
+            } else if (Math.abs(cosAlt) > 0.0001) {
+                const cosAz = (Math.sin(decl) - Math.sin(phi) * sinA) / (cosPhi * cosAlt);
+                az = Math.acos(Math.max(-1.0, Math.min(1.0, cosAz)));
+                if (Math.sin(H) > 0) az = 2 * Math.PI - az;
+            }
+
+            return { alt, az };
+        }
+
         // 4. بناء مسارات الشمس وقوس القمر الشهري في السماء
         function rebuildSeasonalArcs() {
             while (seasonalArcsGroup.children.length > 0) {
@@ -6162,17 +6191,8 @@ let cosmos3DInitialized = false;
                 const pts = [];
                 for (let i = 0; i <= 72; i++) {
                     const H = -Math.PI + (i / 72) * Math.PI * 2;
-                    const sinA = Math.sin(phi) * Math.sin(decl) + Math.cos(phi) * Math.cos(decl) * Math.cos(H);
-                    const a = Math.asin(Math.max(-1, Math.min(1, sinA)));
-
-                    let Az = 0;
-                    const cosAlt = Math.cos(a);
-                    if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                        const cosAz = (Math.sin(decl) - Math.sin(phi) * sinA) / (Math.cos(phi) * cosAlt);
-                        Az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
-                        if (Math.sin(H) > 0) Az = 2 * Math.PI - Az;
-                    }
-                    pts.push(new THREE.Vector3(DOME_R * Math.cos(a) * Math.sin(Az), DOME_R * Math.sin(a), -DOME_R * Math.cos(a) * Math.cos(Az)));
+                    const { alt, az } = computeHorizontalCoords(decl, H, phi);
+                    pts.push(new THREE.Vector3(DOME_R * Math.cos(alt) * Math.sin(az), DOME_R * Math.sin(alt), -DOME_R * Math.cos(alt) * Math.cos(az)));
                 }
                 const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.75, linewidth: 2.5 }));
                 line.userData = { season: seasonKey, decl: decl };
@@ -6205,17 +6225,8 @@ let cosmos3DInitialized = false;
             const pts = [];
             for (let i = 0; i <= 72; i++) {
                 const H = -Math.PI + (i / 72) * Math.PI * 2;
-                const sinA = Math.sin(phi) * Math.sin(moonDelta) + Math.cos(phi) * Math.cos(moonDelta) * Math.cos(H);
-                const a = Math.asin(Math.max(-1, Math.min(1, sinA)));
-
-                let Az = 0;
-                const cosAlt = Math.cos(a);
-                if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                    const cosAz = (Math.sin(moonDelta) - Math.sin(phi) * sinA) / (Math.cos(phi) * cosAlt);
-                    Az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
-                    if (Math.sin(H) > 0) Az = 2 * Math.PI - Az;
-                }
-                pts.push(new THREE.Vector3(DOME_R * Math.cos(a) * Math.sin(Az), DOME_R * Math.sin(a), -DOME_R * Math.cos(a) * Math.cos(Az)));
+                const { alt, az } = computeHorizontalCoords(moonDelta, H, phi);
+                pts.push(new THREE.Vector3(DOME_R * Math.cos(alt) * Math.sin(az), DOME_R * Math.sin(alt), -DOME_R * Math.cos(alt) * Math.cos(az)));
             }
             const line = new THREE.Line(
                 new THREE.BufferGeometry().setFromPoints(pts),
@@ -6283,16 +6294,7 @@ let cosmos3DInitialized = false;
 
             const H = H_sun - (alpha - alpha_sun);
 
-            const sinAlt = Math.sin(phi) * Math.sin(delta) + Math.cos(phi) * Math.cos(delta) * Math.cos(H);
-            const alt = Math.asin(Math.max(-1, Math.min(1, sinAlt)));
-
-            let az = 0;
-            const cosAlt = Math.cos(alt);
-            if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                const cosAz = (Math.sin(delta) - Math.sin(phi) * sinAlt) / (Math.cos(phi) * cosAlt);
-                az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
-                if (Math.sin(H) > 0) az = 2 * Math.PI - az;
-            }
+            const { alt, az } = computeHorizontalCoords(delta, H, phi);
 
             return new THREE.Vector3(
                 radius * Math.cos(alt) * Math.sin(az),
@@ -7032,16 +7034,8 @@ let cosmos3DInitialized = false;
 
             const phi = currentLatRad;
 
-            const sinAltSun = Math.sin(phi) * Math.sin(deltaSun) + Math.cos(phi) * Math.cos(deltaSun) * Math.cos(H_sun);
-            const altSun = Math.asin(Math.max(-1, Math.min(1, sinAltSun)));
-
-            let azSun = 0;
-            const cosAltSun = Math.cos(altSun);
-            if (Math.abs(cosAltSun) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                const cosAzSun = (Math.sin(deltaSun) - Math.sin(phi) * sinAltSun) / (Math.cos(phi) * cosAltSun);
-                azSun = Math.acos(Math.max(-1, Math.min(1, cosAzSun)));
-                if (Math.sin(H_sun) > 0) azSun = 2 * Math.PI - azSun;
-            }
+            // موقع الشمس في القبة السماوية (مع معالجة القطبين)
+            const { alt: altSun, az: azSun } = computeHorizontalCoords(deltaSun, H_sun, phi);
 
             if (sunMesh) {
                 sunMesh.position.set(
@@ -7107,13 +7101,7 @@ let cosmos3DInitialized = false;
             // حساب مواضع نقاط التقاطع ثلاثية الأبعاد على القبة السماوية
             function getPointAtDepression(altRad, H_val) {
                 if (H_val === null) return null;
-                const cosAlt = Math.cos(altRad);
-                let az = 0;
-                if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                    const cosAz = (Math.sin(deltaSun) - Math.sin(phi) * Math.sin(altRad)) / (Math.cos(phi) * cosAlt);
-                    az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
-                    if (Math.sin(H_val) > 0) az = 2 * Math.PI - az;
-                }
+                const { az } = computeHorizontalCoords(deltaSun, H_val, phi);
                 return new THREE.Vector3(
                     DOME_R * Math.cos(altRad) * Math.sin(az),
                     DOME_R * Math.sin(altRad),
@@ -7151,15 +7139,7 @@ let cosmos3DInitialized = false;
                 const curPts = [];
                 for (let k = 0; k <= 72; k++) {
                     const H_cur = -Math.PI + (k / 72) * Math.PI * 2;
-                    const sA = Math.sin(phi) * Math.sin(deltaSun) + Math.cos(phi) * Math.cos(deltaSun) * Math.cos(H_cur);
-                    const a_c = Math.asin(Math.max(-1, Math.min(1, sA)));
-                    let az_c = 0;
-                    const cA = Math.cos(a_c);
-                    if (Math.abs(cA) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                        const cosAz = (Math.sin(deltaSun) - Math.sin(phi) * sA) / (Math.cos(phi) * cA);
-                        az_c = Math.acos(Math.max(-1, Math.min(1, cosAz)));
-                        if (Math.sin(H_cur) > 0) az_c = 2 * Math.PI - az_c;
-                    }
+                    const { alt: a_c, az: az_c } = computeHorizontalCoords(deltaSun, H_cur, phi);
                     curPts.push(new THREE.Vector3(DOME_R * Math.cos(a_c) * Math.sin(az_c), DOME_R * Math.sin(a_c), -DOME_R * Math.cos(a_c) * Math.cos(az_c)));
                 }
                 currentSunOrbitLine.geometry.setFromPoints(curPts);
@@ -7174,15 +7154,7 @@ let cosmos3DInitialized = false;
                 const descPts = [];
                 for (let k = 0; k <= 24; k++) {
                     const hCur = H_sunset + (k / 24) * (H_isha18 - H_sunset);
-                    const sinA = Math.sin(phi) * Math.sin(deltaSun) + Math.cos(phi) * Math.cos(deltaSun) * Math.cos(hCur);
-                    const a = Math.asin(Math.max(-1, Math.min(1, sinA)));
-                    let az = 0;
-                    const cosA = Math.cos(a);
-                    if (Math.abs(cosA) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                        const cosAz = (Math.sin(deltaSun) - Math.sin(phi) * sinA) / (Math.cos(phi) * cosA);
-                        az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
-                        if (Math.sin(hCur) > 0) az = 2 * Math.PI - az;
-                    }
+                    const { alt: a, az } = computeHorizontalCoords(deltaSun, hCur, phi);
                     descPts.push(new THREE.Vector3(DOME_R * Math.cos(a) * Math.sin(az), DOME_R * Math.sin(a), -DOME_R * Math.cos(a) * Math.cos(az)));
                 }
                 twilightDescendingArcLine.geometry.setFromPoints(descPts);
@@ -7232,16 +7204,8 @@ let cosmos3DInitialized = false;
             const H_moon = H_sun + (moonLambda - lambdaSun);
 
             // موقع القمر في القبة السماوية
-            const sinAltMoon = Math.sin(phi) * Math.sin(moonDelta) + Math.cos(phi) * Math.cos(moonDelta) * Math.cos(H_moon);
-            const altMoon = Math.asin(Math.max(-1, Math.min(1, sinAltMoon)));
-
-            let azMoon = 0;
-            const cosAltMoon = Math.cos(altMoon);
-            if (Math.abs(cosAltMoon) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                const cosAzMoon = (Math.sin(moonDelta) - Math.sin(phi) * sinAltMoon) / (Math.cos(phi) * cosAltMoon);
-                azMoon = Math.acos(Math.max(-1, Math.min(1, cosAzMoon)));
-                if (Math.sin(H_moon) > 0) azMoon = 2 * Math.PI - azMoon;
-            }
+            // موقع القمر في القبة السماوية (مع معالجة القطبين)
+            const { alt: altMoon, az: azMoon } = computeHorizontalCoords(moonDelta, H_moon, phi);
 
             // وضع القمر الواضح تماماً على حافة القبة السماوية (DOME_R - 2)
             if (moonMesh) {
@@ -7343,15 +7307,8 @@ let cosmos3DInitialized = false;
                 const delta = Math.sin(EPSILON + cfg.inc) * Math.sin(lambda);
                 const H = H_sun + (lambda - lambdaSun);
 
-                const sinAlt = Math.sin(phi) * Math.sin(delta) + Math.cos(phi) * Math.cos(delta) * Math.cos(H);
-                const alt = Math.asin(Math.max(-1, Math.min(1, sinAlt)));
-                let az = 0;
-                const cosAlt = Math.cos(alt);
-                if (Math.abs(cosAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                    const cosAz = (Math.sin(delta) - Math.sin(phi) * sinAlt) / (Math.cos(phi) * cosAlt);
-                    az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
-                    if (Math.sin(H) > 0) az = 2 * Math.PI - az;
-                }
+                // موقع الكوكب في القبة السماوية (مع معالجة القطبين)
+                const { alt, az } = computeHorizontalCoords(delta, H, phi);
 
                 mesh.position.set(
                     cfg.r * Math.cos(alt) * Math.sin(az),
@@ -7367,15 +7324,7 @@ let cosmos3DInitialized = false;
                         const ringLam = (j / 48) * Math.PI * 2;
                         const ringDelta = Math.sin(EPSILON + cfg.inc) * Math.sin(ringLam);
                         const ringH = H_sun + (ringLam - lambdaSun);
-                        const sAlt = Math.sin(phi) * Math.sin(ringDelta) + Math.cos(phi) * Math.cos(ringDelta) * Math.cos(ringH);
-                        const rAlt = Math.asin(Math.max(-1, Math.min(1, sAlt)));
-                        let rAz = 0;
-                        const cAlt = Math.cos(rAlt);
-                        if (Math.abs(cAlt) > 0.0001 && Math.abs(Math.cos(phi)) > 0.0001) {
-                            const cAz = (Math.sin(ringDelta) - Math.sin(phi) * sAlt) / (Math.cos(phi) * cAlt);
-                            rAz = Math.acos(Math.max(-1, Math.min(1, cAz)));
-                            if (Math.sin(ringH) > 0) rAz = 2 * Math.PI - rAz;
-                        }
+                        const { alt: rAlt, az: rAz } = computeHorizontalCoords(ringDelta, ringH, phi);
                         pts.push(new THREE.Vector3(
                             cfg.r * Math.cos(rAlt) * Math.sin(rAz),
                             cfg.r * Math.sin(rAlt),
@@ -7425,7 +7374,7 @@ let cosmos3DInitialized = false;
             document.getElementById('hudDateTime').innerText = simDate.toISOString().replace('T', ' ').substring(0, 16);
             document.getElementById('hudSunDecl').innerText = `${deltaSun >= 0 ? '+' : ''}${(deltaSun * 180 / Math.PI).toFixed(2)}°`;
             document.getElementById('hudSunAlt').innerText = `${(altSun * 180 / Math.PI).toFixed(1)}° (${altSun >= 0 ? 'فوق الأفق' : 'تحت الأفق'})`;
-            document.getElementById('hudSunriseAz').innerText = `${riseAzDeg.toFixed(1)}° (سعة ${Math.abs(ampDeg).toFixed(1)}°)`;
+            document.getElementById('hudSunriseAz').innerText = Math.abs(Math.cos(phi)) < 0.001 ? 'لا شروق ولا غروب (مدارات أفقية)' : `${riseAzDeg.toFixed(1)}° (سعة ${Math.abs(ampDeg).toFixed(1)}°)`;
 
             document.getElementById('hudMoonPhaseName').innerText = phaseName;
             document.getElementById('hudMoonIllum').innerText = `${illumPercent}% مضاء (${phaseName.split(' ')[1] || ''})`;
@@ -7614,6 +7563,14 @@ let cosmos3DInitialized = false;
 
         function updateSeasonalBarUI(deltaSun, phi, sunsetStr, isha16Str, diff16, isha18Str, diff18, diffBetween) {
             const declDeg = deltaSun * 180 / Math.PI;
+            const isPole = Math.abs(Math.cos(phi)) < 0.001;
+
+            if (isPole) {
+                sunsetStr = declDeg >= 0 ? 'نهار قطبي مستمر (شمس منتصف الليل)' : 'ليل قطبي مستمر';
+                isha16Str = '--:--';
+                isha18Str = '--:--';
+                diffBetween = 0;
+            }
 
             // تحديث مؤشر السلايدر
             const slider = document.getElementById('seasonalSlider');
@@ -7653,7 +7610,7 @@ let cosmos3DInitialized = false;
             if (el16Diff) el16Diff.innerText = `(بعد ${diff16}د)`;
             if (el18) el18.innerText = isha18Str;
             if (el18Diff) el18Diff.innerText = `(بعد ${diff18}د)`;
-            if (elDiff) elDiff.innerText = `${diffBetween} دقيقة`;
+            if (elDiff) elDiff.innerText = isPole ? 'فلك دائر (أفقي)' : `${diffBetween} دقيقة`;
 
             // تحديث شارة الفارق البارزة في أعلى المشهد
             const elBDiff = document.getElementById('bannerIshaDiffVal');
@@ -7663,12 +7620,12 @@ let cosmos3DInitialized = false;
             const elB18D = document.getElementById('bannerIsha18Diff');
             const elBGap = document.getElementById('bannerIshaGap');
 
-            if (elBDiff) elBDiff.innerText = `${diffBetween} دقائق`;
+            if (elBDiff) elBDiff.innerText = isPole ? 'فلك دائر (أفقي 360°)' : `${diffBetween} دقائق`;
             if (elB16) elB16.innerText = isha16Str;
-            if (elB16D) elB16D.innerText = diff16;
+            if (elB16D) elB16D.innerText = isPole ? '--' : diff16;
             if (elB18) elB18.innerText = isha18Str;
-            if (elB18D) elB18D.innerText = diff18;
-            if (elBGap) elBGap.innerText = `${diffBetween}د`;
+            if (elB18D) elB18D.innerText = isPole ? '--' : diff18;
+            if (elBGap) elBGap.innerText = isPole ? 'دوران كامل' : `${diffBetween}د`;
 
             // تحديث جدول المقارنة الفوري
             const tSummer = computeTwilightForDecl(phi, EPSILON);
