@@ -1580,105 +1580,155 @@
         }
 
         
-        /* ==================== INTERACTIVE SEASONAL ORBITS & ISHA COMPARISON BAR ==================== */
-        #cosmos3DContainer .c3d-seasonal-bar {
+        /* ==================== RIGHT & LEFT VERTICAL PANELS + BOTTOM ISHA PILL ==================== */
+        /* Right Vertical Panel (Seasons / Sun Declination) */
+        #cosmos3DContainer .c3d-side-panel-right {
             position: absolute;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 28px);
-            max-width: 980px;
-            z-index: 12;
-            background: rgba(15, 23, 42, 0.9);
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 142px;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.92);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(148, 163, 184, 0.25);
+            border: 1px solid rgba(245, 158, 11, 0.35);
             border-radius: 14px;
-            padding: 9px 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 15px rgba(245, 158, 11, 0.15);
+            padding: 10px 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65), 0 0 15px rgba(245, 158, 11, 0.12);
             display: flex;
             flex-direction: column;
-            gap: 7px;
-            transition: all 0.3s ease;
+            align-items: center;
+            gap: 5px;
             pointer-events: auto;
         }
-        .seasonal-header-row {
+
+        /* Left Vertical Panel (Orbit Tilt Angle & Cities) */
+        #cosmos3DContainer .c3d-side-panel-left {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 155px;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 14px;
+            padding: 10px 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65), 0 0 15px rgba(56, 189, 248, 0.12);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
+            gap: 5px;
+            pointer-events: auto;
         }
-        .seasonal-title-wrap {
+
+        /* Vertical slider container */
+        .v-slider-box {
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 6px;
-            font-size: 0.88em;
-            font-weight: 800;
-            color: var(--gold);
+            height: 130px;
+            width: 38px;
+            margin: 2px auto;
         }
-        .c3d-city-badge {
-            background: rgba(56, 189, 248, 0.18);
-            border: 1px solid rgba(56, 189, 248, 0.45);
-            color: #7DD3FC;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 0.84em;
-            font-weight: 700;
+        .v-slider-box input[type="range"] {
+            transform: rotate(-90deg);
+            width: 120px;
+            height: 6px;
+            cursor: grab;
+            outline: none;
+            border-radius: 4px;
+            accent-color: #F59E0B;
+        }
+        .v-slider-box input[type="range"]:active {
+            cursor: grabbing;
         }
         #latAngleSlider {
-            background: linear-gradient(to right, #0284C7, #38BDF8 40%, #818CF8) !important;
+            accent-color: #38BDF8 !important;
+            background: linear-gradient(to right, #0284C7, #38BDF8 50%, #818CF8) !important;
+        }
+        #seasonalSlider {
+            background: linear-gradient(to right, #34D399, #38BDF8 50%, #EF4444) !important;
+        }
+
+        .panel-header-title {
+            font-size: 0.8em;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.3;
         }
         .c3d-decl-badge {
             background: rgba(245, 158, 11, 0.2);
             border: 1px solid rgba(245, 158, 11, 0.4);
             color: #FDE047;
-            padding: 2px 8px;
+            padding: 2px 6px;
             border-radius: 6px;
-            font-size: 0.84em;
+            font-size: 0.82em;
             font-weight: 700;
+            display: inline-block;
+            margin-top: 3px;
         }
-        .seasonal-snap-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .c3d-city-badge {
+            background: rgba(56, 189, 248, 0.18);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            color: #7DD3FC;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 3px;
+            white-space: nowrap;
+            max-width: 138px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .btn-season-snap {
             background: rgba(30, 41, 59, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: #CBD5E1;
-            padding: 3px 9px;
-            border-radius: 8px;
-            font-size: 0.8em;
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-size: 0.76em;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
+            width: 100%;
+            text-align: center;
         }
         .btn-season-snap:hover {
             background: rgba(51, 65, 85, 0.95);
             color: #FFF;
-            border-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
         }
         .btn-season-snap.active {
             background: linear-gradient(135deg, #D97706, #B45309);
             border-color: #F59E0B;
             color: #FFF;
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+        }
+        .btn-season-snap.city-active {
+            background: linear-gradient(135deg, #0284C7, #0369A1);
+            border-color: #38BDF8;
+            color: #FFF;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
         }
         .btn-season-action {
-            background: rgba(99, 102, 241, 0.2);
+            background: rgba(99, 102, 241, 0.22);
             border: 1px solid rgba(129, 140, 248, 0.4);
             color: #C7D2FE;
-            padding: 3px 9px;
-            border-radius: 8px;
-            font-size: 0.8em;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.76em;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
         }
         .btn-season-action:hover {
-            background: rgba(99, 102, 241, 0.4);
+            background: rgba(99, 102, 241, 0.45);
             color: #FFF;
         }
         .btn-season-action.active {
@@ -1686,70 +1736,51 @@
             color: #FFF;
             border-color: #818CF8;
         }
-        .seasonal-slider-row {
+
+        /* Bottom Center Floating Isha Telemetry Pill */
+        #cosmos3DContainer .c3d-bottom-pill {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 24px;
+            padding: 6px 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.65), 0 0 10px rgba(56, 189, 248, 0.15);
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        .slider-end-label {
-            font-size: 0.76em;
-            color: #94A3B8;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .slider-end-label:hover {
-            color: #F1F5F9;
-        }
-        .slider-track-wrap {
-            flex: 1;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .slider-track-wrap input[type="range"] {
-            width: 100%;
-            cursor: grab;
-            accent-color: #F59E0B;
-            height: 6px;
-            background: linear-gradient(to right, #34D399, #38BDF8 50%, #EF4444);
-            border-radius: 4px;
-            outline: none;
-        }
-        .slider-track-wrap input[type="range"]:active {
-            cursor: grabbing;
-        }
-        .seasonal-telemetry-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
             gap: 9px;
-            padding-top: 5px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            font-size: 0.84em;
+            pointer-events: auto;
+            font-size: 0.82em;
+            white-space: nowrap;
         }
-        .telem-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .telem-item.highlight {
-            background: rgba(56, 189, 248, 0.12);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            padding: 2px 8px;
-            border-radius: 6px;
-        }
-        .telem-lbl { color: #94A3B8; font-size: 0.88em; }
+        .telem-item { display: flex; align-items: center; gap: 4px; }
+        .telem-lbl { color: #94A3B8; font-size: 0.9em; }
         .telem-val { font-weight: 800; }
         .telem-sub { color: #CBD5E1; font-size: 0.85em; }
         .telem-sep { color: rgba(255, 255, 255, 0.2); font-size: 0.8em; }
+
+        /* Floating drawer above bottom pill */
         .seasonal-comparison-drawer {
-            margin-top: 6px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            position: absolute;
+            bottom: 54px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 340px);
+            max-width: 820px;
+            z-index: 11;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 12px;
+            padding: 8px 12px;
             max-height: 220px;
             overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .season-compare-table {
             width: 100%;
@@ -1773,16 +1804,19 @@
             background: rgba(245, 158, 11, 0.16);
             font-weight: 700;
         }
-        .diff-tag {
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-weight: 800;
-        }
+        .diff-tag { padding: 1px 6px; border-radius: 4px; font-weight: 800; }
         .diff-tag.summer { background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); }
         .diff-tag.equinox { background: rgba(56, 189, 248, 0.2); color: #7DD3FC; border: 1px solid rgba(56, 189, 248, 0.4); }
         .diff-tag.winter { background: rgba(52, 211, 153, 0.2); color: #6EE7B7; border: 1px solid rgba(52, 211, 153, 0.4); }
         .diff-tag.current { background: rgba(245, 158, 11, 0.25); color: #FDE047; border: 1px solid rgba(245, 158, 11, 0.5); }
 
+        @media (max-width: 960px) {
+            #cosmos3DContainer .c3d-side-panel-right { right: 8px; width: 115px; }
+            #cosmos3DContainer .c3d-side-panel-left { left: 8px; width: 125px; }
+            .seasonal-comparison-drawer { width: calc(100% - 280px); }
+            #cosmos3DContainer .c3d-bottom-pill { font-size: 0.74em; gap: 6px; padding: 5px 10px; }
+        }
+        
         /* ==================== 3D DASHBOARD GRID (BELOW VIEWPORT) ==================== */
         .c3d-dashboard-grid {
             display: grid;
@@ -2848,164 +2882,134 @@
             <span>💡 <strong>التحكم:</strong> سحب بالماوس للتدوير 360° | عجلة الماوس للتقريب | الزر الأيمن للإزاحة</span>
         </div>
 
-        <!-- Interactive Seasonal Orbit Scrubber & Isha Twilight Comparison Bar -->
-        <div id="c3dSeasonalBar" class="c3d-seasonal-bar">
-            <!-- Header Row -->
-            <div class="seasonal-header-row">
-                <div class="seasonal-title-wrap">
-                    <span style="font-size:1.1em;">☀️</span>
-                    <span>تحريك المدارات بالسلايدر:</span>
-                    <span id="c3dDeclBadge" class="c3d-decl-badge">⚖️ الاعتدالين (0.0°)</span>
-                </div>
-                <!-- Quick Snap Buttons -->
-                <div class="seasonal-snap-group">
-                    <button type="button" id="btnSeasonWinter" class="btn-season-snap" onclick="snapSeason(-23.516)" title="الانتقال إلى مدار الجدي (الانقلاب الشتوي)">
-                        ❄️ شتاء (-23.5°)
-                    </button>
-                    <button type="button" id="btnSeasonEquinox" class="btn-season-snap active" onclick="snapSeason(0.0)" title="الانتقال إلى مدار الاستواء (الاعتدالين)">
-                        ⚖️ اعتدال (0.0°)
-                    </button>
-                    <button type="button" id="btnSeasonSummer" class="btn-season-snap" onclick="snapSeason(23.516)" title="الانتقال إلى مدار السرطان (الانقلاب الصيفي)">
-                        ☀️ صيف (+23.5°)
-                    </button>
-                </div>
-                <!-- Action Buttons -->
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <button type="button" class="btn-season-action" onclick="jumpToSunsetTime()" title="ضبط الساعة مباشرة عند لحظة الغروب لمشاهدة هبوط الشمس في الشفق على الدائرتين">
-                        🌅 قفز للغروب
-                    </button>
-                    <button type="button" id="btnToggleSeasonTable" class="btn-season-action" onclick="toggleSeasonalComparisonTable()" title="عرض جدول المقارنة الفوري لاختلاف وقت العشائين">
-                        📊 مقارنة العشائين
-                    </button>
-                </div>
+        <!-- Right Vertical Panel: Seasonal Sun Declination -->
+        <div id="c3dRightPanel" class="c3d-side-panel-right">
+            <div class="panel-header-title" style="color:var(--gold);">
+                ☀️ فصول السنة<br>
+                <span id="c3dDeclBadge" class="c3d-decl-badge">0.0°</span>
             </div>
+            <button type="button" id="btnSeasonSummer" class="btn-season-snap" onclick="snapSeason(23.516)" title="الانقلاب الصيفي">☀️ صيف (+23.5°)</button>
+            <div class="v-slider-box">
+                <input type="range" id="seasonalSlider" min="-23.516" max="23.516" step="0.2" value="0" 
+                       oninput="onSeasonalSliderInput(parseFloat(this.value))" 
+                       title="اسحب رأسياً لتعديل ميل المدار الشمسي فصلياً">
+            </div>
+            <button type="button" id="btnSeasonEquinox" class="btn-season-snap active" onclick="snapSeason(0.0)" title="الاعتدالين">⚖️ اعتدال (0°)</button>
+            <button type="button" id="btnSeasonWinter" class="btn-season-snap" onclick="snapSeason(-23.516)" title="الانقلاب الشتوي">❄️ شتاء (-23.5°)</button>
+            <button type="button" class="btn-season-action" onclick="jumpToSunsetTime()" style="width:100%; margin-top:4px;" title="ضبط التوقيت لحظة الغروب">🌅 قفز للغروب</button>
+        </div>
 
-            <!-- Scrubber Slider Row -->
-            <div class="seasonal-slider-row">
-                <span class="slider-end-label" onclick="snapSeason(-23.516)" title="نقر للانتقال للشتاء">❄️ شتاء (-23.5°)</span>
-                <div class="slider-track-wrap">
-                    <input type="range" id="seasonalSlider" min="-23.516" max="23.516" step="0.2" value="0" 
-                           oninput="onSeasonalSliderInput(parseFloat(this.value))" 
-                           title="اسحب بالماوس لتحريك المدار الشمسي صعوداً وهبوطاً بين الشتاء والاعتدال والصيف">
-                </div>
-                <span class="slider-end-label" onclick="snapSeason(23.516)" title="نقر للانتقال للصيف">☀️ صيف (+23.5°)</span>
+        <!-- Left Vertical Panel: Orbit Tilt Angle & Cities -->
+        <div id="c3dLeftPanel" class="c3d-side-panel-left">
+            <div class="panel-header-title" style="color:#38BDF8;">
+                🌐 زاوية المدارات<br>
+                <span id="c3dCityAngleBadge" class="c3d-city-badge">📍 دمشق (33.5°)</span>
             </div>
+            <span style="font-size:0.7em; color:#94A3B8; cursor:pointer;" onclick="snapCityLat(90.0, 'pole')">90° القطب (أفقي)</span>
+            <div class="v-slider-box">
+                <input type="range" id="latAngleSlider" min="0" max="90" step="0.25" value="33.51" 
+                       oninput="onLatAngleSliderInput(parseFloat(this.value))" 
+                       title="اسحب رأسياً لتعديل زاوية ميل المدارات مع الأفق ومطابقة المدن">
+            </div>
+            <span style="font-size:0.7em; color:#94A3B8; cursor:pointer;" onclick="snapCityLat(0.0, 'equator')">0° الاستواء (عمودي)</span>
+            <!-- Quick City Buttons List -->
+            <div style="display:flex; flex-direction:column; gap:3px; width:100%; max-height:130px; overflow-y:auto; margin-top:3px;">
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(90.0, 'pole')">القطب (90°)</button>
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(41.01, 'istanbul')">إسطنبول (41°)</button>
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(37.89, 'cordoba')">قرطبة (37.9°)</button>
+                <button type="button" class="btn-season-snap city-active" id="btnSnapDamascus" onclick="snapCityLat(33.51, 'damascus')">دمشق (33.5°)</button>
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(31.78, 'jerusalem')">القدس (31.8°)</button>
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(30.04, 'cairo')">القاهرة (30°)</button>
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(21.42, 'mecca')">مكة (21.4°)</button>
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(0.0, 'equator')">الاستواء (0°)</button>
+            </div>
+        </div>
 
-            <!-- Orbit Tilt Angle & Cities Slider Row -->
-            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:6px; margin-top:1px;">
-                <div class="seasonal-header-row">
-                    <div class="seasonal-title-wrap">
-                        <span style="font-size:1.1em;">🌐</span>
-                        <span>زاوية المدارات والمدن (خط العرض):</span>
-                        <span id="c3dCityAngleBadge" class="c3d-city-badge">📍 دمشق (33.5°N) • زاوية المدار: 56.5°</span>
-                    </div>
-                    <!-- City Quick Snap Buttons -->
-                    <div class="seasonal-snap-group">
-                        <button type="button" class="btn-season-snap" onclick="snapCityLat(0.0, 'equator')" title="خط الاستواء: الفلك المستقيم (عمودي 90°)">استواء (0°)</button>
-                        <button type="button" class="btn-season-snap" onclick="snapCityLat(21.42, 'mecca')" title="مكة المكرمة">مكة (21.4°)</button>
-                        <button type="button" class="btn-season-snap" onclick="snapCityLat(30.04, 'cairo')" title="القاهرة">القاهرة (30°)</button>
-                        <button type="button" class="btn-season-snap" onclick="snapCityLat(31.78, 'jerusalem')" title="القدس الشريف">القدس (31.8°)</button>
-                        <button type="button" class="btn-season-snap active" id="btnSnapDamascus" onclick="snapCityLat(33.51, 'damascus')" title="دمشق — مرصد ابن الشاطر">دمشق (33.5°)</button>
-                        <button type="button" class="btn-season-snap" onclick="snapCityLat(37.89, 'cordoba')" title="قرطبة — الأندلس">قرطبة (37.9°)</button>
-                        <button type="button" class="btn-season-snap" onclick="snapCityLat(41.01, 'istanbul')" title="إسطنبول — مرصد تقي الدين">إسطنبول (41°)</button>
-                        <button type="button" class="btn-season-snap" onclick="snapCityLat(90.0, 'pole')" title="القطب الشمالي: الفلك الدائر (أفقي 0°)">القطب (90°)</button>
-                    </div>
-                </div>
-                <div class="seasonal-slider-row" style="margin-top:4px;">
-                    <span class="slider-end-label" onclick="snapCityLat(0.0, 'equator')" title="خط الاستواء (المدارات عمودية 90° على الأفق)">0° الاستواء (عمودي 90°)</span>
-                    <div class="slider-track-wrap">
-                        <input type="range" id="latAngleSlider" min="0" max="90" step="0.25" value="33.51" 
-                               oninput="onLatAngleSliderInput(parseFloat(this.value))" 
-                               title="اسحب بالماوس لتعديل زاوية ميل المدارات على الأفق ومطابقة مدن العالم معها تلقائياً">
-                    </div>
-                    <span class="slider-end-label" onclick="snapCityLat(90.0, 'pole')" title="القطب الشمالي (المدارات موازية للأفق 0°)">90° القطب (أفقي 0°)</span>
-                </div>
+        <!-- Bottom Center Floating Isha Telemetry Pill -->
+        <div id="c3dBottomPill" class="c3d-bottom-pill">
+            <div class="telem-item">
+                <span class="telem-lbl">🌇 الغروب:</span>
+                <span id="telemSunset" class="telem-val" style="color:#F59E0B;">18:00</span>
             </div>
+            <div class="telem-sep">•</div>
+            <div class="telem-item">
+                <span class="telem-lbl">🟠 الشافعي (16°):</span>
+                <span id="telemIsha16" class="telem-val" style="color:#FB923C;">19:17</span>
+                <span id="telemIsha16Diff" class="telem-sub">(+77د)</span>
+            </div>
+            <div class="telem-sep">•</div>
+            <div class="telem-item">
+                <span class="telem-lbl">🟣 الحنفي (18°):</span>
+                <span id="telemIsha18" class="telem-val" style="color:#A78BFA;">19:27</span>
+                <span id="telemIsha18Diff" class="telem-sub">(+87د)</span>
+            </div>
+            <div class="telem-sep">•</div>
+            <div class="telem-item">
+                <span class="telem-lbl">⚡ الفارق:</span>
+                <span id="telemIshaDiff" class="telem-val" style="color:#38BDF8;">10 دقائق</span>
+            </div>
+            <div class="telem-sep">•</div>
+            <button type="button" id="btnToggleSeasonTable" class="btn-season-action" onclick="toggleSeasonalComparisonTable()">📊 مقارنة</button>
+            <button type="button" id="btnToggle3DLabels" class="btn-season-action active" onclick="toggle3DLabels()" title="إظهار أو إخفاء وسوم العشائين من على الرسم ثلاثي الأبعاد لتفريغ الرؤية">🏷️ وسوم 3D</button>
+        </div>
 
-            <!-- Live Twilight Telemetry Strip -->
-            <div class="seasonal-telemetry-row">
-                <div class="telem-item">
-                    <span class="telem-lbl">🌇 الغروب:</span>
-                    <span id="telemSunset" class="telem-val" style="color:#F59E0B;">18:00</span>
-                </div>
-                <div class="telem-sep">•</div>
-                <div class="telem-item">
-                    <span class="telem-lbl">🟠 الشافعي (16°):</span>
-                    <span id="telemIsha16" class="telem-val" style="color:#FB923C;">19:17</span>
-                    <span id="telemIsha16Diff" class="telem-sub">(بعد 77د)</span>
-                </div>
-                <div class="telem-sep">•</div>
-                <div class="telem-item">
-                    <span class="telem-lbl">🟣 الحنفي (18°):</span>
-                    <span id="telemIsha18" class="telem-val" style="color:#A78BFA;">19:27</span>
-                    <span id="telemIsha18Diff" class="telem-sub">(بعد 87د)</span>
-                </div>
-                <div class="telem-sep">•</div>
-                <div class="telem-item highlight">
-                    <span class="telem-lbl">⚡ الفارق بين العشائين:</span>
-                    <span id="telemIshaDiff" class="telem-val" style="color:#38BDF8; font-weight:800;">10 دقائق</span>
-                </div>
-            </div>
-
-            <!-- Expandable Comparison Table Drawer -->
-            <div id="seasonalComparisonDrawer" class="seasonal-comparison-drawer" style="display:none;">
-                <table class="season-compare-table">
-                    <thead>
-                        <tr>
-                            <th>المدار الفلكي</th>
-                            <th>الميل (&delta;)</th>
-                            <th>وقت الغروب</th>
-                            <th>العشاء الشافعي (16°)</th>
-                            <th>العشاء الحنفي (18°)</th>
-                            <th>الفارق بينهما</th>
-                            <th>تأثير زاوية هبوط الشمس</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr id="rowCompareSummer">
-                            <td><strong style="color:#EF4444;">☀️ الانقلاب الصيفي (مدار السرطان)</strong></td>
-                            <td>+23.5&deg;</td>
-                            <td id="tdSummerSunset">19:07</td>
-                            <td id="tdSummerIsha16">20:42 (+95د)</td>
-                            <td id="tdSummerIsha18">20:55 (+108د)</td>
-                            <td><span class="diff-tag summer">13 دقيقة</span></td>
-                            <td style="color:#FDA4AF; font-size:0.88em;">أطول شفق في السنة؛ مسار الهبوط مائل جداً فيتأخر غياب الشفق</td>
-                        </tr>
-                        <tr id="rowCompareEquinox">
-                            <td><strong style="color:#38BDF8;">⚖️ الاعتدالين (مدار الاستواء)</strong></td>
-                            <td>0.0&deg;</td>
-                            <td id="tdEquinoxSunset">18:00</td>
-                            <td id="tdEquinoxIsha16">19:17 (+77د)</td>
-                            <td id="tdEquinoxIsha18">19:27 (+87د)</td>
-                            <td><span class="diff-tag equinox">10 دقائق</span></td>
-                            <td style="color:#BAE6FD; font-size:0.88em;">شفق متوسط معتدل؛ مسار الهبوط عمودي نسبياً على الأفق</td>
-                        </tr>
-                        <tr id="rowCompareWinter">
-                            <td><strong style="color:#34D399;">❄️ الانقلاب الشتوي (مدار الجدي)</strong></td>
-                            <td>-23.5&deg;</td>
-                            <td id="tdWinterSunset">16:53</td>
-                            <td id="tdWinterIsha16">18:17 (+84د)</td>
-                            <td id="tdWinterIsha18">18:27 (+94د)</td>
-                            <td><span class="diff-tag winter">10 دقائق</span></td>
-                            <td style="color:#A7F3D0; font-size:0.88em;">أبكر غروب في السنة؛ يتقدم وقت العشائين مبكراً</td>
-                        </tr>
-                        <tr id="rowCompareCurrent" class="current-row">
-                            <td><strong style="color:#FBBF24;">📍 المدار الحالي المسحوب</strong></td>
-                            <td id="tdCurrDecl">0.0&deg;</td>
-                            <td id="tdCurrSunset">18:00</td>
-                            <td id="tdCurrIsha16">19:17 (+77د)</td>
-                            <td id="tdCurrIsha18">19:27 (+87د)</td>
-                            <td><span id="tdCurrDiff" class="diff-tag current">10 دقائق</span></td>
-                            <td id="tdCurrNote" style="color:#FEF08A; font-size:0.88em;">موضع الشمس اللحظي المختار بالماوس</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <!-- Expandable Comparison Table Drawer -->
+        <div id="seasonalComparisonDrawer" class="seasonal-comparison-drawer" style="display:none;">
+            <table class="season-compare-table">
+                <thead>
+                    <tr>
+                        <th>المدار الفلكي</th>
+                        <th>الميل (&delta;)</th>
+                        <th>وقت الغروب</th>
+                        <th>العشاء الشافعي (16°)</th>
+                        <th>العشاء الحنفي (18°)</th>
+                        <th>الفارق بينهما</th>
+                        <th>تأثير زاوية هبوط الشمس</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="rowCompareSummer">
+                        <td><strong style="color:#EF4444;">☀️ الانقلاب الصيفي (مدار السرطان)</strong></td>
+                        <td>+23.5&deg;</td>
+                        <td id="tdSummerSunset">19:07</td>
+                        <td id="tdSummerIsha16">20:42 (+95د)</td>
+                        <td id="tdSummerIsha18">20:55 (+108د)</td>
+                        <td><span class="diff-tag summer">13 دقيقة</span></td>
+                        <td style="color:#FDA4AF; font-size:0.88em;">أطول شفق في السنة؛ مسار الهبوط مائل جداً فيتأخر غياب الشفق</td>
+                    </tr>
+                    <tr id="rowCompareEquinox">
+                        <td><strong style="color:#38BDF8;">⚖️ الاعتدالين (مدار الاستواء)</strong></td>
+                        <td>0.0&deg;</td>
+                        <td id="tdEquinoxSunset">18:00</td>
+                        <td id="tdEquinoxIsha16">19:17 (+77د)</td>
+                        <td id="tdEquinoxIsha18">19:27 (+87د)</td>
+                        <td><span class="diff-tag equinox">10 دقائق</span></td>
+                        <td style="color:#BAE6FD; font-size:0.88em;">شفق متوسط معتدل؛ مسار الهبوط عمودي نسبياً على الأفق</td>
+                    </tr>
+                    <tr id="rowCompareWinter">
+                        <td><strong style="color:#34D399;">❄️ الانقلاب الشتوي (مدار الجدي)</strong></td>
+                        <td>-23.5&deg;</td>
+                        <td id="tdWinterSunset">16:53</td>
+                        <td id="tdWinterIsha16">18:17 (+84د)</td>
+                        <td id="tdWinterIsha18">18:27 (+94د)</td>
+                        <td><span class="diff-tag winter">10 دقائق</span></td>
+                        <td style="color:#A7F3D0; font-size:0.88em;">أبكر غروب في السنة؛ يتقدم وقت العشائين مبكراً</td>
+                    </tr>
+                    <tr id="rowCompareCurrent" class="current-row">
+                        <td><strong style="color:#FBBF24;">📍 المدار الحالي المسحوب</strong></td>
+                        <td id="tdCurrDecl">0.0&deg;</td>
+                        <td id="tdCurrSunset">18:00</td>
+                        <td id="tdCurrIsha16">19:17 (+77د)</td>
+                        <td id="tdCurrIsha18">19:27 (+87د)</td>
+                        <td><span id="tdCurrDiff" class="diff-tag current">10 دقائق</span></td>
+                        <td id="tdCurrNote" style="color:#FEF08A; font-size:0.88em;">موضع الشمس اللحظي المختار بالسلايدر</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    
-<!-- World Map & City Search Modal -->
+    <!-- World Map & City Search Modal -->
 <div id="worldMapModal" onclick="if(event.target===this) closeWorldMapModal()">
     <div class="map-dialog-box" onclick="event.stopPropagation()">
         <div class="map-modal-header">
@@ -5789,6 +5793,18 @@ let cosmos3DInitialized = false;
             createTwilightDepressionCircles();
             createStarfield();
 
+            // منع تدوير كاميرا Three.js عند التفاعل مع اللوحتين الجانبيتين أو الكبسولة السفلية
+            ['c3dRightPanel', 'c3dLeftPanel', 'c3dBottomPill', 'seasonalComparisonDrawer'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('pointerdown', e => e.stopPropagation());
+                    el.addEventListener('mousedown', e => e.stopPropagation());
+                    el.addEventListener('wheel', e => e.stopPropagation());
+                    el.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+                    el.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
+                }
+            });
+
             window.addEventListener('resize', onCosmos3DResize);
             cosmos3DInitialized = true;
             updateAstronomy(currentDate);
@@ -6225,16 +6241,16 @@ let cosmos3DInitialized = false;
         // ==========================================
         // 🕌 دوائر العشائين الشافعي (16°) والحنفي (18°) وميقات الشفق
         // ==========================================
-        function createTextBadgeSprite(text, color, scaleX = 88, scaleY = 16) {
+        function createTextBadgeSprite(text, color, scaleX = 24, scaleY = 6) {
             const canvas = document.createElement('canvas');
-            canvas.width = 720;
-            canvas.height = 120;
+            canvas.width = 400;
+            canvas.height = 100;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.96)';
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
             ctx.strokeStyle = color;
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 4;
             ctx.beginPath();
-            ctx.roundRect(10, 10, 700, 100, 18);
+            ctx.roundRect(6, 6, canvas.width - 12, canvas.height - 12, 16);
             ctx.fill();
             ctx.stroke();
 
@@ -6242,7 +6258,7 @@ let cosmos3DInitialized = false;
             ctx.font = 'bold 30px "Cairo", "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(text, 360, 60);
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
             const texture = new THREE.CanvasTexture(canvas);
             const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
@@ -6258,11 +6274,11 @@ let cosmos3DInitialized = false;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.96)';
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
             ctx.strokeStyle = color;
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 4;
             ctx.beginPath();
-            ctx.roundRect(10, 10, canvas.width - 20, canvas.height - 20, 18);
+            ctx.roundRect(6, 6, canvas.width - 12, canvas.height - 12, 16);
             ctx.fill();
             ctx.stroke();
 
@@ -6340,11 +6356,11 @@ let cosmos3DInitialized = false;
             );
             twilightGroup.add(twilightDescendingArcLine);
 
-            // 4. وسمان رئيسيان فقط (واحد لكل دائرة كبرى، بدون تكرار)
-            ishaShafiLabelSprite = createTextBadgeSprite('🟠 دائرة العشاء الشافعي (16°): --:--', '#F97316', 88, 16);
+            // 4. وسمان مصغران وأنيقان (Micro-badges) خارج مسار هبوط الشمس لتفريغ الرؤية تماماً
+            ishaShafiLabelSprite = createTextBadgeSprite('🟠 16° شافعي', '#F97316', 24, 6);
             twilightGroup.add(ishaShafiLabelSprite);
 
-            ishaHanafiLabelSprite = createTextBadgeSprite('🟣 دائرة العشاء الحنفي (18°): --:--', '#818CF8', 88, 16);
+            ishaHanafiLabelSprite = createTextBadgeSprite('🟣 18° حنفي', '#818CF8', 24, 6);
             twilightGroup.add(ishaHanafiLabelSprite);
 
             // دوائر العشائين مخفية حتى يتم النقر على زر العشائين
@@ -6385,6 +6401,8 @@ let cosmos3DInitialized = false;
                 if (horizonGroup) horizonGroup.visible = true;
                 if (twilightGroup) twilightGroup.visible = true;
                 if (moonArcGroup) moonArcGroup.visible = true;
+                if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
+                if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = show3DLabels;
                 showTwilightCircles = true;
 
                 showC3DToast('🕌 تم تفعيل وضع العشائين: التركيز على المدارات والشمس والقمر والعشائين بحجم مقروء وإخفاء الكواكب والنجوم');
@@ -7010,15 +7028,15 @@ let cosmos3DInitialized = false;
             const pSet = getPointAtDepression(hSetRad, H_sunset);
 
             if (p16 && ishaShafiLabelSprite) {
-                // وضع شارة الدائرة الشافعية بحجم كبير ومقروء غرباً
-                ishaShafiLabelSprite.position.set(p16.x + 12, p16.y + 8, p16.z);
-                updateTextBadgeSprite(ishaShafiLabelSprite, `🟠 دائرة العشاء الشافعي (16°): ${isha16TimeStr} • بعد ${diff16Min}د من الغروب`, '#F97316');
+                // وضع وسم الشافعي المصغر جانباً خارج مسار نزول قرص الشمس حتى لا يحجب الرؤية
+                ishaShafiLabelSprite.position.set(p16.x + 14, p16.y + 3, p16.z - 10);
+                updateTextBadgeSprite(ishaShafiLabelSprite, `🟠 16° (${isha16TimeStr})`, '#F97316');
             }
 
             if (p18 && ishaHanafiLabelSprite) {
-                // وضع شارة الدائرة الحنفية بحجم كبير ومقروء غرباً
-                ishaHanafiLabelSprite.position.set(p18.x - 12, p18.y - 12, p18.z);
-                updateTextBadgeSprite(ishaHanafiLabelSprite, `🟣 دائرة العشاء الحنفي (18°): ${isha18TimeStr} • بعد ${diff18Min}د من الغروب`, '#818CF8');
+                // وضع وسم الحنفي المصغر جانباً خارج مسار نزول قرص الشمس
+                ishaHanafiLabelSprite.position.set(p18.x + 14, p18.y - 5, p18.z + 10);
+                updateTextBadgeSprite(ishaHanafiLabelSprite, `🟣 18° (${isha18TimeStr})`, '#818CF8');
             }
 
             // تحديث مدار الشمس اليومي الحالي المتحرك بلون ذهبي
@@ -7380,6 +7398,17 @@ let cosmos3DInitialized = false;
         // ==========================================
         // ☀️ دوال تحريك المدارات الفصيلة بالماوس ومقارنة العشائين
         // ==========================================
+        
+        let show3DLabels = true;
+        function toggle3DLabels() {
+            show3DLabels = !show3DLabels;
+            if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
+            if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = show3DLabels;
+            const btn = document.getElementById('btnToggle3DLabels');
+            if (btn) btn.classList.toggle('active', show3DLabels);
+            showC3DToast(show3DLabels ? '🏷️ تم إظهار وسوم العشائين على الرسم' : '🚫 تم إخفاء وسوم الرسم لرؤية نقية 100% غير محجوبة');
+        }
+
         function setSeasonalDeclination(declDeg) {
             const clampedDecl = Math.max(-23.516, Math.min(23.516, declDeg));
             const dRad = clampedDecl * Math.PI / 180;
@@ -7617,16 +7646,16 @@ let cosmos3DInitialized = false;
             if (closestKey !== 'custom' && CITIES_DB[closestKey]) {
                 cityNameStr = CITIES_DB[closestKey].name.split('(')[0].trim();
             }
-            badge.innerText = `📍 ${cityNameStr} (${lat.toFixed(1)}°N) • زاوية المدار: ${orbitAngle}°`;
+            badge.innerText = `📍 ${cityNameStr} (${lat.toFixed(1)}°)`;
 
             // تحديث حالة الأزرار النشطة للمدن
-            document.querySelectorAll('#c3dSeasonalBar .btn-season-snap').forEach(btn => {
+            document.querySelectorAll('#c3dLeftPanel .btn-season-snap').forEach(btn => {
                 const onclickAttr = btn.getAttribute('onclick') || '';
                 if (onclickAttr.includes('snapCityLat')) {
                     const m = onclickAttr.match(/snapCityLat\(([-0-9.]+)/);
                     if (m) {
                         const bLat = parseFloat(m[1]);
-                        btn.classList.toggle('active', Math.abs(lat - bLat) < 1.6);
+                        btn.classList.toggle('city-active', Math.abs(lat - bLat) < 1.6);
                     }
                 }
             });
