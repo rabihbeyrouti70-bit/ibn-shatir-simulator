@@ -3454,6 +3454,10 @@
                     <span style="color:#A7F3D0;">🟢 قرص الأفق المحلي والجهات الأصلية الأربعة</span>
                     <input type="checkbox" id="chkHorizon" checked onchange="toggleLayer('horizon', this.checked)">
                 </label>
+                <label class="c3d-toggle-item">
+                    <span style="color:#C084FC;">🕌 دوائر انحطاط 18° و 16° (الفجر والعشائين)</span>
+                    <input type="checkbox" id="chkTwilight" onchange="toggleLayer('twilight', this.checked)">
+                </label>
             </div>
         </div>
 
@@ -5816,6 +5820,7 @@ let cosmos3DInitialized = false;
         let ishaShafiLine, ishaHanafiLine, ishaShafiSector, ishaHanafiSector;
         let ishaShafiLabelSprite, ishaHanafiLabelSprite, ishaDiffLabelSprite;
         let twilightDescendingArcLine;
+        let fajr18LabelSprite;
         let showTwilightCircles = false;
         let isIshaFocusMode = false;
         let savedVisibilityBeforeIsha = null;
@@ -6214,7 +6219,7 @@ let cosmos3DInitialized = false;
                 color: 0x0A1628,
                 roughness: 0.85,
                 transparent: true,
-                opacity: 0.88,
+                opacity: 0.52,
                 side: THREE.DoubleSide
             });
             const disc = new THREE.Mesh(geom, mat);
@@ -6776,7 +6781,18 @@ let cosmos3DInitialized = false;
             );
             twilightGroup.add(twilightDescendingArcLine);
 
-            // 4. وسوم مصغرة وأنيقة (Micro-badges) خارج مسار هبوط الشمس لتفريغ الرؤية تماماً
+            // قطاع شريط شفق الفجر الصادق (نطاق مشرق الشمس سمت 30° إلى 150°)
+            const secFajrGeom = new THREE.RingGeometry(r18 - 4, r18 + 3, 36, 1, -60 * Math.PI / 180, 120 * Math.PI / 180);
+            const secFajrMat = new THREE.MeshBasicMaterial({ color: 0x06B6D4, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+            const fajrSector = new THREE.Mesh(secFajrGeom, secFajrMat);
+            fajrSector.rotation.x = -Math.PI / 2;
+            fajrSector.position.y = y18;
+            twilightGroup.add(fajrSector);
+
+            // 4. وسوم مصغرة وأنيقة (Micro-badges) خارج مسار حركة الشمس لتفريغ الرؤية تماماً
+            fajr18LabelSprite = createTextBadgeSprite('🌅 18° فجر صادق', '#06B6D4', 24, 6);
+            twilightGroup.add(fajr18LabelSprite);
+
             ishaShafiLabelSprite = createTextBadgeSprite('🟠 16° شافعي', '#F97316', 24, 6);
             twilightGroup.add(ishaShafiLabelSprite);
 
@@ -6787,7 +6803,7 @@ let cosmos3DInitialized = false;
             ishaHanafiLabelSprite = createTextBadgeSprite('🟣 18° حنفي', '#818CF8', 24, 6);
             twilightGroup.add(ishaHanafiLabelSprite);
 
-            // دوائر العشائين مخفية حتى يتم النقر على زر العشائين
+            // دوائر العشائين مخفية حتى يتم النقر على زر العشائين أو تفعيل الطبقة
             twilightGroup.visible = false;
         }
 
@@ -6825,10 +6841,13 @@ let cosmos3DInitialized = false;
                 if (horizonGroup) horizonGroup.visible = true;
                 if (twilightGroup) twilightGroup.visible = true;
                 if (moonArcGroup) moonArcGroup.visible = true;
+                if (fajr18LabelSprite) fajr18LabelSprite.visible = show3DLabels;
                 if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
                 if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = show3DLabels;
                 if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = show3DLabels;
                 showTwilightCircles = true;
+                const chkTw = document.getElementById('chkTwilight');
+                if (chkTw) chkTw.checked = true;
 
                 showC3DToast('🕌 تم تفعيل وضع العشائين: التركيز على المدارات والشمس والقمر والعشائين بحجم مقروء وإخفاء الكواكب والنجوم');
             } else {
@@ -6853,6 +6872,8 @@ let cosmos3DInitialized = false;
                 // إخفاء دوائر العشائين عند إنهاء الوضع
                 if (twilightGroup) twilightGroup.visible = false;
                 showTwilightCircles = false;
+                const chkTwOff = document.getElementById('chkTwilight');
+                if (chkTwOff) chkTwOff.checked = false;
 
                 showC3DToast('تم إنهاء وضع العشائين واستعادة مشهد الكواكب والنجوم');
             }
@@ -7430,6 +7451,14 @@ let cosmos3DInitialized = false;
             }
             if (layer === 'horizon' && horizonGroup) horizonGroup.visible = isVisible;
             if (layer === 'sunArcs' && seasonalArcsGroup) seasonalArcsGroup.visible = isVisible;
+            if (layer === 'twilight' && twilightGroup) {
+                twilightGroup.visible = isVisible;
+                showTwilightCircles = isVisible;
+                if (fajr18LabelSprite) fajr18LabelSprite.visible = isVisible && show3DLabels;
+                if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = isVisible && show3DLabels;
+                if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = isVisible && show3DLabels;
+                if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = isVisible && show3DLabels;
+            }
             if (layer === 'meridian') {
                 if (meridianLine) meridianLine.visible = isVisible;
                 if (primeVerticalLine) primeVerticalLine.visible = isVisible;
@@ -7574,12 +7603,12 @@ let cosmos3DInitialized = false;
             // تحديث وسوم أوقات الصلاة الثلاثية الأبعاد
             if (prayerDiurnalSprites) {
                 const badgeConfigs = [
-                    { key: 'fajr', H: -H_fajr, text: `🌅 الفجر (${prayers.prayers.fajr.civil})`, color: '#06B6D4' },
+                    { key: 'fajr', H: -H_fajr, text: `🌅 الفجر 18° (${prayers.prayers.fajr.civil})`, color: '#06B6D4' },
                     { key: 'sunrise', H: -H_sunrise, text: `☀️ الشروق (${prayers.prayers.sunrise.civil})`, color: '#EAB308' },
                     { key: 'duhr', H: 0, text: `☀️ الظهر (${prayers.prayers.duhr.civil})`, color: '#FACC15' },
                     { key: 'asr', H: H_asr, text: `🌤️ العصر (${prayers.prayers.asr.civil})`, color: '#F97316' },
                     { key: 'sunset', H: H_sunset, text: `🌇 المغرب (${prayers.prayers.sunset.civil})`, color: '#E11D48' },
-                    { key: 'ishaa', H: H_ishaa, text: `🌌 العشاء (${prayers.prayers.ishaa.civil})`, color: '#6366F1' }
+                    { key: 'ishaa', H: H_ishaa, text: `🌌 العشاء الحنفي 18° (${prayers.prayers.ishaa.civil})`, color: '#6366F1' }
                 ];
 
                 badgeConfigs.forEach(b => {
@@ -7675,14 +7704,20 @@ let cosmos3DInitialized = false;
             const startOfYear = new Date(Date.UTC(simDate.getUTCFullYear(), 0, 1));
             const dayOfYear = (simDate.getTime() - startOfYear.getTime()) / (86400 * 1000);
 
-            // 1. حساب الشمس
-            const lambdaSun = ((dayOfYear / 365.25) * 2 * Math.PI - 1.39) % (2 * Math.PI);
-            const deltaSun = Math.asin(Math.sin(EPSILON) * Math.sin(lambdaSun));
+            // 1. حساب الشمس بدقة NOAA ومعادلة الوقت (Equation of Time) لربط الميقات المدني بالموقع الشمسي الظاهري الحقيقي (LAT)
+            const jd = getJD_Mujaib(simDate.getUTCFullYear(), simDate.getUTCMonth() + 1, simDate.getUTCDate());
+            const totalJD = jd + (simDate.getUTCHours() + simDate.getUTCMinutes() / 60.0 + simDate.getUTCSeconds() / 3600.0) / 24.0;
+            const T = (totalJD - 2451545.0) / 36525.0;
+            const deltaSun = calcSunDeclination_Mujaib(T) * Math.PI / 180.0;
+            const eotMin = calcEquationOfTime_Mujaib(T);
 
-            const hours = simDate.getUTCHours() + simDate.getUTCMinutes() / 60 + simDate.getUTCSeconds() / 3600;
+            const lambdaSun = ((dayOfYear / 365.25) * 2 * Math.PI - 1.39) % (2 * Math.PI);
+
+            const hours = simDate.getUTCHours() + simDate.getUTCMinutes() / 60.0 + simDate.getUTCSeconds() / 3600.0;
             const lonHours = currentLonDeg / 15.0;
-            const localSolarHours = (hours + lonHours + 24) % 24;
-            const H_sun = ((localSolarHours / 24) * 2 * Math.PI - Math.PI);
+            // إضافة معادلة الوقت eotMin لتحويل الوقت المتوسط (LMT) إلى وقت شمسي حقيقي (LAT)
+            const localSolarHours = (hours + lonHours + eotMin / 60.0 + 24.0) % 24.0;
+            const H_sun = ((localSolarHours / 24.0) * 2 * Math.PI - Math.PI);
 
             const phi = currentLatRad;
 
@@ -7764,6 +7799,15 @@ let cosmos3DInitialized = false;
             const p16 = getPointAtDepression(h16Rad, H_isha16);
             const p18 = getPointAtDepression(h18Rad, H_isha18);
             const pSet = getPointAtDepression(hSetRad, H_sunset);
+            // تقاطع الفجر الصادق على دائرة انحطاط 18° شرقاً
+            const pFajr18 = (H_isha18 !== null) ? getPointAtDepression(h18Rad, -H_isha18) : null;
+
+            if (pFajr18 && fajr18LabelSprite) {
+                fajr18LabelSprite.position.set(pFajr18.x - 14, pFajr18.y - 5, pFajr18.z + 10);
+                const fajrTimeStr = (currentPrayersData && currentPrayersData.prayers && currentPrayersData.prayers.fajr) ? currentPrayersData.prayers.fajr.civil : '--:--';
+                updateTextBadgeSprite(fajr18LabelSprite, `🌅 18° فجر (${fajrTimeStr})`, '#06B6D4');
+                fajr18LabelSprite.visible = show3DLabels && (showTwilightCircles || isIshaFocusMode);
+            }
 
             if (p16 && ishaShafiLabelSprite) {
                 // وضع وسم الشافعي المصغر جانباً خارج مسار نزول قرص الشمس حتى لا يحجب الرؤية
@@ -7803,23 +7847,43 @@ let cosmos3DInitialized = false;
                 twilightDescendingArcLine.geometry.setFromPoints(descPts);
             }
 
-            // تحديد الحالة اللحظية للشمس والشفق
+            // تحديد الحالة اللحظية للشمس والشفق بدقة مع التمييز بين الفجر الصباحي والعشاء المسائي
             const altSunDeg = altSun * 180 / Math.PI;
             let twilightStatusText = '☀️ نهار';
             let twilightStatusColor = '#FDE047';
+            const isMorning = H_sun < 0;
 
             if (altSunDeg >= 0) {
                 twilightStatusText = `☀️ نهار (+${altSunDeg.toFixed(1)}°)`;
                 twilightStatusColor = '#FDE047';
-            } else if (altSunDeg < 0 && altSunDeg >= -16.0) {
-                twilightStatusText = `🌅 وقت الشفق الأحمر (انحطاط ${Math.abs(altSunDeg).toFixed(1)}°)`;
-                twilightStatusColor = '#F97316';
-            } else if (altSunDeg < -16.0 && altSunDeg >= -18.0) {
-                twilightStatusText = `🌌 دخل العشاء الشافعي (شفق أبيض ${Math.abs(altSunDeg).toFixed(1)}°)`;
-                twilightStatusColor = '#C084FC';
+            } else if (isMorning) {
+                if (altSunDeg >= -0.833) {
+                    twilightStatusText = `🌅 شروق الشمس (الأفق ${altSunDeg.toFixed(1)}°)`;
+                    twilightStatusColor = '#FDE047';
+                } else if (altSunDeg >= -16.0) {
+                    twilightStatusText = `🌄 إسفار الصباح (انحطاط ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                    twilightStatusColor = '#38BDF8';
+                } else if (altSunDeg >= -18.0) {
+                    twilightStatusText = `🌅 دخل الفجر الصادق (انحطاط 18° - ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                    twilightStatusColor = '#06B6D4';
+                } else {
+                    twilightStatusText = `🌌 ليل دامس / قبل الفجر (انحطاط ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                    twilightStatusColor = '#64748B';
+                }
             } else {
-                twilightStatusText = `🌑 دخل العشاء الحنفي (ليل دامس ${Math.abs(altSunDeg).toFixed(1)}°)`;
-                twilightStatusColor = '#818CF8';
+                if (altSunDeg >= -0.833) {
+                    twilightStatusText = `🌇 غروب الشمس (الأفق ${altSunDeg.toFixed(1)}°)`;
+                    twilightStatusColor = '#F59E0B';
+                } else if (altSunDeg >= -16.0) {
+                    twilightStatusText = `🌅 وقت الشفق الأحمر (انحطاط ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                    twilightStatusColor = '#F97316';
+                } else if (altSunDeg >= -18.0) {
+                    twilightStatusText = `🌌 دخل العشاء الشافعي (شفق أبيض ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                    twilightStatusColor = '#C084FC';
+                } else {
+                    twilightStatusText = `🌑 دخل العشاء الحنفي (انحطاط 18° - ليل دامس ${Math.abs(altSunDeg).toFixed(1)}°)`;
+                    twilightStatusColor = '#818CF8';
+                }
             }
 
             // تحديث قيم الميقات في لوحة HUD
