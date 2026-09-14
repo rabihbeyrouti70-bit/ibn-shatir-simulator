@@ -3332,20 +3332,26 @@
                         <span id="hudSunTwilightStatus" style="font-size:0.8em; color:#FDE047; background:rgba(0,0,0,0.5); padding:2px 8px; border-radius:10px; border:1px solid rgba(245,158,11,0.4); transition:all 0.3s ease;">☀️ نهار</span>
                     </div>
 
-                    <!-- شبكة أوقات الصلوات الست بألوان الأقواس المطابقة للثلاثي الأبعاد -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; font-size: 0.78em;">
-                        <div id="hudCardFajr" style="background: rgba(6, 182, 212, 0.15); border: 1px solid #06B6D4; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                    <!-- شبكة أوقات الصلوات وصلاة الضحى بألوان الأقواس المطابقة للثلاثي الأبعاد -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 4px; font-size: 0.76em;">
+                        <div id="hudCardFajr" style="background: rgba(6, 182, 212, 0.15); border: 1px solid #06B6D4; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #67E8F9; font-weight: 700;">🌅 الفجر (18°)</div>
                             <div id="hudTimeFajr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
                         </div>
-                        <div id="hudCardSunrise" style="background: rgba(234, 179, 8, 0.15); border: 1px solid #EAB308; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                        <div id="hudCardSunrise" style="background: rgba(234, 179, 8, 0.15); border: 1px solid #EAB308; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #FDE047; font-weight: 700;">☀️ الشروق</div>
                             <div id="hudTimeSunrise" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
                         </div>
-                        <div id="hudCardDuhr" style="background: rgba(250, 204, 21, 0.15); border: 1px solid #FACC15; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                        <div id="hudCardDhuha" style="background: rgba(16, 185, 129, 0.18); border: 1px solid #10B981; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
+                            <div style="color: #6EE7B7; font-weight: 700;">🌤️ الضحى (5°)</div>
+                            <div id="hudTimeDhuha" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                        </div>
+                        <div id="hudCardDuhr" style="background: rgba(250, 204, 21, 0.15); border: 1px solid #FACC15; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #FEF08A; font-weight: 700;">☀️ الظهر (الزوال)</div>
                             <div id="hudTimeDuhr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
                         </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; font-size: 0.76em;">
                         <div id="hudCardAsr" style="background: rgba(249, 115, 22, 0.15); border: 1px solid #F97316; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #FED7AA; font-weight: 700;">🌤️ العصر (الظل)</div>
                             <div id="hudTimeAsr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
@@ -3356,6 +3362,9 @@
                         </div>
                         <div id="hudCardIshaa" style="background: rgba(99, 102, 241, 0.15); border: 1px solid #6366F1; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #C7D2FE; font-weight: 700;">🌌 العشاء (18°)</div>
+                            <div id="hudTimeIshaa" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                        </div>
+                    </div>
                             <div id="hudTimeIshaa" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
                         </div>
                     </div>
@@ -5881,20 +5890,22 @@ var cosmos3DInitialized = false;
 
         const PRAYER_ARC_COLORS = {
             fajr: 0x06B6D4,       // أزرق سماوي فيروزي (قوس الفجر: من الفجر إلى الشروق)
-            dhuha: 0xEAB308,      // أصفر ذهبي ساطع (قوس الضحى: من الشروق إلى الظهر)
+            sunrise: 0xEAB308,    // أصفر ذهبي ساطع (قوس الشروق والإشراق: من الشروق إلى ارتفاع 5°)
+            dhuha: 0x10B981,      // أخضر زمردي نضر مميز (قوس صلاة الضحى: من ارتفاع 5° إلى الظهر)
             duhr: 0xFACC15,       // أصفر كهرماني ناصع (قوس الظهر: من الظهر إلى العصر)
             asr: 0xF97316,        // برتقالي أصيل دافئ (قوس العصر: من العصر إلى الغروب)
             maghrib: 0xE11D48,    // أحمر وردي شفقي (قوس المغرب: من الغروب إلى العشاء)
-            night: 0x6366F1       // نيلي ليلي كوني عميق (قوس الليل: من العشاء حتى فجر الغد)
+            night: 0x6366F1       // نيلي ليلي كوني (قوس الليل: من العشاء إلى الفجر)
         };
 
         const PRAYER_ARC_NAMES = {
             fajr: 'قوس الفجر (الشفق الصباحي)',
-            dhuha: 'قوس الشروق والضحى',
+            sunrise: 'قوس الشروق والإشراق (وقت الكراهة)',
+            dhuha: 'قوس صلاة الضحى (من ارتفاع 5° إلى الظهر)',
             duhr: 'قوس الظهر',
             asr: 'قوس العصر',
             maghrib: 'قوس المغرب والشفق المسائي',
-            night: 'قوس العشاء والليل'
+            night: 'قوس الليل (العشاء)'
         };
 
         // =========================================================================
@@ -6022,6 +6033,27 @@ var cosmos3DInitialized = false;
             const H_sunrise_rad = Math.max(0.05, H_sun_deg * Math.PI / 180.0);
             const H_sunset_rad = Math.max(0.05, H_sun_deg * Math.PI / 180.0);
 
+            // 2.5 صلاة الضحى: من ارتفاع الشمس 5 درجات فوق الأفق حتى وقت الظهر
+            const dhuhaAltRad = 5.0 * Math.PI / 180.0;
+            const cosH_dhuha = (Math.sin(dhuhaAltRad) - Math.sin(latRad) * Math.sin(declRad)) /
+                               Math.max(0.0001, Math.cos(latRad) * Math.cos(declRad));
+            let dhuhaSolarHours = sunriseSolarHours + 0.5;
+            let H_dhuha_rad = Math.max(0.02, H_sunrise_rad - 0.12);
+
+            if (cosH_dhuha >= 1.0) {
+                // الشمس لا تبلغ ارتفاع 5 درجات
+                dhuhaSolarHours = null;
+                H_dhuha_rad = 0.01;
+            } else if (cosH_dhuha <= -1.0) {
+                // شمس دائمة الارتفاع فوق 5 درجات
+                dhuhaSolarHours = 0.0;
+                H_dhuha_rad = Math.PI;
+            } else {
+                const H_dhuha_deg = Math.acos(cosH_dhuha) * 180.0 / Math.PI;
+                dhuhaSolarHours = 12.0 - H_dhuha_deg / 15.0;
+                H_dhuha_rad = Math.max(0.02, H_dhuha_deg * Math.PI / 180.0);
+            }
+
             // 3. الظهر (الزوال الشمسي)
             const duhrSolarHours = 12.0;
 
@@ -6077,6 +6109,7 @@ var cosmos3DInitialized = false;
                 prayers: {
                     fajr: { name: 'الفجر', civil: toCivil(fajrSolarHours), solarH: fajrSolarHours, color: '#06B6D4' },
                     sunrise: { name: 'الشروق', civil: toCivil(sunriseSolarHours), solarH: sunriseSolarHours, color: '#EAB308' },
+                    dhuha: { name: 'صلاة الضحى', civil: toCivil(dhuhaSolarHours), solarH: dhuhaSolarHours, color: '#10B981' },
                     duhr: { name: 'الظهر', civil: toCivil(duhrSolarHours), solarH: duhrSolarHours, color: '#FACC15' },
                     asr: { name: 'العصر', civil: toCivil(asrSolarHours), solarH: asrSolarHours, color: '#F97316' },
                     sunset: { name: 'المغرب', civil: toCivil(sunsetSolarHours), solarH: sunsetSolarHours, color: '#E11D48' },
@@ -6086,6 +6119,7 @@ var cosmos3DInitialized = false;
                 hourAngles: {
                     H_fajr: H_fajr_rad,
                     H_sunrise: H_sunrise_rad,
+                    H_dhuha: H_dhuha_rad,
                     H_duhr: 0,
                     H_asr: H_asr_rad,
                     H_sunset: H_sunset_rad,
@@ -7548,7 +7582,7 @@ var cosmos3DInitialized = false;
             prayerDiurnalArcsGroup.name = 'prayerDiurnalArcsGroup';
             seasonalArcsGroup.add(prayerDiurnalArcsGroup);
 
-            const arcKeys = ['fajr', 'dhuha', 'duhr', 'asr', 'maghrib', 'night1', 'night2'];
+            const arcKeys = ['fajr', 'sunrise', 'dhuha', 'duhr', 'asr', 'maghrib', 'night1', 'night2'];
             prayerDiurnalLines = {};
             arcKeys.forEach(k => {
                 const color = k.startsWith('night') ? PRAYER_ARC_COLORS.night : PRAYER_ARC_COLORS[k];
@@ -7570,6 +7604,7 @@ var cosmos3DInitialized = false;
             const pBadgeDefs = [
                 { key: 'fajr', title: '🌅 الفجر', color: '#06B6D4' },
                 { key: 'sunrise', title: '☀️ الشروق', color: '#EAB308' },
+                { key: 'dhuha', title: '🌤️ الضحى (5°)', color: '#10B981' },
                 { key: 'duhr', title: '☀️ الظهر', color: '#FACC15' },
                 { key: 'asr', title: '🌤️ العصر', color: '#F97316' },
                 { key: 'sunset', title: '🌇 المغرب', color: '#E11D48' },
@@ -7592,7 +7627,7 @@ var cosmos3DInitialized = false;
 
             if (!prayerDiurnalArcsGroup || !prayerDiurnalLines.fajr) return;
 
-            const { H_fajr, H_sunrise, H_asr, H_sunset, H_ishaa } = prayers.hourAngles;
+            const { H_fajr, H_sunrise, H_dhuha, H_asr, H_sunset, H_ishaa } = prayers.hourAngles;
 
             function getArcPoints(H_start, H_end, steps = 30) {
                 const pts = [];
@@ -7608,14 +7643,21 @@ var cosmos3DInitialized = false;
                 return pts;
             }
 
-            // تحديث الأقواس الستة لمدار الشمس اليومي بألوانها المتميزة
+            // تحديث الأقواس لمدار الشمس اليومي بألوانها المتميزة
             if (prayerDiurnalLines.fajr) {
                 prayerDiurnalLines.fajr.geometry.dispose();
                 prayerDiurnalLines.fajr.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(-H_fajr, -H_sunrise, 24));
             }
+            if (prayerDiurnalLines.sunrise) {
+                prayerDiurnalLines.sunrise.geometry.dispose();
+                const hStart = -H_sunrise;
+                const hEnd = -Math.min(H_sunrise, Math.max(0, H_dhuha));
+                prayerDiurnalLines.sunrise.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(hStart, hEnd, 20));
+            }
             if (prayerDiurnalLines.dhuha) {
                 prayerDiurnalLines.dhuha.geometry.dispose();
-                prayerDiurnalLines.dhuha.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(-H_sunrise, 0, 36));
+                const hStart = -Math.min(H_sunrise, Math.max(0, H_dhuha));
+                prayerDiurnalLines.dhuha.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(hStart, 0, 30));
             }
             if (prayerDiurnalLines.duhr) {
                 prayerDiurnalLines.duhr.geometry.dispose();
@@ -7653,6 +7695,7 @@ var cosmos3DInitialized = false;
                 const badgeConfigs = [
                     { key: 'fajr', H: -H_fajr, text: `🌅 الفجر الصادق (18° | ${prayers.prayers.fajr.civil})`, color: '#06B6D4' },
                     { key: 'sunrise', H: -H_sunrise, text: `☀️ الشروق (${prayers.prayers.sunrise.civil})`, color: '#EAB308' },
+                    { key: 'dhuha', H: -H_dhuha, text: `🌤️ صلاة الضحى (+5° | ${prayers.prayers.dhuha.civil})`, color: '#10B981' },
                     { key: 'duhr', H: 0, text: `☀️ الظهر (${prayers.prayers.duhr.civil})`, color: '#FACC15' },
                     { key: 'asr', H: H_asr, text: `🌤️ العصر (${prayers.prayers.asr.civil})`, color: '#F97316' },
                     { key: 'sunset', H: H_sunset, text: `🌇 المغرب (${prayers.prayers.sunset.civil})`, color: '#E11D48' },
@@ -7681,6 +7724,8 @@ var cosmos3DInitialized = false;
             if (elFajr) elFajr.innerText = prayers.prayers.fajr.civil;
             const elSunrise = document.getElementById('hudTimeSunrise');
             if (elSunrise) elSunrise.innerText = prayers.prayers.sunrise.civil;
+            const elDhuha = document.getElementById('hudTimeDhuha');
+            if (elDhuha && prayers.prayers.dhuha) elDhuha.innerText = prayers.prayers.dhuha.civil;
             const elDuhr = document.getElementById('hudTimeDuhr');
             if (elDuhr) elDuhr.innerText = prayers.prayers.duhr.civil;
             const elAsr = document.getElementById('hudTimeAsr');
@@ -7697,7 +7742,7 @@ var cosmos3DInitialized = false;
             }
 
             // تحديد الصلاة الحالية بناءً على زاوية ساعة الشمس H_sun
-            const { H_fajr, H_sunrise, H_asr, H_sunset, H_ishaa } = prayers.hourAngles;
+            const { H_fajr, H_sunrise, H_dhuha, H_asr, H_sunset, H_ishaa } = prayers.hourAngles;
             let currentPrayerName = 'الليل (العشاء)';
             let currentPrayerColor = '#6366F1';
             let activeCardId = 'hudCardIshaa';
@@ -7706,20 +7751,24 @@ var cosmos3DInitialized = false;
                 currentPrayerName = 'الفجر الصادق';
                 currentPrayerColor = '#06B6D4';
                 activeCardId = 'hudCardFajr';
-            } else if (H_sun >= -H_sunrise && H_sun < 0) {
-                currentPrayerName = 'الضحى / الصباح';
+            } else if (H_sun >= -H_sunrise && H_sun < -H_dhuha) {
+                currentPrayerName = 'الشروق والإشراق (وقت الكراهة)';
                 currentPrayerColor = '#EAB308';
                 activeCardId = 'hudCardSunrise';
+            } else if (H_sun >= -H_dhuha && H_sun < 0) {
+                currentPrayerName = 'صلاة الضحى (ارتفاع 5° حتى الزوال)';
+                currentPrayerColor = '#10B981';
+                activeCardId = 'hudCardDhuha';
             } else if (H_sun >= 0 && H_sun < H_asr) {
-                currentPrayerName = 'الظهر';
+                currentPrayerName = 'صلاة الظهر (الزوال)';
                 currentPrayerColor = '#FACC15';
                 activeCardId = 'hudCardDuhr';
             } else if (H_sun >= H_asr && H_sun < H_sunset) {
-                currentPrayerName = 'العصر';
+                currentPrayerName = 'صلاة العصر (الظل)';
                 currentPrayerColor = '#F97316';
                 activeCardId = 'hudCardAsr';
             } else if (H_sun >= H_sunset && H_sun < H_ishaa) {
-                currentPrayerName = 'المغرب والشفق';
+                currentPrayerName = 'صلاة المغرب (الغروب والشفق)';
                 currentPrayerColor = '#E11D48';
                 activeCardId = 'hudCardSunset';
             }
@@ -7732,7 +7781,7 @@ var cosmos3DInitialized = false;
             }
 
             // تمييز بطاقة الصلاة الحالية في شبكة الـ HUD
-            const cardIds = ['hudCardFajr', 'hudCardSunrise', 'hudCardDuhr', 'hudCardAsr', 'hudCardSunset', 'hudCardIshaa'];
+            const cardIds = ['hudCardFajr', 'hudCardSunrise', 'hudCardDhuha', 'hudCardDuhr', 'hudCardAsr', 'hudCardSunset', 'hudCardIshaa'];
             cardIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
