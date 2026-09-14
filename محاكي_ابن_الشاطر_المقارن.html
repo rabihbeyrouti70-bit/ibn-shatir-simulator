@@ -6361,10 +6361,11 @@ var cosmos3DInitialized = false;
             westArc.position.y = 0.08;
             horizonGroup.add(westArc);
 
-            createDirectionBadge('المشرق 90° ⮕', r - 16, 0, '#FBBF24');
-            createDirectionBadge('⬅ المغرب 270°', -r + 16, 0, '#FBBF24');
-            createDirectionBadge('⬆ الشمال 0°', 0, -r + 16, '#38BDF8');
-            createDirectionBadge('⬇ الجنوب 180°', 0, r - 16, '#38BDF8');
+            const rCompass = 75; // وضع مؤشرات الاتجاهات الأربعة في دائرة بوصلة أرضية مركزية بفاصل 50+ وحدة عن محيط القبة ومدارات الأقواس
+            createDirectionBadge('المشرق 90° ⮕', rCompass, 0, '#FBBF24');
+            createDirectionBadge('⬅ المغرب 270°', -rCompass, 0, '#FBBF24');
+            createDirectionBadge('⬆ الشمال 0°', 0, -rCompass, '#38BDF8');
+            createDirectionBadge('⬇ الجنوب 180°', 0, rCompass, '#38BDF8');
 
             const obsGeom = new THREE.CylinderGeometry(1.2, 1.2, 4, 16);
             const obsMat = new THREE.MeshStandardMaterial({ color: 0xF59E0B });
@@ -6396,7 +6397,7 @@ var cosmos3DInitialized = false;
             const texture = new THREE.CanvasTexture(canvas);
             const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
             const sprite = new THREE.Sprite(spriteMat);
-            sprite.scale.set(30, 7, 1);
+            sprite.scale.set(24, 5.5, 1);
             sprite.position.set(x, 4, z);
             horizonGroup.add(sprite);
         }
@@ -7639,10 +7640,10 @@ var cosmos3DInitialized = false;
             const pBadgeDefs = [
                 { key: 'fajr', title: '🌅 الفجر', color: '#06B6D4', offset: 14 },
                 { key: 'sunrise', title: '☀️ الشروق', color: '#EAB308', offset: 14 },
-                { key: 'dhuha', title: '🌤️ الضحى (5°)', color: '#10B981', offset: 14 },
+                { key: 'dhuha', title: '🌤️ الضحى (5°)', color: '#10B981', offset: 24 }, // إزاحة شعاعية خارجية +24 لمنع التداخل مع الشروق
                 { key: 'duhr', title: '☀️ الظهر', color: '#FACC15', offset: 14 },
                 { key: 'asr', title: '🌤️ العصر الشافعي', color: '#F97316', offset: 14 },
-                { key: 'asrHanafi', title: '🌤️ العصر الحنفي', color: '#A855F7', offset: 20 },
+                { key: 'asrHanafi', title: '🌤️ العصر الحنفي', color: '#A855F7', offset: 24 }, // إزاحة شعاعية خارجية +24 لمنع التداخل مع الشافعي
                 { key: 'sunset', title: '🌇 المغرب', color: '#E11D48', offset: 14 },
                 { key: 'ishaa', title: '🌌 العشاء', color: '#6366F1', offset: 14 }
             ];
@@ -7667,7 +7668,7 @@ var cosmos3DInitialized = false;
                 { key: 'night', color: '#6366F1' }
             ];
             durDefs.forEach(d => {
-                const sp = createTextBadgeSprite('⏱️ --:--', d.color, 26, 6.2);
+                const sp = createTextBadgeSprite('⏱️ --:--', d.color, 20, 5.6);
                 sp.renderOrder = 999;
                 sp.visible = show3DLabels;
                 prayerDiurnalArcsGroup.add(sp);
@@ -7754,20 +7755,20 @@ var cosmos3DInitialized = false;
             // تحديث وسوم أوقات الصلاة الثلاثية الأبعاد
             if (prayerDiurnalSprites) {
                 const badgeConfigs = [
-                    { key: 'fajr', H: -H_fajr, text: `🌅 الفجر الصادق (18° | ${prayers.prayers.fajr.civil})`, color: '#06B6D4', offset: 12 },
-                    { key: 'sunrise', H: -H_sunrise, text: `☀️ الشروق (${prayers.prayers.sunrise.civil})`, color: '#EAB308', offset: 12 },
-                    { key: 'dhuha', H: -H_dhuha, text: `🌤️ صلاة الضحى (+5° | ${prayers.prayers.dhuha.civil})`, color: '#10B981', offset: 12 },
-                    { key: 'duhr', H: 0, text: `☀️ الظهر (${prayers.prayers.duhr.civil})`, color: '#FACC15', offset: 12 },
-                    { key: 'asr', H: H_asr, text: `🌤️ العصر الشافعي (${prayers.prayers.asr.civil})`, color: '#F97316', offset: 12 },
-                    { key: 'asrHanafi', H: H_asrHanafi, text: `🌤️ العصر الحنفي (${prayers.prayers.asrHanafi.civil})`, color: '#A855F7', offset: 18 },
-                    { key: 'sunset', H: H_sunset, text: `🌇 المغرب (${prayers.prayers.sunset.civil})`, color: '#E11D48', offset: 12 },
-                    { key: 'ishaa', H: H_ishaa, text: `🌌 العشاء الحنفي (18° | ${prayers.prayers.ishaa.civil})`, color: '#6366F1', offset: 12 }
+                    { key: 'fajr', H: -H_fajr, text: `🌅 الفجر الصادق (18° | ${prayers.prayers.fajr.civil})`, color: '#06B6D4', offset: 14 },
+                    { key: 'sunrise', H: -H_sunrise, text: `☀️ الشروق (${prayers.prayers.sunrise.civil})`, color: '#EAB308', offset: 14 },
+                    { key: 'dhuha', H: -H_dhuha, text: `🌤️ صلاة الضحى (+5° | ${prayers.prayers.dhuha.civil})`, color: '#10B981', offset: 24 }, // إزاحة +24 لمنع التداخل مع الشروق
+                    { key: 'duhr', H: 0, text: `☀️ الظهر (${prayers.prayers.duhr.civil})`, color: '#FACC15', offset: 14 },
+                    { key: 'asr', H: H_asr, text: `🌤️ العصر الشافعي (${prayers.prayers.asr.civil})`, color: '#F97316', offset: 14 },
+                    { key: 'asrHanafi', H: H_asrHanafi, text: `🌤️ العصر الحنفي (${prayers.prayers.asrHanafi.civil})`, color: '#A855F7', offset: 24 }, // إزاحة +24 لمنع التداخل مع الشافعي
+                    { key: 'sunset', H: H_sunset, text: `🌇 المغرب (${prayers.prayers.sunset.civil})`, color: '#E11D48', offset: 14 },
+                    { key: 'ishaa', H: H_ishaa, text: `🌌 العشاء الحنفي (18° | ${prayers.prayers.ishaa.civil})`, color: '#6366F1', offset: 14 }
                 ];
 
                 badgeConfigs.forEach(b => {
                     const sp = prayerDiurnalSprites[b.key];
                     if (sp) {
-                        const p = getOrbitPosAtH(b.H, b.offset || 12);
+                        const p = getOrbitPosAtH(b.H, b.offset || 14);
                         sp.position.set(p.x, p.y, p.z);
                         if (sp.userData.lastText !== b.text) {
                             sp.userData.lastText = b.text;
@@ -7803,9 +7804,9 @@ var cosmos3DInitialized = false;
                 durConfigs.forEach(d => {
                     const sp = prayerArcDurationSprites[d.key];
                     if (sp) {
-                        const p = getOrbitPosAtH(d.H, -14); // وضع الوسم بوضوح داخل القوس بانحناء -14 لتجنب أي تداخل مع الخط أو وسوم الصلوات
+                        const p = getOrbitPosAtH(d.H, -14); // في المنحنى الداخلي للأقواس بنصف قطر 126 بفاصل 50+ وحدة عن بوصلة الأفق
                         sp.position.set(p.x, p.y, p.z);
-                        sp.scale.set(26, 6.2, 1);
+                        sp.scale.set(20, 5.6, 1);
                         sp.renderOrder = 999;
                         const durText = formatArcDur(d.min);
                         if (sp.userData.lastText !== durText) {
