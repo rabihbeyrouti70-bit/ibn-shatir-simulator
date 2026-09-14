@@ -3337,38 +3337,44 @@
                         <div id="hudCardFajr" style="background: rgba(6, 182, 212, 0.15); border: 1px solid #06B6D4; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #67E8F9; font-weight: 700;">🌅 الفجر (18°)</div>
                             <div id="hudTimeFajr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                            <div id="hudDurFajr" style="color: #A5F3FC; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
                         </div>
                         <div id="hudCardSunrise" style="background: rgba(234, 179, 8, 0.15); border: 1px solid #EAB308; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #FDE047; font-weight: 700;">☀️ الشروق</div>
                             <div id="hudTimeSunrise" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                            <div id="hudDurSunrise" style="color: #FEF08A; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
                         </div>
                         <div id="hudCardDhuha" style="background: rgba(16, 185, 129, 0.18); border: 1px solid #10B981; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #6EE7B7; font-weight: 700;">🌤️ الضحى (5°)</div>
                             <div id="hudTimeDhuha" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                            <div id="hudDurDhuha" style="color: #A7F3D0; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
                         </div>
                         <div id="hudCardDuhr" style="background: rgba(250, 204, 21, 0.15); border: 1px solid #FACC15; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #FEF08A; font-weight: 700;">☀️ الظهر (الزوال)</div>
                             <div id="hudTimeDuhr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                            <div id="hudDurDuhr" style="color: #FEF08A; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 6px; font-size: 0.76em;">
                         <div id="hudCardAsr" style="background: rgba(249, 115, 22, 0.15); border: 1px solid #F97316; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #FED7AA; font-weight: 700;">🌤️ العصر الشافعي</div>
                             <div id="hudTimeAsr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
-                            <div style="color: #FDBA74; font-size: 0.82em;">(ظل مثله)</div>
+                            <div id="hudDurAsr" style="color: #FDBA74; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
                         </div>
                         <div id="hudCardAsrHanafi" style="background: rgba(168, 85, 247, 0.18); border: 1px solid #A855F7; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #D8B4FE; font-weight: 700;">🌤️ العصر الحنفي</div>
                             <div id="hudTimeAsrHanafi" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
-                            <div style="color: #C084FC; font-size: 0.82em;">(ظل مثليه)</div>
+                            <div id="hudDurAsrHanafi" style="color: #C084FC; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
                         </div>
                         <div id="hudCardSunset" style="background: rgba(225, 29, 72, 0.15); border: 1px solid #E11D48; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #FDA4AF; font-weight: 700;">🌇 المغرب (الغروب)</div>
                             <div id="hudTimeSunset" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                            <div id="hudDurSunset" style="color: #FECDD3; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
                         </div>
                         <div id="hudCardIshaa" style="background: rgba(99, 102, 241, 0.15); border: 1px solid #6366F1; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
                             <div style="color: #C7D2FE; font-weight: 700;">🌌 العشاء (18°)</div>
                             <div id="hudTimeIshaa" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                            <div id="hudDurIshaa" style="color: #E0E7FF; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
                         </div>
                     </div>
 
@@ -5897,6 +5903,7 @@ var cosmos3DInitialized = false;
         let prayerDiurnalArcsGroup = null;
         let prayerDiurnalLines = {};
         let prayerDiurnalSprites = {};
+        let prayerArcDurationSprites = {};
         let currentPrayersData = null;
 
         const PRAYER_ARC_COLORS = {
@@ -7644,6 +7651,25 @@ var cosmos3DInitialized = false;
                 prayerDiurnalArcsGroup.add(sp);
                 prayerDiurnalSprites[b.key] = sp;
             });
+
+            // وسوم الفارق الزمني (المدة) في وسط كل قوس على مدار الشمس
+            prayerArcDurationSprites = {};
+            const durDefs = [
+                { key: 'fajr', color: '#06B6D4' },
+                { key: 'sunrise', color: '#EAB308' },
+                { key: 'dhuha', color: '#10B981' },
+                { key: 'duhr', color: '#FACC15' },
+                { key: 'asr', color: '#F97316' },
+                { key: 'asrHanafi', color: '#A855F7' },
+                { key: 'maghrib', color: '#E11D48' },
+                { key: 'night', color: '#6366F1' }
+            ];
+            durDefs.forEach(d => {
+                const sp = createTextBadgeSprite('⏱️ --:--', d.color, 16, 4.4);
+                sp.visible = show3DLabels;
+                prayerDiurnalArcsGroup.add(sp);
+                prayerArcDurationSprites[d.key] = sp;
+            });
         }
 
         function updatePrayerDiurnalArcs(deltaSun, phi, simDate, H_sun) {
@@ -7748,6 +7774,43 @@ var cosmos3DInitialized = false;
                     }
                 });
             }
+
+            // تحديث وسوم الفارق الزمني (المدة) في وسط كل قوس
+            function formatArcDur(minVal) {
+                const m = Math.max(0, Math.round(minVal));
+                if (m < 60) return `⏱️ ${m} دقيقة`;
+                const h = Math.floor(m / 60);
+                const rem = m % 60;
+                return rem > 0 ? `⏱️ ${h}س و ${rem}د` : `⏱️ ${h} ساعات`;
+            }
+
+            if (prayerArcDurationSprites) {
+                const pObj = prayers.prayers;
+                const durConfigs = [
+                    { key: 'fajr', H: (-H_fajr - H_sunrise) / 2, min: (pObj.sunrise.solarH - pObj.fajr.solarH) * 60, color: '#06B6D4' },
+                    { key: 'sunrise', H: (-H_sunrise - H_dhuha) / 2, min: (pObj.dhuha.solarH - pObj.sunrise.solarH) * 60, color: '#EAB308' },
+                    { key: 'dhuha', H: -H_dhuha / 2, min: (pObj.duhr.solarH - pObj.dhuha.solarH) * 60, color: '#10B981' },
+                    { key: 'duhr', H: H_asr / 2, min: (pObj.asr.solarH - pObj.duhr.solarH) * 60, color: '#FACC15' },
+                    { key: 'asr', H: (H_asr + H_asrHanafi) / 2, min: (pObj.asrHanafi.solarH - pObj.asr.solarH) * 60, color: '#F97316' },
+                    { key: 'asrHanafi', H: (H_asrHanafi + H_sunset) / 2, min: (pObj.sunset.solarH - pObj.asrHanafi.solarH) * 60, color: '#A855F7' },
+                    { key: 'maghrib', H: (H_sunset + H_ishaa) / 2, min: (pObj.ishaa.solarH - pObj.sunset.solarH) * 60, color: '#E11D48' },
+                    { key: 'night', H: Math.PI, min: (24.0 - pObj.ishaa.solarH + pObj.fajr.solarH) * 60, color: '#6366F1' }
+                ];
+
+                durConfigs.forEach(d => {
+                    const sp = prayerArcDurationSprites[d.key];
+                    if (sp) {
+                        const p = getOrbitPosAtH(d.H, 2); // في وسط القوس مباشرة محاذية للمدار
+                        sp.position.set(p.x, p.y, p.z);
+                        const durText = formatArcDur(d.min);
+                        if (sp.userData.lastText !== durText) {
+                            sp.userData.lastText = durText;
+                            updateTextBadgeSprite(sp, durText, d.color);
+                        }
+                        sp.visible = show3DLabels;
+                    }
+                });
+            }
         }
 
         function updatePrayerHUD(prayers, H_sun) {
@@ -7769,6 +7832,32 @@ var cosmos3DInitialized = false;
             if (elSunset) elSunset.innerText = prayers.prayers.sunset.civil;
             const elIshaa = document.getElementById('hudTimeIshaa');
             if (elIshaa) elIshaa.innerText = prayers.prayers.ishaa.civil;
+
+            // تحديث مدد الأقواس في بطاقات الـ HUD
+            function fmtHudDur(m) {
+                m = Math.max(0, Math.round(m));
+                if (m < 60) return `⏱️ ${m}د`;
+                const h = Math.floor(m / 60);
+                const rem = m % 60;
+                return rem > 0 ? `⏱️ ${h}س ${rem}د` : `⏱️ ${h}س`;
+            }
+            const pObj = prayers.prayers;
+            const elDurFajr = document.getElementById('hudDurFajr');
+            if (elDurFajr) elDurFajr.innerText = fmtHudDur((pObj.sunrise.solarH - pObj.fajr.solarH) * 60);
+            const elDurSunrise = document.getElementById('hudDurSunrise');
+            if (elDurSunrise) elDurSunrise.innerText = fmtHudDur((pObj.dhuha.solarH - pObj.sunrise.solarH) * 60);
+            const elDurDhuha = document.getElementById('hudDurDhuha');
+            if (elDurDhuha) elDurDhuha.innerText = fmtHudDur((pObj.duhr.solarH - pObj.dhuha.solarH) * 60);
+            const elDurDuhr = document.getElementById('hudDurDuhr');
+            if (elDurDuhr) elDurDuhr.innerText = fmtHudDur((pObj.asr.solarH - pObj.duhr.solarH) * 60);
+            const elDurAsr = document.getElementById('hudDurAsr');
+            if (elDurAsr) elDurAsr.innerText = fmtHudDur((pObj.asrHanafi.solarH - pObj.asr.solarH) * 60);
+            const elDurAsrHanafi = document.getElementById('hudDurAsrHanafi');
+            if (elDurAsrHanafi) elDurAsrHanafi.innerText = fmtHudDur((pObj.sunset.solarH - pObj.asrHanafi.solarH) * 60);
+            const elDurSunset = document.getElementById('hudDurSunset');
+            if (elDurSunset) elDurSunset.innerText = fmtHudDur((pObj.ishaa.solarH - pObj.sunset.solarH) * 60);
+            const elDurIshaa = document.getElementById('hudDurIshaa');
+            if (elDurIshaa) elDurIshaa.innerText = fmtHudDur((24.0 - pObj.ishaa.solarH + pObj.fajr.solarH) * 60);
 
             // تحديث تفاصيل ومقارنة العصرين (الشافعي والحنفي)
             const elAsrDetails = document.getElementById('hudAsrDetails');
@@ -8306,6 +8395,11 @@ var cosmos3DInitialized = false;
             if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = show3DLabels;
             if (prayerDiurnalSprites) {
                 Object.values(prayerDiurnalSprites).forEach(sp => {
+                    if (sp) sp.visible = show3DLabels;
+                });
+            }
+            if (prayerArcDurationSprites) {
+                Object.values(prayerArcDurationSprites).forEach(sp => {
                     if (sp) sp.visible = show3DLabels;
                 });
             }
