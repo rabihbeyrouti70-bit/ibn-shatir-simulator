@@ -5818,9 +5818,8 @@ let cosmos3DInitialized = false;
         let scene, camera, renderer, controls;
         let horizonGroup, seasonalArcsGroup, planetsGroup, zodiacGroup, atlasGroup, moonArcGroup, twilightGroup;
         let ishaShafiLine, ishaHanafiLine, ishaShafiSector, ishaHanafiSector;
-        let ishaShafiLabelSprite, ishaHanafiLabelSprite, ishaDiffLabelSprite;
+        let ishaShafiLabelSprite, ishaDiffLabelSprite;
         let twilightDescendingArcLine;
-        let fajr18LabelSprite;
         let showTwilightCircles = false;
         let isIshaFocusMode = false;
         let savedVisibilityBeforeIsha = null;
@@ -6789,19 +6788,13 @@ let cosmos3DInitialized = false;
             fajrSector.position.y = y18;
             twilightGroup.add(fajrSector);
 
-            // 4. وسوم مصغرة وأنيقة (Micro-badges) خارج مسار حركة الشمس لتفريغ الرؤية تماماً
-            fajr18LabelSprite = createTextBadgeSprite('🌅 18° فجر صادق', '#06B6D4', 24, 6);
-            twilightGroup.add(fajr18LabelSprite);
-
-            ishaShafiLabelSprite = createTextBadgeSprite('🟠 16° شافعي', '#F97316', 24, 6);
+            // 4. وسوم مصغرة وأنيقة لمقارنة العشائين (الشافعي 16° وفارق الدقائق عن الحنفي 18°) دون تكرار وسوم مدار الصلاة
+            ishaShafiLabelSprite = createTextBadgeSprite('🟠 العشاء الشافعي (16°)', '#F97316', 26, 6.2);
             twilightGroup.add(ishaShafiLabelSprite);
 
             // وسم الفارق بين العشائين في الفضاء ثلاثي الأبعاد بين الدائرتين
-            ishaDiffLabelSprite = createTextBadgeSprite('⚡ الفارق: 10د', '#38BDF8', 22, 5.5);
+            ishaDiffLabelSprite = createTextBadgeSprite('⚡ فارق العشائين: 10د', '#38BDF8', 24, 5.8);
             twilightGroup.add(ishaDiffLabelSprite);
-
-            ishaHanafiLabelSprite = createTextBadgeSprite('🟣 18° حنفي', '#818CF8', 24, 6);
-            twilightGroup.add(ishaHanafiLabelSprite);
 
             // دوائر العشائين مخفية حتى يتم النقر على زر العشائين أو تفعيل الطبقة
             twilightGroup.visible = false;
@@ -6841,10 +6834,8 @@ let cosmos3DInitialized = false;
                 if (horizonGroup) horizonGroup.visible = true;
                 if (twilightGroup) twilightGroup.visible = true;
                 if (moonArcGroup) moonArcGroup.visible = true;
-                if (fajr18LabelSprite) fajr18LabelSprite.visible = show3DLabels;
                 if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
                 if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = show3DLabels;
-                if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = show3DLabels;
                 showTwilightCircles = true;
                 const chkTw = document.getElementById('chkTwilight');
                 if (chkTw) chkTw.checked = true;
@@ -7454,9 +7445,7 @@ let cosmos3DInitialized = false;
             if (layer === 'twilight' && twilightGroup) {
                 twilightGroup.visible = isVisible;
                 showTwilightCircles = isVisible;
-                if (fajr18LabelSprite) fajr18LabelSprite.visible = isVisible && show3DLabels;
                 if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = isVisible && show3DLabels;
-                if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = isVisible && show3DLabels;
                 if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = isVisible && show3DLabels;
             }
             if (layer === 'meridian') {
@@ -7603,12 +7592,12 @@ let cosmos3DInitialized = false;
             // تحديث وسوم أوقات الصلاة الثلاثية الأبعاد
             if (prayerDiurnalSprites) {
                 const badgeConfigs = [
-                    { key: 'fajr', H: -H_fajr, text: `🌅 الفجر 18° (${prayers.prayers.fajr.civil})`, color: '#06B6D4' },
+                    { key: 'fajr', H: -H_fajr, text: `🌅 الفجر الصادق (18° | ${prayers.prayers.fajr.civil})`, color: '#06B6D4' },
                     { key: 'sunrise', H: -H_sunrise, text: `☀️ الشروق (${prayers.prayers.sunrise.civil})`, color: '#EAB308' },
                     { key: 'duhr', H: 0, text: `☀️ الظهر (${prayers.prayers.duhr.civil})`, color: '#FACC15' },
                     { key: 'asr', H: H_asr, text: `🌤️ العصر (${prayers.prayers.asr.civil})`, color: '#F97316' },
                     { key: 'sunset', H: H_sunset, text: `🌇 المغرب (${prayers.prayers.sunset.civil})`, color: '#E11D48' },
-                    { key: 'ishaa', H: H_ishaa, text: `🌌 العشاء الحنفي 18° (${prayers.prayers.ishaa.civil})`, color: '#6366F1' }
+                    { key: 'ishaa', H: H_ishaa, text: `🌌 العشاء الحنفي (18° | ${prayers.prayers.ishaa.civil})`, color: '#6366F1' }
                 ];
 
                 badgeConfigs.forEach(b => {
@@ -7799,35 +7788,22 @@ let cosmos3DInitialized = false;
             const p16 = getPointAtDepression(h16Rad, H_isha16);
             const p18 = getPointAtDepression(h18Rad, H_isha18);
             const pSet = getPointAtDepression(hSetRad, H_sunset);
-            // تقاطع الفجر الصادق على دائرة انحطاط 18° شرقاً
-            const pFajr18 = (H_isha18 !== null) ? getPointAtDepression(h18Rad, -H_isha18) : null;
 
-            if (pFajr18 && fajr18LabelSprite) {
-                fajr18LabelSprite.position.set(pFajr18.x - 14, pFajr18.y - 5, pFajr18.z + 10);
-                const fajrTimeStr = (currentPrayersData && currentPrayersData.prayers && currentPrayersData.prayers.fajr) ? currentPrayersData.prayers.fajr.civil : '--:--';
-                updateTextBadgeSprite(fajr18LabelSprite, `🌅 18° فجر (${fajrTimeStr})`, '#06B6D4');
-                fajr18LabelSprite.visible = show3DLabels && (showTwilightCircles || isIshaFocusMode);
-            }
-
+            // وسم العشاء الشافعي 16° (لمقارنة العشائين مع العشاء الحنفي 18° الموجود على مدار الصلاة)
             if (p16 && ishaShafiLabelSprite) {
-                // وضع وسم الشافعي المصغر جانباً خارج مسار نزول قرص الشمس حتى لا يحجب الرؤية
                 ishaShafiLabelSprite.position.set(p16.x + 14, p16.y + 3, p16.z - 10);
-                updateTextBadgeSprite(ishaShafiLabelSprite, `🟠 16° (${isha16TimeStr})`, '#F97316');
-            }
-
-            if (p18 && ishaHanafiLabelSprite) {
-                // وضع وسم الحنفي المصغر جانباً خارج مسار نزول قرص الشمس
-                ishaHanafiLabelSprite.position.set(p18.x + 14, p18.y - 5, p18.z + 10);
-                updateTextBadgeSprite(ishaHanafiLabelSprite, `🟣 18° (${isha18TimeStr})`, '#818CF8');
+                updateTextBadgeSprite(ishaShafiLabelSprite, `🟠 العشاء الشافعي (16° | ${isha16TimeStr})`, '#F97316');
+                ishaShafiLabelSprite.visible = show3DLabels && (showTwilightCircles || isIshaFocusMode);
             }
 
             if (p16 && p18 && ishaDiffLabelSprite) {
-                // وضع وسم الفارق في منتصف المسافة بين دائرتي 16° و 18° جانباً
+                // وسم الفارق بين العشائين (بين دائرتي 16° و 18°)
                 const midX = (p16.x + p18.x) / 2 + 16;
                 const midY = (p16.y + p18.y) / 2;
                 const midZ = (p16.z + p18.z) / 2;
                 ishaDiffLabelSprite.position.set(midX, midY, midZ);
-                updateTextBadgeSprite(ishaDiffLabelSprite, `⚡ الفارق: ${diffBetweenIshas}د`, '#38BDF8');
+                updateTextBadgeSprite(ishaDiffLabelSprite, `⚡ فارق العشائين: ${diffBetweenIshas}د`, '#38BDF8');
+                ishaDiffLabelSprite.visible = show3DLabels && (showTwilightCircles || isIshaFocusMode);
             }
 
             // تحديث أقواس مدار الشمس اليومي مقسمة حسب مواقيت الصلاة (الرُبع المُجَيَّب) بألوان متميزة
@@ -8167,7 +8143,11 @@ let cosmos3DInitialized = false;
             show3DLabels = !show3DLabels;
             if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
             if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = show3DLabels;
-            if (ishaHanafiLabelSprite) ishaHanafiLabelSprite.visible = show3DLabels;
+            if (prayerDiurnalSprites) {
+                Object.values(prayerDiurnalSprites).forEach(sp => {
+                    if (sp) sp.visible = show3DLabels;
+                });
+            }
             const btn = document.getElementById('btnToggle3DLabels');
             if (btn) btn.classList.toggle('active', show3DLabels);
             showC3DToast(show3DLabels ? '🏷️ تم إظهار وسوم العشائين على الرسم' : '🚫 تم إخفاء وسوم الرسم لرؤية نقية 100% غير محجوبة');
