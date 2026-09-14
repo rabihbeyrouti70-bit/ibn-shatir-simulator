@@ -7790,23 +7790,27 @@ var cosmos3DInitialized = false;
 
             if (prayerArcDurationSprites) {
                 const pObj = prayers.prayers;
+                const rDiurnal = DOME_R * Math.cos(deltaSun);
                 const durConfigs = [
-                    { key: 'fajr', H: (-H_fajr - H_sunrise) / 2, min: (pObj.sunrise.solarH - pObj.fajr.solarH) * 60, color: '#06B6D4' },
-                    { key: 'sunrise', H: (-H_sunrise - H_dhuha) / 2, min: (pObj.dhuha.solarH - pObj.sunrise.solarH) * 60, color: '#EAB308' },
-                    { key: 'dhuha', H: -H_dhuha / 2, min: (pObj.duhr.solarH - pObj.dhuha.solarH) * 60, color: '#10B981' },
-                    { key: 'duhr', H: H_asr / 2, min: (pObj.asr.solarH - pObj.duhr.solarH) * 60, color: '#FACC15' },
-                    { key: 'asr', H: (H_asr + H_asrHanafi) / 2, min: (pObj.asrHanafi.solarH - pObj.asr.solarH) * 60, color: '#F97316' },
-                    { key: 'asrHanafi', H: (H_asrHanafi + H_sunset) / 2, min: (pObj.sunset.solarH - pObj.asrHanafi.solarH) * 60, color: '#A855F7' },
-                    { key: 'maghrib', H: (H_sunset + H_ishaa) / 2, min: (pObj.ishaa.solarH - pObj.sunset.solarH) * 60, color: '#E11D48' },
-                    { key: 'night', H: Math.PI, min: (24.0 - pObj.ishaa.solarH + pObj.fajr.solarH) * 60, color: '#6366F1' }
+                    { key: 'fajr', H: (-H_fajr - H_sunrise) / 2, span: H_fajr - H_sunrise, min: (pObj.sunrise.solarH - pObj.fajr.solarH) * 60, color: '#06B6D4' },
+                    { key: 'sunrise', H: (-H_sunrise - H_dhuha) / 2, span: Math.abs(H_sunrise - H_dhuha), min: (pObj.dhuha.solarH - pObj.sunrise.solarH) * 60, color: '#EAB308' },
+                    { key: 'dhuha', H: -H_dhuha / 2, span: H_dhuha, min: (pObj.duhr.solarH - pObj.dhuha.solarH) * 60, color: '#10B981' },
+                    { key: 'duhr', H: H_asr / 2, span: H_asr, min: (pObj.asr.solarH - pObj.duhr.solarH) * 60, color: '#FACC15' },
+                    { key: 'asr', H: (H_asr + H_asrHanafi) / 2, span: H_asrHanafi - H_asr, min: (pObj.asrHanafi.solarH - pObj.asr.solarH) * 60, color: '#F97316' },
+                    { key: 'asrHanafi', H: (H_asrHanafi + H_sunset) / 2, span: H_sunset - H_asrHanafi, min: (pObj.sunset.solarH - pObj.asrHanafi.solarH) * 60, color: '#A855F7' },
+                    { key: 'maghrib', H: (H_sunset + H_ishaa) / 2, span: H_ishaa - H_sunset, min: (pObj.ishaa.solarH - pObj.sunset.solarH) * 60, color: '#E11D48' },
+                    { key: 'night', H: Math.PI, span: 2 * Math.PI - (H_ishaa + H_fajr), min: (24.0 - pObj.ishaa.solarH + pObj.fajr.solarH) * 60, color: '#6366F1' }
                 ];
 
                 durConfigs.forEach(d => {
                     const sp = prayerArcDurationSprites[d.key];
                     if (sp) {
-                        const p = getOrbitPosAtH(d.H, -14); // في المنحنى الداخلي للأقواس بنصف قطر 126 بفاصل 50+ وحدة عن بوصلة الأفق
+                        const p = getOrbitPosAtH(d.H, 0); // في المسافة الواقعة مباشرة بين الوقتين على مسار قوس النهار
                         sp.position.set(p.x, p.y, p.z);
-                        sp.scale.set(20, 5.6, 1);
+                        const arcLen = rDiurnal * d.span;
+                        const badgeW = Math.max(7.5, Math.min(arcLen * 0.52, 17.5));
+                        const badgeH = badgeW * 0.28;
+                        sp.scale.set(badgeW, badgeH, 1);
                         sp.renderOrder = 999;
                         const durText = formatArcDur(d.min);
                         if (sp.userData.lastText !== durText) {
