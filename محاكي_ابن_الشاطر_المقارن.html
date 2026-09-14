@@ -8692,14 +8692,25 @@ var cosmos3DInitialized = false;
             const hemi = lat > 0.05 ? 'شمالاً' : (lat < -0.05 ? 'جنوباً' : 'استواء');
             badge.innerText = `📍 ${cityNameStr} (${lat >= 0 ? '+' : ''}${lat.toFixed(1)}° ${hemi})`;
 
-            // تحديث حالة الأزرار النشطة للمدن
+            // تحديث حالة الأزرار النشطة للمدن بدقة بالمعرف المفتاحي للمدينة
+            const normKey = (key) => (key === 'tripoli' ? 'tripoli_lb' : (key === 'pole' ? 'pole_n' : key));
+            const activeKey = normKey(currentCityKey);
+
             document.querySelectorAll('#c3dLeftPanel .btn-season-snap').forEach(btn => {
                 const onclickAttr = btn.getAttribute('onclick') || '';
                 if (onclickAttr.includes('snapCityLat')) {
-                    const m = onclickAttr.match(/snapCityLat\(([-0-9.]+)/);
+                    const m = onclickAttr.match(/snapCityLat\(\s*([-0-9.]+)\s*,\s*['"]([^'"]+)['"]/);
                     if (m) {
                         const bLat = parseFloat(m[1]);
-                        btn.classList.toggle('city-active', Math.abs(lat - bLat) < 1.6);
+                        const bKey = normKey(m[2]);
+                        let isActive = false;
+                        if (activeKey && activeKey !== 'custom') {
+                            isActive = (bKey === activeKey);
+                        } else {
+                            // في حال الإدخال اليدوي عبر السلايدر، تفعيل الزر الأقرب بهامش دقيق جداً (0.15°)
+                            isActive = (Math.abs(lat - bLat) < 0.15);
+                        }
+                        btn.classList.toggle('city-active', isActive);
                     }
                 }
             });
