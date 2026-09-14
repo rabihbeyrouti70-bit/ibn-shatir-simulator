@@ -7778,13 +7778,13 @@ var cosmos3DInitialized = false;
                 });
             }
 
-            // تحديث وسوم الفارق الزمني (المدة) في وسط كل قوس
+            // تحديث وسوم الفارق الزمني (المدة) في وسط كل قوس بالأجنبي (1h 24m / 28m / 55m)
             function formatArcDur(minVal) {
                 const m = Math.max(0, Math.round(minVal));
-                if (m < 60) return `⏱️ ${m} دقيقة`;
+                if (m < 60) return `⏱️ ${m}m`;
                 const h = Math.floor(m / 60);
                 const rem = m % 60;
-                return rem > 0 ? `⏱️ ${h}س و ${rem}د` : `⏱️ ${h} ساعات`;
+                return rem > 0 ? `⏱️ ${h}h ${rem}m` : `⏱️ ${h}h`;
             }
 
             if (prayerArcDurationSprites) {
@@ -7838,13 +7838,13 @@ var cosmos3DInitialized = false;
             const elIshaa = document.getElementById('hudTimeIshaa');
             if (elIshaa) elIshaa.innerText = prayers.prayers.ishaa.civil;
 
-            // تحديث مدد الأقواس في بطاقات الـ HUD
+            // تحديث مدد الأقواس في بطاقات الـ HUD بالأجنبي (1h 24m / 28m / 55m)
             function fmtHudDur(m) {
                 m = Math.max(0, Math.round(m));
-                if (m < 60) return `⏱️ ${m}د`;
+                if (m < 60) return `⏱️ ${m}m`;
                 const h = Math.floor(m / 60);
                 const rem = m % 60;
-                return rem > 0 ? `⏱️ ${h}س ${rem}د` : `⏱️ ${h}س`;
+                return rem > 0 ? `⏱️ ${h}h ${rem}m` : `⏱️ ${h}h`;
             }
             const pObj = prayers.prayers;
             const elDurFajr = document.getElementById('hudDurFajr');
@@ -7872,7 +7872,7 @@ var cosmos3DInitialized = false;
             const elAsrDiff = document.getElementById('hudAsrDiffTime');
             if (elAsrDiff && prayers.prayers.asr && prayers.prayers.asrHanafi) {
                 const diffMin = Math.round((prayers.prayers.asrHanafi.solarH - prayers.prayers.asr.solarH) * 60);
-                elAsrDiff.innerText = `${diffMin} دقيقة`;
+                elAsrDiff.innerText = `${diffMin}m (${diffMin} min)`;
             }
 
             // تحديث تفاصيل العشائين
@@ -8054,7 +8054,7 @@ var cosmos3DInitialized = false;
                 const midY = (p16.y + p18.y) / 2;
                 const midZ = (p16.z + p18.z) / 2;
                 ishaDiffLabelSprite.position.set(midX, midY, midZ);
-                updateTextBadgeSprite(ishaDiffLabelSprite, `⚡ فارق العشائين: ${diffBetweenIshas}د`, '#38BDF8');
+                updateTextBadgeSprite(ishaDiffLabelSprite, `⚡ Isha Diff: ${diffBetweenIshas}m`, '#38BDF8');
                 ishaDiffLabelSprite.visible = show3DLabels && (showTwilightCircles || isIshaFocusMode);
             }
 
@@ -8561,7 +8561,7 @@ var cosmos3DInitialized = false;
             if (el16Diff) el16Diff.innerText = `(بعد ${diff16}د)`;
             if (el18) el18.innerText = isha18Str;
             if (el18Diff) el18Diff.innerText = `(بعد ${diff18}د)`;
-            if (elDiff) elDiff.innerText = isPole ? 'فلك دائر (أفقي)' : `${diffBetween} دقيقة`;
+            if (elDiff) elDiff.innerText = isPole ? 'فلك دائر (أفقي)' : `${diffBetween}m (${diffBetween} min)`;
 
             // تحديث شارة الفارق البارزة في أعلى المشهد
             const elBDiff = document.getElementById('bannerIshaDiffVal');
