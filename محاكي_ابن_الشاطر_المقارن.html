@@ -2910,6 +2910,8 @@
                 <select id="citySelect" class="c3d-city-select" onchange="onCityChange(this.value)">
                     <optgroup label="🌟 المراصد والعواصم الإسلامية التاريخية">
                         <option value="damascus" selected>دمشق — مرصد ابن الشاطر (33.51°N)</option>
+                        <option value="beirut">بيروت — عاصمة لبنان (33.89°N)</option>
+                        <option value="tripoli_lb">طرابلس الشام — لبنان (34.44°N)</option>
                         <option value="mecca">مكة المكرمة — الكعبة المشرفة (21.42°N)</option>
                         <option value="medina">المدينة المنورة (24.47°N)</option>
                         <option value="jerusalem">القدس الشريف (31.78°N)</option>
@@ -2917,6 +2919,7 @@
                         <option value="alexandria">الإسكندرية — مرصد بطلميوس (31.20°N)</option>
                         <option value="baghdad">بغداد — مرصد بيت الحكمة (33.31°N)</option>
                         <option value="riyadh">الرياض — شبه الجزيرة العربية (24.71°N)</option>
+                        <option value="tripoli_ly">طرابلس الغرب — ليبيا (32.89°N)</option>
                         <option value="maragha">مراغة — مرصد الطوسي (37.39°N)</option>
                         <option value="samarkand">سمرقند — مرصد ألغ بك (39.65°N)</option>
                         <option value="cordoba">قرطبة — الأندلس (37.89°N)</option>
@@ -3031,6 +3034,8 @@
                 <button type="button" class="btn-season-snap" onclick="snapCityLat(90.0, 'pole_n')">القطب الشمالي (+90°)</button>
                 <button type="button" class="btn-season-snap" onclick="snapCityLat(41.01, 'istanbul')">إسطنبول (41.0°N)</button>
                 <button type="button" class="btn-season-snap" onclick="snapCityLat(37.89, 'cordoba')">قرطبة (37.9°N)</button>
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(34.44, 'tripoli_lb')">طرابلس الشام (34.4°N)</button>
+                <button type="button" class="btn-season-snap" onclick="snapCityLat(33.89, 'beirut')">بيروت (33.9°N)</button>
                 <button type="button" class="btn-season-snap city-active" id="btnSnapDamascus" onclick="snapCityLat(33.51, 'damascus')">دمشق (33.5°N)</button>
                 <button type="button" class="btn-season-snap" onclick="snapCityLat(31.78, 'jerusalem')">القدس الشريف (31.8°N)</button>
                 <button type="button" class="btn-season-snap" onclick="snapCityLat(30.04, 'cairo')">القاهرة (30.0°N)</button>
@@ -3155,6 +3160,8 @@
         <div class="map-obs-chips">
             <span style="color:var(--gold); font-size:0.82em; font-weight:bold;">✨ أشهر المراصد الفلكية:</span>
             <button type="button" class="obs-chip" onclick="selectPredefinedCity('damascus')">📍 مرصد دمشق (ابن الشاطر)</button>
+            <button type="button" class="obs-chip" onclick="selectPredefinedCity('beirut')">🌲 بيروت (لبنان)</button>
+            <button type="button" class="obs-chip" onclick="selectPredefinedCity('tripoli_lb')">🏰 طرابلس الشام (لبنان)</button>
             <button type="button" class="obs-chip" onclick="selectPredefinedCity('mecca')">🕋 مكة المكرمة</button>
             <button type="button" class="obs-chip" onclick="selectPredefinedCity('medina')">🕌 المدينة المنورة</button>
             <button type="button" class="obs-chip" onclick="selectPredefinedCity('jerusalem')">🕊️ القدس الشريف</button>
@@ -5825,6 +5832,9 @@ var cosmos3DInitialized = false;
         if (WORLD_CITIES_MAP['pole_n']) {
             WORLD_CITIES_MAP['pole'] = WORLD_CITIES_MAP['pole_n'];
         }
+        if (WORLD_CITIES_MAP['tripoli_lb']) {
+            WORLD_CITIES_MAP['tripoli'] = WORLD_CITIES_MAP['tripoli_lb'];
+        }
 
         // كائن متوافق مع الكود القديم يُشتق ديناميكياً من كافة مدن العالم (465 مدينة)
         const CITIES_DB = new Proxy(WORLD_CITIES_MAP, {
@@ -7098,7 +7108,7 @@ var cosmos3DInitialized = false;
                 let optionMatched = false;
                 if (matchedKey) {
                     for (let opt of selectEl.options) {
-                        if (opt.value === matchedKey || (matchedKey === 'pole_n' && opt.value === 'pole')) {
+                        if (opt.value === matchedKey || (matchedKey === 'pole_n' && opt.value === 'pole') || ((matchedKey === 'tripoli_lb' || matchedKey === 'tripoli') && (opt.value === 'tripoli_lb' || opt.value === 'tripoli'))) {
                             selectEl.value = opt.value;
                             currentCityKey = opt.value;
                             optionMatched = true;
