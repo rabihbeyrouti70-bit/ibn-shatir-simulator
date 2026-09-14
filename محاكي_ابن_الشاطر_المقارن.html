@@ -2997,6 +2997,11 @@
             <button type="button" id="btnSeasonSummer" class="btn-season-snap" onclick="snapSeason(23.516)" title="الانقلاب الصيفي">☀️ صيف (+23.5°)</button>
             <div class="v-slider-box">
                 <input type="range" id="seasonalSlider" min="-23.516" max="23.516" step="0.2" value="0" 
+                       onpointerdown="isDraggingSeasonalOrbit = true"
+                       onpointerup="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
+                       ontouchstart="isDraggingSeasonalOrbit = true"
+                       ontouchend="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
+                       onchange="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
                        oninput="onSeasonalSliderInput(parseFloat(this.value))" 
                        title="اسحب رأسياً لتعديل ميل المدار الشمسي فصلياً">
             </div>
@@ -3751,10 +3756,26 @@ function updateDateTimeUI() {
     }
     calculateAstroPosition();
 }
-function setLiveNow() { currentDate = new Date(); sunTrail=[]; moonTrail=[]; ibsMoonTrail=[]; updateDateTimeUI(); }
+function setLiveNow() { 
+    currentDate = new Date(); 
+    sunTrail=[]; moonTrail=[]; ibsMoonTrail=[]; 
+    updateDateTimeUI(); 
+    if (cosmos3DInitialized && typeof updateAstronomy === 'function') {
+        updateAstronomy(currentDate);
+        if (renderer && scene && camera) renderer.render(scene, camera);
+    }
+}
 function onManualDateChange() {
     const v = document.getElementById('astroDateTime').value;
-    if(v) { currentDate = new Date(v); sunTrail=[]; moonTrail=[]; ibsMoonTrail=[]; calculateAstroPosition(); }
+    if(v) { 
+        currentDate = new Date(v); 
+        sunTrail=[]; moonTrail=[]; ibsMoonTrail=[]; 
+        calculateAstroPosition(); 
+        if (cosmos3DInitialized && typeof updateAstronomy === 'function') {
+            updateAstronomy(currentDate);
+            if (renderer && scene && camera) renderer.render(scene, camera);
+        }
+    }
 }
 function addTime(a, u) {
     let d = 0;
@@ -3766,6 +3787,10 @@ function addTime(a, u) {
     trailShatir=[]; trailCopernicus=[]; trailKepler=[];
     trailMoonShatir=[]; trailMoonCopernicus=[]; trailMoonKepler=[];
     updateDateTimeUI();
+    if (cosmos3DInitialized && typeof updateAstronomy === 'function') {
+        updateAstronomy(currentDate);
+        if (renderer && scene && camera) renderer.render(scene, camera);
+    }
 }
 
 function setClockRunning(running) {
@@ -5758,7 +5783,7 @@ switchTab('cosmos');
 requestAnimationFrame(masterLoop);
 
 /* ==================== 3D CELESTIAL & CONCENTRIC ORBS SIMULATOR ENGINE ==================== */
-let cosmos3DInitialized = false;
+var cosmos3DInitialized = false;
 
 
         // 🌐 قاعدة بيانات مدن العالم الشاملة (465 مدينة ومرصد فلكي)
@@ -5805,6 +5830,25 @@ let cosmos3DInitialized = false;
 
         let currentCityKey = 'damascus';
         let currentCityName = 'دمشق (الجامع الأموي)';
+        let currentCityCountry = 'سوريا';
+
+        const COUNTRY_TIMEZONE_MAP = {
+            'سوريا': 3, 'السعودية': 3, 'العراق': 3, 'الأردن': 3, 'الكويت': 3, 'قطر': 3, 'البحرين': 3,
+            'اليمن': 3, 'تركيا': 3, 'فلسطين': 3, 'لبنان': 3, 'الإمارات': 4, 'عُمان': 4,
+            'مصر': 2, 'السودان': 2, 'ليبيا': 2, 'المغرب': 1, 'الجزائر': 1, 'تونس': 1,
+            'موريتانيا': 0, 'الصومال': 3, 'جيبوتي': 3, 'جزر القمر': 3, 'إيران': 3.5, 'أفغانستان': 4.5,
+            'باكستان': 5, 'الهند': 5.5, 'أوزبكستان': 5, 'تركمانستان': 5, 'كازاخستان': 5, 'أذربيجان': 4,
+            'روسيا': 3, 'اليابان': 9, 'الصين': 8, 'ماليزيا': 8, 'سنغافورة': 8, 'إندونيسيا': 7,
+            'المملكة المتحدة': 0, 'فرنسا': 1, 'إسبانيا': 1, 'إيطاليا': 1, 'ألمانيا': 1,
+            'الولايات المتحدة': -5, 'كندا': -5, 'أستراليا': 10
+        };
+
+        function getCityTimezoneHours(lat, lon, country = null) {
+            if (country && COUNTRY_TIMEZONE_MAP[country] !== undefined) {
+                return COUNTRY_TIMEZONE_MAP[country];
+            }
+            return Math.round(lon / 15);
+        }
         let currentLatDeg = 33.5138;
         let currentLonDeg = 36.2924;
         let currentLatRad = currentLatDeg * Math.PI / 180;
@@ -5931,10 +5975,10 @@ let cosmos3DInitialized = false;
         function computePrayersMujaib(lat, lon, dateObj, tzHours = null) {
             const date = dateObj || currentDate;
             if (tzHours === null || isNaN(tzHours)) {
-                tzHours = Math.round(lon / 15);
+                tzHours = getCityTimezoneHours(lat, lon, currentCityCountry);
             }
 
-            const jd = getJD_Mujaib(date.getFullYear(), date.getMonth() + 1, date.getDate());
+            const jd = getJD_Mujaib(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
             const total = jd + (12.0 - tzHours) / 24.0;
             const T = (total - 2451545.0) / 36525.0;
 
@@ -5948,9 +5992,9 @@ let cosmos3DInitialized = false;
             const north = lat >= 0 ? 1 : -1;
             const declNorth = decl >= 0 ? 1 : -1;
 
-            // حسابات الرُبع المُجَيَّب الستينية
-            const diameterDimension = 60.0 * Math.sin(latRad) * Math.sin(declRad);
-            const absoluteOrigin = 60.0 * Math.cos(latRad) * Math.cos(declRad);
+            // حسابات الرُبع المُجَيَّب الستينية الدقيقة (قيم موجبة للمقاييس الهندسية)
+            const diameterDimension = Math.abs(60.0 * Math.sin(latRad) * Math.sin(declRad));
+            const absoluteOrigin = Math.abs(60.0 * Math.cos(latRad) * Math.cos(declRad));
             const maxElevation = 90.0 - Math.abs(lat - decl);
 
             // 1. الفجر (انحطاط 18° تحت الأفق)
@@ -6921,6 +6965,9 @@ let cosmos3DInitialized = false;
                 hudBadge.innerText = `${currentCityName} (${currentLatDeg.toFixed(1)}°)`;
             }
             updateAstronomy(currentDate);
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
         }
 
         // دالة موحدة لتطبيق اختيار المدينة وتحديث كافة المدارات والسلايدرات والشارات فوراً
@@ -6941,6 +6988,15 @@ let cosmos3DInitialized = false;
                 currentCityName = `موقع مخصص (${clampedLat >= 0 ? '+' : ''}${clampedLat.toFixed(2)}°)`;
                 modalCityName = currentCityName;
             }
+
+            let foundCountry = null;
+            if (cityKey && typeof WORLD_CITIES_MAP !== 'undefined' && WORLD_CITIES_MAP[cityKey]) {
+                foundCountry = WORLD_CITIES_MAP[cityKey].country;
+            } else if (typeof WORLD_CITIES_DB !== 'undefined') {
+                const match = WORLD_CITIES_DB.find(c => Math.abs(c.lat - clampedLat) < 0.25 && Math.abs(c.lon - clampedLon) < 0.25);
+                if (match) foundCountry = match.country;
+            }
+            currentCityCountry = foundCountry;
 
             // 1. تحديث عناصر نافذة المودال نفسها (الموقع على الخريطة والحقول الحسابية)
             if (typeof updateModalUI === 'function') {
@@ -7528,10 +7584,13 @@ let cosmos3DInitialized = false;
         }
 
         function updatePrayerDiurnalArcs(deltaSun, phi, simDate, H_sun) {
-            if (!prayerDiurnalArcsGroup || !prayerDiurnalLines.fajr) return;
-
             const prayers = computePrayersMujaib(currentLatDeg, currentLonDeg, simDate);
             currentPrayersData = prayers;
+
+            // تحديث بطاقات الـ HUD اللحظية لأوقات الصلاة فوراً في كل تغير للمدينة أو الفصل
+            updatePrayerHUD(prayers, H_sun);
+
+            if (!prayerDiurnalArcsGroup || !prayerDiurnalLines.fajr) return;
 
             const { H_fajr, H_sunrise, H_asr, H_sunset, H_ishaa } = prayers.hourAngles;
 
@@ -7605,14 +7664,14 @@ let cosmos3DInitialized = false;
                     if (sp) {
                         const p = getOrbitPosAtH(b.H, 12);
                         sp.position.set(p.x, p.y, p.z);
-                        updateTextBadgeSprite(sp, b.text, b.color);
+                        if (sp.userData.lastText !== b.text) {
+                            sp.userData.lastText = b.text;
+                            updateTextBadgeSprite(sp, b.text, b.color);
+                        }
                         sp.visible = show3DLabels;
                     }
                 });
             }
-
-            // تحديث لوحة HUD
-            updatePrayerHUD(prayers, H_sun);
         }
 
         function updatePrayerHUD(prayers, H_sun) {
@@ -8083,7 +8142,10 @@ let cosmos3DInitialized = false;
             if (season === 'autumn') currentDate = new Date(Date.UTC(y, 8, 23, 5, 45, 0));
             if (season === 'winter') currentDate = new Date(Date.UTC(y, 11, 21, 6, 45, 0));
             updateDateTimeUI();
-            if (cosmos3DInitialized) updateAstronomy(currentDate);
+            if (cosmos3DInitialized) {
+                updateAstronomy(currentDate);
+                if (renderer && scene && camera) renderer.render(scene, camera);
+            }
         }
 
         function onCosmos3DResize() {
@@ -8169,16 +8231,21 @@ let cosmos3DInitialized = false;
 
             currentDate = new Date(Date.UTC(y, 0, 1 + Math.floor(dayOfYear), curH, curM, curS));
             updateDateTimeUI();
-            if (cosmos3DInitialized) updateAstronomy(currentDate);
+            if (cosmos3DInitialized) {
+                updateAstronomy(currentDate);
+                if (renderer && scene && camera) renderer.render(scene, camera);
+            }
         }
 
         function snapSeason(declDeg) {
+            isDraggingSeasonalOrbit = false;
             setSeasonalDeclination(declDeg);
             const name = declDeg > 15 ? 'الانقلاب الصيفي (+23.5°)' : (declDeg < -15 ? 'الانقلاب الشتوي (-23.5°)' : 'الاعتدالين (0.0°)');
             showToast(`☀️ تم الانتقال إلى مدار: ${name}`);
         }
 
         function onSeasonalSliderInput(val) {
+            isDraggingSeasonalOrbit = true;
             setSeasonalDeclination(val);
         }
 
