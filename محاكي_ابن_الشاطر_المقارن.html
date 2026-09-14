@@ -3320,27 +3320,54 @@
                     <span id="hudSunriseAz" class="c3d-telemetry-val gold">61.5° (شمال الشرق)</span>
                 </div>
 
-                <!-- ميقات العشائين وزوايا انحطاط الشمس عند رئيس المؤقتين ابن الشاطر -->
-                <div class="c3d-section-box" style="border-right: 3px solid #F97316; background: rgba(249, 115, 22, 0.1);">
-                    <div style="color:#FED7AA; font-weight:800; font-size:0.84em; display:flex; justify-content:space-between; align-items:center;">
-                        <span>🕌 ميقات العشائين وزوايا انحطاط الشمس (المؤقت ابن الشاطر):</span>
-                        <span id="hudSunTwilightStatus" style="font-size:0.8em; color:#FDE047; background:rgba(0,0,0,0.5); padding:2px 8px; border-radius:10px; border:1px solid rgba(245,158,11,0.4);">☀️ نهار</span>
+                <!-- مواقيت الصلاة وأقواس المدار الشمسي وفق الرُبع المُجَيَّب (مجلد prayertimes) -->
+                <div class="c3d-section-box" style="border-right: 3px solid #06B6D4; background: rgba(6, 182, 212, 0.08); padding: 8px 10px; border-radius: 6px; margin-top: 6px;">
+                    <div style="color:#67E8F9; font-weight:800; font-size:0.84em; display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                        <span>🕌 مواقيت الصلاة وأقواس المدار الشمسي (الرُبع المُجَيَّب):</span>
+                        <span id="hudSunTwilightStatus" style="font-size:0.8em; color:#FDE047; background:rgba(0,0,0,0.5); padding:2px 8px; border-radius:10px; border:1px solid rgba(245,158,11,0.4); transition:all 0.3s ease;">☀️ نهار</span>
                     </div>
-                    <div class="c3d-telemetry-row">
-                        <span class="c3d-telemetry-label">غروب الشمس (المغرب 0°):</span>
-                        <span id="hudSunsetTime" class="c3d-telemetry-val gold">--:--</span>
+
+                    <!-- شبكة أوقات الصلوات الست بألوان الأقواس المطابقة للثلاثي الأبعاد -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; font-size: 0.78em;">
+                        <div id="hudCardFajr" style="background: rgba(6, 182, 212, 0.15); border: 1px solid #06B6D4; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                            <div style="color: #67E8F9; font-weight: 700;">🌅 الفجر (18°)</div>
+                            <div id="hudTimeFajr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                        </div>
+                        <div id="hudCardSunrise" style="background: rgba(234, 179, 8, 0.15); border: 1px solid #EAB308; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                            <div style="color: #FDE047; font-weight: 700;">☀️ الشروق</div>
+                            <div id="hudTimeSunrise" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                        </div>
+                        <div id="hudCardDuhr" style="background: rgba(250, 204, 21, 0.15); border: 1px solid #FACC15; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                            <div style="color: #FEF08A; font-weight: 700;">☀️ الظهر (الزوال)</div>
+                            <div id="hudTimeDuhr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                        </div>
+                        <div id="hudCardAsr" style="background: rgba(249, 115, 22, 0.15); border: 1px solid #F97316; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                            <div style="color: #FED7AA; font-weight: 700;">🌤️ العصر (الظل)</div>
+                            <div id="hudTimeAsr" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                        </div>
+                        <div id="hudCardSunset" style="background: rgba(225, 29, 72, 0.15); border: 1px solid #E11D48; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                            <div style="color: #FDA4AF; font-weight: 700;">🌇 المغرب (الغروب)</div>
+                            <div id="hudTimeSunset" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                        </div>
+                        <div id="hudCardIshaa" style="background: rgba(99, 102, 241, 0.15); border: 1px solid #6366F1; border-radius: 4px; padding: 3px 5px; text-align: center; transition: all 0.3s ease;">
+                            <div style="color: #C7D2FE; font-weight: 700;">🌌 العشاء (18°)</div>
+                            <div id="hudTimeIshaa" style="color: #FFFFFF; font-weight: 800; font-size: 1.05em;">--:--</div>
+                        </div>
                     </div>
-                    <div class="c3d-telemetry-row">
-                        <span class="c3d-telemetry-label">العشاء الشافعي (16° تحت الأفق):</span>
-                        <span id="hudIshaShafiTime" class="c3d-telemetry-val" style="color:#F97316; font-weight:bold;">--:--</span>
+
+                    <!-- تفاصيل العشائين والفارق وموقع الشمس -->
+                    <div class="c3d-telemetry-row" style="font-size: 0.74em;">
+                        <span class="c3d-telemetry-label">العشاء الشافعي (16°) / الحنفي (18°):</span>
+                        <span id="hudIshaDetails" class="c3d-telemetry-val" style="color:#C7D2FE;">--:-- / --:--</span>
                     </div>
-                    <div class="c3d-telemetry-row">
-                        <span class="c3d-telemetry-label">العشاء الحنفي (18° تحت الأفق):</span>
-                        <span id="hudIshaHanafiTime" class="c3d-telemetry-val" style="color:#818CF8; font-weight:bold;">--:--</span>
-                    </div>
-                    <div class="c3d-telemetry-row">
-                        <span class="c3d-telemetry-label">فارق ما بين العشائين:</span>
+                    <div class="c3d-telemetry-row" style="font-size: 0.74em;">
+                        <span class="c3d-telemetry-label">الفارق بين العشائين:</span>
                         <span id="hudIshaDiffTime" class="c3d-telemetry-val silver">-- دقيقة</span>
+                    </div>
+                    <div style="display:none;">
+                        <span id="hudSunsetTime">--:--</span>
+                        <span id="hudIshaShafiTime">--:--</span>
+                        <span id="hudIshaHanafiTime">--:--</span>
                     </div>
                 </div>
 
@@ -5795,6 +5822,230 @@ let cosmos3DInitialized = false;
         let celestialAxisLine, celestialEquatorLine, polarisStar, polarisOrbitLine, polarisLabelSprite;
         let currentSunOrbitLine = null;
         let currentSunsetSolarH = null;
+
+        // =========================================================================
+        // 🕌 أقواس مواقيت الصلاة على مدار الشمس اليومي (حساب الرُبع المُجَيَّب - prayertimes)
+        // =========================================================================
+        let prayerDiurnalArcsGroup = null;
+        let prayerDiurnalLines = {};
+        let prayerDiurnalSprites = {};
+        let currentPrayersData = null;
+
+        const PRAYER_ARC_COLORS = {
+            fajr: 0x06B6D4,       // أزرق سماوي فيروزي (قوس الفجر: من الفجر إلى الشروق)
+            dhuha: 0xEAB308,      // أصفر ذهبي ساطع (قوس الضحى: من الشروق إلى الظهر)
+            duhr: 0xFACC15,       // أصفر كهرماني ناصع (قوس الظهر: من الظهر إلى العصر)
+            asr: 0xF97316,        // برتقالي أصيل دافئ (قوس العصر: من العصر إلى الغروب)
+            maghrib: 0xE11D48,    // أحمر وردي شفقي (قوس المغرب: من الغروب إلى العشاء)
+            night: 0x6366F1       // نيلي ليلي كوني عميق (قوس الليل: من العشاء حتى فجر الغد)
+        };
+
+        const PRAYER_ARC_NAMES = {
+            fajr: 'قوس الفجر (الشفق الصباحي)',
+            dhuha: 'قوس الشروق والضحى',
+            duhr: 'قوس الظهر',
+            asr: 'قوس العصر',
+            maghrib: 'قوس المغرب والشفق المسائي',
+            night: 'قوس العشاء والليل'
+        };
+
+        // =========================================================================
+        // 🕌 خوارزمية الرُبع المُجَيَّب ومعادلات NOAA لحساب مواقيت الصلاة بدقة (حصرياً من مجلد prayertimes)
+        // =========================================================================
+        function calcMeanObliquityOfEcliptic_Mujaib(t) {
+            const seconds = 21.448 - t * (46.8150 + t * (0.00059 - t * 0.001813));
+            return 23.0 + (26.0 + seconds / 60.0) / 60.0;
+        }
+
+        function calcObliquityCorrection_Mujaib(t) {
+            const e0 = calcMeanObliquityOfEcliptic_Mujaib(t);
+            const omega = 125.04 - 1934.136 * t;
+            return e0 + 0.00256 * Math.cos(omega * Math.PI / 180.0);
+        }
+
+        function calcGeomMeanAnomalySun_Mujaib(t) {
+            return 357.52911 + t * (35999.05029 - 0.0001537 * t);
+        }
+
+        function calcGeomMeanLongSun_Mujaib(t) {
+            let L0 = 280.46646 + t * (36000.76983 + t * 0.0003032);
+            while (L0 > 360.0) L0 -= 360.0;
+            while (L0 < 0.0) L0 += 360.0;
+            return L0;
+        }
+
+        function calcSunEqOfCenter_Mujaib(t) {
+            const m = calcGeomMeanAnomalySun_Mujaib(t);
+            const mrad = m * Math.PI / 180.0;
+            return Math.sin(mrad) * (1.914602 - t * (0.004817 + 0.000014 * t)) +
+                   Math.sin(2 * mrad) * (0.019993 - 0.000101 * t) +
+                   Math.sin(3 * mrad) * 0.000289;
+        }
+
+        function calcSunTrueLong_Mujaib(t) {
+            return calcGeomMeanLongSun_Mujaib(t) + calcSunEqOfCenter_Mujaib(t);
+        }
+
+        function calcSunApparentLong_Mujaib(t) {
+            const o = calcSunTrueLong_Mujaib(t);
+            const omega = 125.04 - 1934.136 * t;
+            return o - 0.00569 - 0.00478 * Math.sin(omega * Math.PI / 180.0);
+        }
+
+        function calcSunDeclination_Mujaib(t) {
+            const e = calcObliquityCorrection_Mujaib(t) * Math.PI / 180.0;
+            const lambda = calcSunApparentLong_Mujaib(t) * Math.PI / 180.0;
+            const sint = Math.sin(e) * Math.sin(lambda);
+            return Math.asin(Math.max(-1, Math.min(1, sint))) * 180.0 / Math.PI;
+        }
+
+        function calcEquationOfTime_Mujaib(t) {
+            const epsilon = calcObliquityCorrection_Mujaib(t) * Math.PI / 180.0;
+            const l0 = calcGeomMeanLongSun_Mujaib(t) * Math.PI / 180.0;
+            const e = (0.016708634 - t * (0.000042037 + 0.0000001267 * t));
+            const m = calcGeomMeanAnomalySun_Mujaib(t) * Math.PI / 180.0;
+
+            const y = Math.pow(Math.tan(epsilon / 2.0), 2);
+            const sin2l0 = Math.sin(2.0 * l0);
+            const sinm = Math.sin(m);
+            const cos2l0 = Math.cos(2.0 * l0);
+            const sin4l0 = Math.sin(4.0 * l0);
+            const sin2m = Math.sin(2.0 * m);
+
+            const Etime = y * sin2l0 - 2.0 * e * sinm + 4.0 * e * y * sinm * cos2l0 -
+                          0.5 * y * y * sin4l0 - 1.25 * e * e * sin2m;
+            return (Etime * 180.0 / Math.PI) * 4.0;
+        }
+
+        function getJD_Mujaib(year, month, day) {
+            if (month <= 2) { year -= 1; month += 12; }
+            const A = Math.floor(year / 100);
+            const B = 2 - A + Math.floor(A / 4);
+            return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5;
+        }
+
+        function computePrayersMujaib(lat, lon, dateObj, tzHours = null) {
+            const date = dateObj || currentDate;
+            if (tzHours === null || isNaN(tzHours)) {
+                tzHours = Math.round(lon / 15);
+            }
+
+            const jd = getJD_Mujaib(date.getFullYear(), date.getMonth() + 1, date.getDate());
+            const total = jd + (12.0 - tzHours) / 24.0;
+            const T = (total - 2451545.0) / 36525.0;
+
+            const decl = calcSunDeclination_Mujaib(T);
+            const eotMin = calcEquationOfTime_Mujaib(T);
+            const lonOffsetMin = (15 * tzHours - lon) * 4;
+
+            const latRad = lat * Math.PI / 180.0;
+            const declRad = decl * Math.PI / 180.0;
+
+            const north = lat >= 0 ? 1 : -1;
+            const declNorth = decl >= 0 ? 1 : -1;
+
+            // حسابات الرُبع المُجَيَّب الستينية
+            const diameterDimension = 60.0 * Math.sin(latRad) * Math.sin(declRad);
+            const absoluteOrigin = 60.0 * Math.cos(latRad) * Math.cos(declRad);
+            const maxElevation = 90.0 - Math.abs(lat - decl);
+
+            // 1. الفجر (انحطاط 18° تحت الأفق)
+            const fajrElevPocket = Math.sin(18.0 * Math.PI / 180.0) * 60.0;
+            const fajrModifiedOrigin = (north + declNorth === 0)
+                ? (fajrElevPocket - diameterDimension)
+                : (fajrElevPocket + diameterDimension);
+            const fajrRatio = Math.max(-1.0, Math.min(1.0, fajrModifiedOrigin / Math.max(0.0001, absoluteOrigin)));
+            const fajrFirstResult = 90.0 - Math.asin(fajrRatio) * 180.0 / Math.PI;
+            const fajrSolarHours = 4.0 * fajrFirstResult / 60.0;
+            const H_fajr_rad = Math.max(0.1, (12.0 - fajrSolarHours) * 15.0 * Math.PI / 180.0);
+
+            // 2. الشروق والغروب (مع انكسار الأفق ونصف قطر الشمس: 0.833°)
+            const zenithRad = 90.833 * Math.PI / 180.0;
+            const cosH_val = (Math.cos(zenithRad) - Math.sin(latRad) * Math.sin(declRad)) /
+                             Math.max(0.0001, Math.cos(latRad) * Math.cos(declRad));
+            let H_sun_deg = 90.0;
+            let polarDay = false, polarNight = false;
+            if (cosH_val >= 1.0) { polarNight = true; H_sun_deg = 0.0; }
+            else if (cosH_val <= -1.0) { polarDay = true; H_sun_deg = 180.0; }
+            else { H_sun_deg = Math.acos(cosH_val) * 180.0 / Math.PI; }
+
+            const sunriseSolarHours = 12.0 - H_sun_deg / 15.0;
+            const sunsetSolarHours = 12.0 + H_sun_deg / 15.0;
+            const H_sunrise_rad = Math.max(0.05, H_sun_deg * Math.PI / 180.0);
+            const H_sunset_rad = Math.max(0.05, H_sun_deg * Math.PI / 180.0);
+
+            // 3. الظهر (الزوال الشمسي)
+            const duhrSolarHours = 12.0;
+
+            // 4. العصر (مقياس الشاخص الستيني: 12 وحدة)
+            const noonShadow = 12.0 * Math.tan((90.0 - maxElevation) * Math.PI / 180.0);
+            const asrShadow = noonShadow + 12.0;
+            const asrElevation = Math.atan(12.0 / Math.max(0.001, asrShadow)) * 180.0 / Math.PI;
+            const asrElevPocket = Math.sin(asrElevation * Math.PI / 180.0) * 60.0;
+            const asrModifiedOrigin = (north + declNorth === 0)
+                ? (asrElevPocket + diameterDimension)
+                : (asrElevPocket - diameterDimension);
+            const asrRatio = Math.max(-1.0, Math.min(1.0, asrModifiedOrigin / Math.max(0.0001, absoluteOrigin)));
+            const asrFirstResult = 90.0 - Math.asin(asrRatio) * 180.0 / Math.PI;
+            const asrSolarHours = 12.0 + (4.0 * asrFirstResult / 60.0);
+            const H_asr_rad = Math.max(0.05, (asrSolarHours - 12.0) * 15.0 * Math.PI / 180.0);
+
+            // 5. العشاء (انحطاط 18° تحت الأفق الغربي)
+            const ishaaElevPocket = Math.sin(18.0 * Math.PI / 180.0) * 60.0;
+            const ishaaModifiedOrigin = (north + declNorth === 0)
+                ? (ishaaElevPocket - diameterDimension)
+                : (ishaaElevPocket + diameterDimension);
+            const ishaaRatio = Math.max(-1.0, Math.min(1.0, ishaaModifiedOrigin / Math.max(0.0001, absoluteOrigin)));
+            const ishaaFirstResult = 90.0 - Math.acos(ishaaRatio) * 180.0 / Math.PI;
+            const ishaaSolarHours = 18.0 + (4.0 * ishaaFirstResult / 60.0);
+            const H_ishaa_rad = Math.max(H_sunset_rad + 0.05, (ishaaSolarHours - 12.0) * 15.0 * Math.PI / 180.0);
+
+            // 6. العشاء الشافعي (16° لمقارنة العشائين)
+            const isha16ElevPocket = Math.sin(16.0 * Math.PI / 180.0) * 60.0;
+            const isha16ModifiedOrigin = (north + declNorth === 0)
+                ? (isha16ElevPocket - diameterDimension)
+                : (isha16ElevPocket + diameterDimension);
+            const isha16Ratio = Math.max(-1.0, Math.min(1.0, isha16ModifiedOrigin / Math.max(0.0001, absoluteOrigin)));
+            const isha16FirstResult = 90.0 - Math.acos(isha16Ratio) * 180.0 / Math.PI;
+            const isha16SolarHours = 18.0 + (4.0 * isha16FirstResult / 60.0);
+            const H_isha16_rad = (isha16SolarHours - 12.0) * 15.0 * Math.PI / 180.0;
+
+            function toCivil(solH) {
+                if (solH === null || isNaN(solH)) return '--:--';
+                let civ = solH + (lonOffsetMin - eotMin) / 60.0;
+                while (civ < 0) civ += 24.0;
+                while (civ >= 24.0) civ -= 24.0;
+                const totalM = Math.round(civ * 60.0);
+                const hh = Math.floor(totalM / 60.0) % 24;
+                const mm = totalM % 60;
+                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+            }
+
+            return {
+                decl: decl,
+                eotMin: eotMin,
+                polarDay: polarDay,
+                polarNight: polarNight,
+                prayers: {
+                    fajr: { name: 'الفجر', civil: toCivil(fajrSolarHours), solarH: fajrSolarHours, color: '#06B6D4' },
+                    sunrise: { name: 'الشروق', civil: toCivil(sunriseSolarHours), solarH: sunriseSolarHours, color: '#EAB308' },
+                    duhr: { name: 'الظهر', civil: toCivil(duhrSolarHours), solarH: duhrSolarHours, color: '#FACC15' },
+                    asr: { name: 'العصر', civil: toCivil(asrSolarHours), solarH: asrSolarHours, color: '#F97316' },
+                    sunset: { name: 'المغرب', civil: toCivil(sunsetSolarHours), solarH: sunsetSolarHours, color: '#E11D48' },
+                    ishaa: { name: 'العشاء', civil: toCivil(ishaaSolarHours), solarH: ishaaSolarHours, color: '#6366F1' },
+                    isha16: { name: 'العشاء الشافعي 16°', civil: toCivil(isha16SolarHours), solarH: isha16SolarHours }
+                },
+                hourAngles: {
+                    H_fajr: H_fajr_rad,
+                    H_sunrise: H_sunrise_rad,
+                    H_duhr: 0,
+                    H_asr: H_asr_rad,
+                    H_sunset: H_sunset_rad,
+                    H_ishaa: H_ishaa_rad,
+                    H_isha16: H_isha16_rad
+                }
+            };
+        }
         let isDraggingSeasonalOrbit = false;
         let dragStartY = 0, dragStartDecl = 0;
         let sunMesh, moonMesh, moonLight, moonLabelSprite;
@@ -6287,14 +6538,8 @@ let cosmos3DInitialized = false;
             buildArc(0.0, 0x38BDF8, 'equinox');       // اعتدال (مدار الاستواء)
             buildArc(-EPSILON, 0x34D399, 'winter');   // شتاء (مدار الجدي)
 
-            // مدار الشمس اليومي الحالي المتحرك بلون ذهبي متوهج وخط متقطع
-            const curOrbitGeom = new THREE.BufferGeometry();
-            currentSunOrbitLine = new THREE.Line(
-                curOrbitGeom,
-                new THREE.LineDashedMaterial({ color: 0xF59E0B, dashSize: 6, gapSize: 3, transparent: true, opacity: 0.95, linewidth: 3 })
-            );
-            currentSunOrbitLine.userData = { isCurrentOrbit: true };
-            seasonalArcsGroup.add(currentSunOrbitLine);
+            // بناء مجموعة أقواس مواقيت الصلاة الملونة لمدار الشمس اليومي (حصرياً للثلاثي الأبعاد)
+            buildPrayerDiurnalArcs();
         }
 
         // تحديث قوس مسار القمر لليوم الحالي
@@ -7218,6 +7463,213 @@ let cosmos3DInitialized = false;
             }
         }
 
+        // ==========================================
+        // 🕌 دوال بناء وتحديث أقواس مواقيت الصلاة في المحاكي ثلاثي الأبعاد
+        // ==========================================
+        function buildPrayerDiurnalArcs() {
+            if (prayerDiurnalArcsGroup) {
+                cleanThreeGroup(prayerDiurnalArcsGroup);
+            }
+            prayerDiurnalArcsGroup = new THREE.Group();
+            prayerDiurnalArcsGroup.name = 'prayerDiurnalArcsGroup';
+            seasonalArcsGroup.add(prayerDiurnalArcsGroup);
+
+            const arcKeys = ['fajr', 'dhuha', 'duhr', 'asr', 'maghrib', 'night1', 'night2'];
+            prayerDiurnalLines = {};
+            arcKeys.forEach(k => {
+                const color = k.startsWith('night') ? PRAYER_ARC_COLORS.night : PRAYER_ARC_COLORS[k];
+                const geom = new THREE.BufferGeometry();
+                const mat = new THREE.LineBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.95,
+                    linewidth: 4.0
+                });
+                const line = new THREE.Line(geom, mat);
+                line.userData = { arcKey: k, name: PRAYER_ARC_NAMES[k.startsWith('night') ? 'night' : k] };
+                prayerDiurnalArcsGroup.add(line);
+                prayerDiurnalLines[k] = line;
+            });
+
+            // وسوم أوقات الصلاة الثلاثية الأبعاد على مدار الشمس
+            prayerDiurnalSprites = {};
+            const pBadgeDefs = [
+                { key: 'fajr', title: '🌅 الفجر', color: '#06B6D4' },
+                { key: 'sunrise', title: '☀️ الشروق', color: '#EAB308' },
+                { key: 'duhr', title: '☀️ الظهر', color: '#FACC15' },
+                { key: 'asr', title: '🌤️ العصر', color: '#F97316' },
+                { key: 'sunset', title: '🌇 المغرب', color: '#E11D48' },
+                { key: 'ishaa', title: '🌌 العشاء', color: '#6366F1' }
+            ];
+            pBadgeDefs.forEach(b => {
+                const sp = createTextBadgeSprite(`${b.title} --:--`, b.color, 24, 6.0);
+                sp.visible = show3DLabels;
+                prayerDiurnalArcsGroup.add(sp);
+                prayerDiurnalSprites[b.key] = sp;
+            });
+        }
+
+        function updatePrayerDiurnalArcs(deltaSun, phi, simDate, H_sun) {
+            if (!prayerDiurnalArcsGroup || !prayerDiurnalLines.fajr) return;
+
+            const prayers = computePrayersMujaib(currentLatDeg, currentLonDeg, simDate);
+            currentPrayersData = prayers;
+
+            const { H_fajr, H_sunrise, H_asr, H_sunset, H_ishaa } = prayers.hourAngles;
+
+            function getArcPoints(H_start, H_end, steps = 30) {
+                const pts = [];
+                for (let i = 0; i <= steps; i++) {
+                    const H_val = H_start + (i / steps) * (H_end - H_start);
+                    const { alt, az } = computeHorizontalCoords(deltaSun, H_val, phi);
+                    pts.push(new THREE.Vector3(
+                        DOME_R * Math.cos(alt) * Math.sin(az),
+                        DOME_R * Math.sin(alt),
+                        -DOME_R * Math.cos(alt) * Math.cos(az)
+                    ));
+                }
+                return pts;
+            }
+
+            // تحديث الأقواس الستة لمدار الشمس اليومي بألوانها المتميزة
+            if (prayerDiurnalLines.fajr) {
+                prayerDiurnalLines.fajr.geometry.dispose();
+                prayerDiurnalLines.fajr.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(-H_fajr, -H_sunrise, 24));
+            }
+            if (prayerDiurnalLines.dhuha) {
+                prayerDiurnalLines.dhuha.geometry.dispose();
+                prayerDiurnalLines.dhuha.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(-H_sunrise, 0, 36));
+            }
+            if (prayerDiurnalLines.duhr) {
+                prayerDiurnalLines.duhr.geometry.dispose();
+                prayerDiurnalLines.duhr.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(0, H_asr, 30));
+            }
+            if (prayerDiurnalLines.asr) {
+                prayerDiurnalLines.asr.geometry.dispose();
+                prayerDiurnalLines.asr.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(H_asr, H_sunset, 30));
+            }
+            if (prayerDiurnalLines.maghrib) {
+                prayerDiurnalLines.maghrib.geometry.dispose();
+                prayerDiurnalLines.maghrib.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(H_sunset, H_ishaa, 24));
+            }
+            if (prayerDiurnalLines.night1) {
+                prayerDiurnalLines.night1.geometry.dispose();
+                prayerDiurnalLines.night1.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(H_ishaa, Math.PI, 36));
+            }
+            if (prayerDiurnalLines.night2) {
+                prayerDiurnalLines.night2.geometry.dispose();
+                prayerDiurnalLines.night2.geometry = new THREE.BufferGeometry().setFromPoints(getArcPoints(-Math.PI, -H_fajr, 36));
+            }
+
+            function getOrbitPosAtH(H_val, offsetDist = 12) {
+                const { alt, az } = computeHorizontalCoords(deltaSun, H_val, phi);
+                const r = DOME_R + offsetDist;
+                return new THREE.Vector3(
+                    r * Math.cos(alt) * Math.sin(az),
+                    r * Math.sin(alt),
+                    -r * Math.cos(alt) * Math.cos(az)
+                );
+            }
+
+            // تحديث وسوم أوقات الصلاة الثلاثية الأبعاد
+            if (prayerDiurnalSprites) {
+                const badgeConfigs = [
+                    { key: 'fajr', H: -H_fajr, text: `🌅 الفجر (${prayers.prayers.fajr.civil})`, color: '#06B6D4' },
+                    { key: 'sunrise', H: -H_sunrise, text: `☀️ الشروق (${prayers.prayers.sunrise.civil})`, color: '#EAB308' },
+                    { key: 'duhr', H: 0, text: `☀️ الظهر (${prayers.prayers.duhr.civil})`, color: '#FACC15' },
+                    { key: 'asr', H: H_asr, text: `🌤️ العصر (${prayers.prayers.asr.civil})`, color: '#F97316' },
+                    { key: 'sunset', H: H_sunset, text: `🌇 المغرب (${prayers.prayers.sunset.civil})`, color: '#E11D48' },
+                    { key: 'ishaa', H: H_ishaa, text: `🌌 العشاء (${prayers.prayers.ishaa.civil})`, color: '#6366F1' }
+                ];
+
+                badgeConfigs.forEach(b => {
+                    const sp = prayerDiurnalSprites[b.key];
+                    if (sp) {
+                        const p = getOrbitPosAtH(b.H, 12);
+                        sp.position.set(p.x, p.y, p.z);
+                        updateTextBadgeSprite(sp, b.text, b.color);
+                        sp.visible = show3DLabels;
+                    }
+                });
+            }
+
+            // تحديث لوحة HUD
+            updatePrayerHUD(prayers, H_sun);
+        }
+
+        function updatePrayerHUD(prayers, H_sun) {
+            if (!prayers || !prayers.prayers) return;
+
+            const elFajr = document.getElementById('hudTimeFajr');
+            if (elFajr) elFajr.innerText = prayers.prayers.fajr.civil;
+            const elSunrise = document.getElementById('hudTimeSunrise');
+            if (elSunrise) elSunrise.innerText = prayers.prayers.sunrise.civil;
+            const elDuhr = document.getElementById('hudTimeDuhr');
+            if (elDuhr) elDuhr.innerText = prayers.prayers.duhr.civil;
+            const elAsr = document.getElementById('hudTimeAsr');
+            if (elAsr) elAsr.innerText = prayers.prayers.asr.civil;
+            const elSunset = document.getElementById('hudTimeSunset');
+            if (elSunset) elSunset.innerText = prayers.prayers.sunset.civil;
+            const elIshaa = document.getElementById('hudTimeIshaa');
+            if (elIshaa) elIshaa.innerText = prayers.prayers.ishaa.civil;
+
+            // تحديث تفاصيل العشائين
+            const elIshaDetails = document.getElementById('hudIshaDetails');
+            if (elIshaDetails && prayers.prayers.isha16) {
+                elIshaDetails.innerText = `${prayers.prayers.isha16.civil} / ${prayers.prayers.ishaa.civil}`;
+            }
+
+            // تحديد الصلاة الحالية بناءً على زاوية ساعة الشمس H_sun
+            const { H_fajr, H_sunrise, H_asr, H_sunset, H_ishaa } = prayers.hourAngles;
+            let currentPrayerName = 'الليل (العشاء)';
+            let currentPrayerColor = '#6366F1';
+            let activeCardId = 'hudCardIshaa';
+
+            if (H_sun >= -H_fajr && H_sun < -H_sunrise) {
+                currentPrayerName = 'الفجر الصادق';
+                currentPrayerColor = '#06B6D4';
+                activeCardId = 'hudCardFajr';
+            } else if (H_sun >= -H_sunrise && H_sun < 0) {
+                currentPrayerName = 'الضحى / الصباح';
+                currentPrayerColor = '#EAB308';
+                activeCardId = 'hudCardSunrise';
+            } else if (H_sun >= 0 && H_sun < H_asr) {
+                currentPrayerName = 'الظهر';
+                currentPrayerColor = '#FACC15';
+                activeCardId = 'hudCardDuhr';
+            } else if (H_sun >= H_asr && H_sun < H_sunset) {
+                currentPrayerName = 'العصر';
+                currentPrayerColor = '#F97316';
+                activeCardId = 'hudCardAsr';
+            } else if (H_sun >= H_sunset && H_sun < H_ishaa) {
+                currentPrayerName = 'المغرب والشفق';
+                currentPrayerColor = '#E11D48';
+                activeCardId = 'hudCardSunset';
+            }
+
+            const statusBadge = document.getElementById('hudSunTwilightStatus');
+            if (statusBadge) {
+                statusBadge.innerText = `🕌 وقت: ${currentPrayerName}`;
+                statusBadge.style.color = currentPrayerColor;
+                statusBadge.style.borderColor = currentPrayerColor;
+            }
+
+            // تمييز بطاقة الصلاة الحالية في شبكة الـ HUD
+            const cardIds = ['hudCardFajr', 'hudCardSunrise', 'hudCardDuhr', 'hudCardAsr', 'hudCardSunset', 'hudCardIshaa'];
+            cardIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === activeCardId) {
+                        el.style.boxShadow = `0 0 10px ${currentPrayerColor}`;
+                        el.style.transform = 'scale(1.03)';
+                    } else {
+                        el.style.boxShadow = 'none';
+                        el.style.transform = 'none';
+                    }
+                }
+            });
+        }
+
         function updateAstronomy(dateInput) {
             const simDate = dateInput || currentDate;
             const startOfYear = new Date(Date.UTC(simDate.getUTCFullYear(), 0, 1));
@@ -7334,17 +7786,8 @@ let cosmos3DInitialized = false;
                 updateTextBadgeSprite(ishaDiffLabelSprite, `⚡ الفارق: ${diffBetweenIshas}د`, '#38BDF8');
             }
 
-            // تحديث مدار الشمس اليومي الحالي المتحرك بلون ذهبي
-            if (currentSunOrbitLine) {
-                const curPts = [];
-                for (let k = 0; k <= 72; k++) {
-                    const H_cur = -Math.PI + (k / 72) * Math.PI * 2;
-                    const { alt: a_c, az: az_c } = computeHorizontalCoords(deltaSun, H_cur, phi);
-                    curPts.push(new THREE.Vector3(DOME_R * Math.cos(a_c) * Math.sin(az_c), DOME_R * Math.sin(a_c), -DOME_R * Math.cos(a_c) * Math.cos(az_c)));
-                }
-                currentSunOrbitLine.geometry.setFromPoints(curPts);
-                currentSunOrbitLine.computeLineDistances();
-            }
+            // تحديث أقواس مدار الشمس اليومي مقسمة حسب مواقيت الصلاة (الرُبع المُجَيَّب) بألوان متميزة
+            updatePrayerDiurnalArcs(deltaSun, phi, simDate, H_sun);
 
             // تحديث شريط المدارات الفصلي المباشر وبيانات مقارنة العشائين
             updateSeasonalBarUI(deltaSun, phi, sunsetTimeStr, isha16TimeStr, diff16Min, isha18TimeStr, diff18Min, diffBetweenIshas);
