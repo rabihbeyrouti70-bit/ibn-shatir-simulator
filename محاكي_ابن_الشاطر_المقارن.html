@@ -5893,6 +5893,7 @@ var cosmos3DInitialized = false;
         let showTwilightCircles = false;
         let isIshaFocusMode = false;
         let savedVisibilityBeforeIsha = null;
+        var show3DLabels = true;
         let celestialAxisLine, celestialEquatorLine, polarisStar, polarisOrbitLine, polarisLabelSprite;
         let currentSunOrbitLine = null;
         let currentSunsetSolarH = null;
@@ -6791,7 +6792,7 @@ var cosmos3DInitialized = false;
             ctx.stroke();
 
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 30px "Cairo", "Segoe UI", sans-serif';
+            ctx.font = 'bold 34px "Segoe UI Emoji", "Cairo", "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -6819,7 +6820,7 @@ var cosmos3DInitialized = false;
             ctx.stroke();
 
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 30px "Cairo", "Segoe UI", sans-serif';
+            ctx.font = 'bold 34px "Segoe UI Emoji", "Cairo", "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -7636,17 +7637,18 @@ var cosmos3DInitialized = false;
             // وسوم أوقات الصلاة الثلاثية الأبعاد على مدار الشمس
             prayerDiurnalSprites = {};
             const pBadgeDefs = [
-                { key: 'fajr', title: '🌅 الفجر', color: '#06B6D4', offset: 12 },
-                { key: 'sunrise', title: '☀️ الشروق', color: '#EAB308', offset: 12 },
-                { key: 'dhuha', title: '🌤️ الضحى (5°)', color: '#10B981', offset: 12 },
-                { key: 'duhr', title: '☀️ الظهر', color: '#FACC15', offset: 12 },
-                { key: 'asr', title: '🌤️ العصر الشافعي', color: '#F97316', offset: 12 },
-                { key: 'asrHanafi', title: '🌤️ العصر الحنفي', color: '#A855F7', offset: 18 },
-                { key: 'sunset', title: '🌇 المغرب', color: '#E11D48', offset: 12 },
-                { key: 'ishaa', title: '🌌 العشاء', color: '#6366F1', offset: 12 }
+                { key: 'fajr', title: '🌅 الفجر', color: '#06B6D4', offset: 14 },
+                { key: 'sunrise', title: '☀️ الشروق', color: '#EAB308', offset: 14 },
+                { key: 'dhuha', title: '🌤️ الضحى (5°)', color: '#10B981', offset: 14 },
+                { key: 'duhr', title: '☀️ الظهر', color: '#FACC15', offset: 14 },
+                { key: 'asr', title: '🌤️ العصر الشافعي', color: '#F97316', offset: 14 },
+                { key: 'asrHanafi', title: '🌤️ العصر الحنفي', color: '#A855F7', offset: 20 },
+                { key: 'sunset', title: '🌇 المغرب', color: '#E11D48', offset: 14 },
+                { key: 'ishaa', title: '🌌 العشاء', color: '#6366F1', offset: 14 }
             ];
             pBadgeDefs.forEach(b => {
                 const sp = createTextBadgeSprite(`${b.title} --:--`, b.color, 26, 6.2);
+                sp.renderOrder = 998;
                 sp.visible = show3DLabels;
                 prayerDiurnalArcsGroup.add(sp);
                 prayerDiurnalSprites[b.key] = sp;
@@ -7665,7 +7667,8 @@ var cosmos3DInitialized = false;
                 { key: 'night', color: '#6366F1' }
             ];
             durDefs.forEach(d => {
-                const sp = createTextBadgeSprite('⏱️ --:--', d.color, 16, 4.4);
+                const sp = createTextBadgeSprite('⏱️ --:--', d.color, 26, 6.2);
+                sp.renderOrder = 999;
                 sp.visible = show3DLabels;
                 prayerDiurnalArcsGroup.add(sp);
                 prayerArcDurationSprites[d.key] = sp;
@@ -7800,8 +7803,10 @@ var cosmos3DInitialized = false;
                 durConfigs.forEach(d => {
                     const sp = prayerArcDurationSprites[d.key];
                     if (sp) {
-                        const p = getOrbitPosAtH(d.H, 2); // في وسط القوس مباشرة محاذية للمدار
+                        const p = getOrbitPosAtH(d.H, -14); // وضع الوسم بوضوح داخل القوس بانحناء -14 لتجنب أي تداخل مع الخط أو وسوم الصلوات
                         sp.position.set(p.x, p.y, p.z);
+                        sp.scale.set(26, 6.2, 1);
+                        sp.renderOrder = 999;
                         const durText = formatArcDur(d.min);
                         if (sp.userData.lastText !== durText) {
                             sp.userData.lastText = durText;
@@ -8388,7 +8393,6 @@ var cosmos3DInitialized = false;
         // ☀️ دوال تحريك المدارات الفصيلة بالماوس ومقارنة العشائين
         // ==========================================
         
-        let show3DLabels = true;
         function toggle3DLabels() {
             show3DLabels = !show3DLabels;
             if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
