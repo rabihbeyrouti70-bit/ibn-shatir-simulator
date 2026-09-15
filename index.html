@@ -6309,6 +6309,21 @@ var cosmos3DInitialized = false;
             'القوس ♐', 'الجدي ♑', 'الدلو ♒', 'الحوت ♓'
         ];
 
+        var C3D_MONTHS_INFO = [
+            { num: 1, name: 'كانون الثاني (يناير)', sign: 'الجدي ♑', note: '❄️ أبرد فترات الشتاء' },
+            { num: 2, name: 'شباط (فبراير)', sign: 'الدلو ♒', note: '🌦️ أواخر الشتاء' },
+            { num: 3, name: 'آذار (مارس)', sign: 'الحوت ♓', note: '🌸 الاعتدال الربيعي' },
+            { num: 4, name: 'نيسان (أبريل)', sign: 'الحمل ♈', note: '🌱 الربيع' },
+            { num: 5, name: 'أيار (مايو)', sign: 'الثور ♉', note: '🌿 أواخر الربيع' },
+            { num: 6, name: 'حزيران (يونيو)', sign: 'الجوزاء ♊', note: '☀️ الانقلاب الصيفي' },
+            { num: 7, name: 'تموز (يوليو)', sign: 'السرطان ♋', note: '🔥 ذروة حرارة الصيف' },
+            { num: 8, name: 'آب (أغسطس)', sign: 'الأسد ♌', note: '☀️ الصيف' },
+            { num: 9, name: 'أيلول (سبتمبر)', sign: 'السنبلة ♍', note: '🍂 الاعتدال الخريفي' },
+            { num: 10, name: 'تشرين الأول (أكتوبر)', sign: 'الميزان ♎', note: '🍁 الخريف' },
+            { num: 11, name: 'تشرين الثاني (نوفمبر)', sign: 'العقرب ♏', note: '🌧️ أواخر الخريف' },
+            { num: 12, name: 'كانون الأول (ديسمبر)', sign: 'القوس ♐', note: '❄️ الانقلاب الشتوي' }
+        ];
+
         // Polyfill for roundRect on older browsers
         if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
             CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, radii) {
@@ -8636,20 +8651,22 @@ var cosmos3DInitialized = false;
             showToast(`☀️ تم الانتقال إلى مدار: ${name}`);
         }
 
-        const C3D_MONTHS_INFO = [
-            { num: 1, name: 'كانون الثاني (يناير)', sign: 'الجدي ♑', note: '❄️ أبرد فترات الشتاء' },
-            { num: 2, name: 'شباط (فبراير)', sign: 'الدلو ♒', note: '🌦️ أواخر الشتاء' },
-            { num: 3, name: 'آذار (مارس)', sign: 'الحوت ♓', note: '🌸 الاعتدال الربيعي' },
-            { num: 4, name: 'نيسان (أبريل)', sign: 'الحمل ♈', note: '🌱 الربيع' },
-            { num: 5, name: 'أيار (مايو)', sign: 'الثور ♉', note: '🌿 أواخر الربيع' },
-            { num: 6, name: 'حزيران (يونيو)', sign: 'الجوزاء ♊', note: '☀️ الانقلاب الصيفي' },
-            { num: 7, name: 'تموز (يوليو)', sign: 'السرطان ♋', note: '🔥 ذروة حرارة الصيف' },
-            { num: 8, name: 'آب (أغسطس)', sign: 'الأسد ♌', note: '☀️ الصيف' },
-            { num: 9, name: 'أيلول (سبتمبر)', sign: 'السنبلة ♍', note: '🍂 الاعتدال الخريفي' },
-            { num: 10, name: 'تشرين الأول (أكتوبر)', sign: 'الميزان ♎', note: '🍁 الخريف' },
-            { num: 11, name: 'تشرين الثاني (نوفمبر)', sign: 'العقرب ♏', note: '🌧️ أواخر الخريف' },
-            { num: 12, name: 'كانون الأول (ديسمبر)', sign: 'القوس ♐', note: '❄️ الانقلاب الشتوي' }
-        ];
+        if (typeof C3D_MONTHS_INFO === 'undefined') {
+            var C3D_MONTHS_INFO = [
+                { num: 1, name: 'كانون الثاني (يناير)', sign: 'الجدي ♑', note: '❄️ أبرد فترات الشتاء' },
+                { num: 2, name: 'شباط (فبراير)', sign: 'الدلو ♒', note: '🌦️ أواخر الشتاء' },
+                { num: 3, name: 'آذار (مارس)', sign: 'الحوت ♓', note: '🌸 الاعتدال الربيعي' },
+                { num: 4, name: 'نيسان (أبريل)', sign: 'الحمل ♈', note: '🌱 الربيع' },
+                { num: 5, name: 'أيار (مايو)', sign: 'الثور ♉', note: '🌿 أواخر الربيع' },
+                { num: 6, name: 'حزيران (يونيو)', sign: 'الجوزاء ♊', note: '☀️ الانقلاب الصيفي' },
+                { num: 7, name: 'تموز (يوليو)', sign: 'السرطان ♋', note: '🔥 ذروة حرارة الصيف' },
+                { num: 8, name: 'آب (أغسطس)', sign: 'الأسد ♌', note: '☀️ الصيف' },
+                { num: 9, name: 'أيلول (سبتمبر)', sign: 'السنبلة ♍', note: '🍂 الاعتدال الخريفي' },
+                { num: 10, name: 'تشرين الأول (أكتوبر)', sign: 'الميزان ♎', note: '🍁 الخريف' },
+                { num: 11, name: 'تشرين الثاني (نوفمبر)', sign: 'العقرب ♏', note: '🌧️ أواخر الخريف' },
+                { num: 12, name: 'كانون الأول (ديسمبر)', sign: 'القوس ♐', note: '❄️ الانقلاب الشتوي' }
+            ];
+        }
 
         function switchRightPanelTab(tabName) {
             const btnS = document.getElementById('btnTabSeasons');
@@ -8705,6 +8722,7 @@ var cosmos3DInitialized = false;
         }
 
         function syncMonthControlsUI(simDate) {
+            if (typeof C3D_MONTHS_INFO === 'undefined' || !C3D_MONTHS_INFO) return;
             const d = simDate || currentDate;
             const curM1 = d.getUTCMonth() + 1;
             const info = C3D_MONTHS_INFO[curM1 - 1];
@@ -8836,7 +8854,7 @@ var cosmos3DInitialized = false;
             }
 
             // مزامنة أدوات الشهور في اللوحة الجانبية وشريط الأدوات
-            syncMonthControlsUI(simDate);
+            syncMonthControlsUI(currentDate);
 
             // تحديث شريط القياسات اللحظية
             const elSet = document.getElementById('telemSunset');
