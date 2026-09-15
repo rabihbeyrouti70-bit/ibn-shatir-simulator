@@ -110,7 +110,28 @@ export const Cosmos3DView: React.FC<Cosmos3DViewProps> = ({ simDate }) => {
     camera.lookAt(0, 15, -45);
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    let renderer: THREE.WebGLRenderer | null = null;
+    const rendererConfigs: THREE.WebGLRendererParameters[] = [
+      { antialias: true, alpha: true, powerPreference: 'default' },
+      { antialias: false, alpha: true, powerPreference: 'default' },
+      { antialias: false, alpha: false, powerPreference: 'low-power' },
+      { antialias: false, alpha: false, failIfMajorPerformanceCaveat: false }
+    ];
+    for (const conf of rendererConfigs) {
+      try {
+        const r = new THREE.WebGLRenderer(conf);
+        if (r && (r.getContext ? r.getContext() : (r as any).context)) {
+          renderer = r;
+          break;
+        }
+      } catch (e) {
+        // continue
+      }
+    }
+    if (!renderer) {
+      console.error("WebGL context could not be created on this device/browser.");
+      return;
+    }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     mount.appendChild(renderer.domElement);

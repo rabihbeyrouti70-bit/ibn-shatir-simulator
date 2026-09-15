@@ -5079,11 +5079,19 @@ function switchTab(tab) {
     if(tab === 'cosmos3D') {
         applyUnifiedSpeed(0.0417, true);
         if(!cosmos3DInitialized && typeof init3D === 'function') {
-            init3D();
+            try {
+                init3D();
+            } catch (err) {
+                console.error('Cosmos3D initialization caught error:', err);
+            }
         }
         setTimeout(() => {
-            if(typeof onCosmos3DResize === 'function') onCosmos3DResize();
-            if(cosmos3DInitialized && typeof updateAstronomy === 'function') updateAstronomy(currentDate);
+            try {
+                if(typeof onCosmos3DResize === 'function') onCosmos3DResize();
+                if(cosmos3DInitialized && typeof updateAstronomy === 'function') updateAstronomy(currentDate);
+            } catch(e) {
+                console.warn('Post-cosmos3D resize error:', e);
+            }
         }, 60);
     }
 }
@@ -6220,6 +6228,65 @@ var cosmos3DInitialized = false;
             };
         }
 
+        function showWebGLErrorUI(container) {
+            if (!container) return;
+            container.innerHTML = `
+                <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#020617; color:#f8fafc; padding:24px; text-align:center; z-index:99; font-family:system-ui, -apple-system, sans-serif;">
+                    <div style="font-size:48px; margin-bottom:12px;">🪐⚠️</div>
+                    <h3 style="font-size:22px; font-weight:bold; color:#f87171; margin-bottom:8px;">تعذر تشغيل سياق الرسوميات ثلاثية الأبعاد (WebGL Context Error)</h3>
+                    <p style="font-size:14px; color:#94a3b8; max-width:640px; line-height:1.7; margin-bottom:16px;">
+                        المتصفح على جهاز Mac غير قادر على تفعيل محرك <strong>WebGL</strong> حالياً؛ وذلك بسبب إيقاف <strong>تسريع الأجهزة (Hardware Acceleration)</strong> أو تقييد WebGL في إعدادات المتصفح.
+                    </p>
+                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:16px 22px; max-width:640px; text-align:right; font-size:13px; line-height:1.8; color:#cbd5e1; margin-bottom:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                        <strong style="color:#38bdf8; font-size:14px;">🛠️ خطوات الحل السريع على نظام Mac (macOS):</strong><br>
+                        • <strong>لمستخدمي Google Chrome / Brave / Edge:</strong><br>
+                        &nbsp;&nbsp;1. افتح الإعدادات (Settings) ➔ النظام (System).<br>
+                        &nbsp;&nbsp;2. فعّل خيار <em>"استخدام تسريع الأجهزة عند توفره (Use graphics acceleration when available)"</em>.<br>
+                        &nbsp;&nbsp;3. أعد تشغيل المتصفح بالكامل (Relaunch).<br><br>
+                        • <strong>لمستخدمي Safari:</strong><br>
+                        &nbsp;&nbsp;1. من شريط القوائم: Safari ➔ Settings (أو Preferences) ➔ Advanced.<br>
+                        &nbsp;&nbsp;2. ضع علامة صح على <em>"Show features for web developers"</em>.<br>
+                        &nbsp;&nbsp;3. من القائمة العلوية <em>Develop</em> تأكد من تفعيل WebGL، أو من Websites ➔ WebGL اجعله Allow.<br><br>
+                        • <strong>فحص الدعم:</strong> يمكنك زيارة <a href="https://get.webgl.org" target="_blank" style="color:#60a5fa; text-decoration:underline; font-weight:bold;">get.webgl.org</a> للتحقق من دعم متصفحك لـ WebGL.
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+                        <button onclick="location.reload()" style="background:#2563eb; color:#fff; border:none; padding:10px 22px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:14px;">🔄 إعادة تحميل الصفحة (Reload)</button>
+                        <button onclick="switchTab('shatir')" style="background:#334155; color:#e2e8f0; border:none; padding:10px 22px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:14px;">🏛️ الانتقال لنماذج ابن الشاطر المستوية (2D)</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createSafeWebGLRenderer(width, height) {
+            const configs = [
+                { antialias: true, alpha: true, powerPreference: 'default' },
+                { antialias: false, alpha: true, powerPreference: 'default' },
+                { antialias: false, alpha: false, powerPreference: 'low-power' },
+                { antialias: false, alpha: false, failIfMajorPerformanceCaveat: false }
+            ];
+            for (let i = 0; i < configs.length; i++) {
+                try {
+                    const r = new THREE.WebGLRenderer(configs[i]);
+                    if (r && (r.getContext ? r.getContext() : r.context)) {
+                        return r;
+                    }
+                } catch (e) {
+                    console.warn('WebGLRenderer config attempt ' + i + ' failed:', e);
+                }
+            }
+            try {
+                const c = document.createElement('canvas');
+                const gl = c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl');
+                if (gl) {
+                    const r = new THREE.WebGLRenderer({ canvas: c, context: gl });
+                    if (r) return r;
+                }
+            } catch (e) {
+                console.warn('Manual canvas WebGL context attempt failed:', e);
+            }
+            return null;
+        }
+
         function init3D() {
             if (cosmos3DInitialized) return;
             if (typeof THREE === 'undefined' || typeof THREE.OrbitControls === 'undefined') {
@@ -6238,7 +6305,19 @@ var cosmos3DInitialized = false;
 
             camera = new THREE.PerspectiveCamera(48, width / height, 0.5, 3500);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            try {
+                renderer = createSafeWebGLRenderer(width, height);
+            } catch (err) {
+                console.warn('createSafeWebGLRenderer caught exception:', err);
+                renderer = null;
+            }
+
+            if (!renderer) {
+                console.error("THREE.WebGLRenderer: WebGL context could not be created on this device/browser.");
+                showWebGLErrorUI(container);
+                return;
+            }
+
             renderer.setSize(width, height);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
