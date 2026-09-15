@@ -1931,10 +1931,77 @@
         .diff-tag.current { background: rgba(245, 158, 11, 0.25); color: #FDE047; border: 1px solid rgba(245, 158, 11, 0.5); }
 
         @media (max-width: 960px) {
-            #cosmos3DContainer .c3d-side-panel-right { right: 8px; width: 115px; }
-            #cosmos3DContainer .c3d-side-panel-left { left: 8px; width: 125px; }
-            .seasonal-comparison-drawer { width: calc(100% - 280px); }
+            #cosmos3DContainer .c3d-side-panel-right { right: 6px; width: 120px; }
+            #cosmos3DContainer .c3d-side-panel-left { left: 6px; width: 125px; }
+            .seasonal-comparison-drawer { width: calc(100% - 270px); }
             #cosmos3DContainer .c3d-bottom-pill { font-size: 0.74em; gap: 6px; padding: 5px 10px; }
+        }
+
+        @media (max-width: 768px) {
+            #cosmos3DContainer {
+                height: 520px;
+                min-height: 440px;
+            }
+            #cosmos3DContainer .c3d-toolbar {
+                padding: 4px 6px;
+                gap: 4px;
+            }
+            #cosmos3DContainer .c3d-toolgroup {
+                padding: 2px 4px;
+            }
+            #cosmos3DContainer .c3d-side-panel-right {
+                right: 4px;
+                width: 110px;
+                top: auto;
+                bottom: 46px;
+                transform: none;
+                max-height: 230px;
+                padding: 6px 4px;
+                font-size: 0.88em;
+            }
+            #cosmos3DContainer .c3d-side-panel-left {
+                left: 4px;
+                width: 110px;
+                top: auto;
+                bottom: 46px;
+                transform: none;
+                max-height: 230px;
+                padding: 6px 4px;
+                font-size: 0.88em;
+            }
+            #cosmos3DContainer .c3d-side-panel-right.minimized,
+            #cosmos3DContainer .c3d-side-panel-left.minimized {
+                max-height: 32px;
+                overflow: hidden;
+                width: auto;
+                padding: 4px 8px;
+            }
+            #cosmos3DContainer .c3d-side-panel-right.minimized > *:not(.panel-collapse-bar),
+            #cosmos3DContainer .c3d-side-panel-left.minimized > *:not(.panel-collapse-bar) {
+                display: none !important;
+            }
+            #cosmos3DContainer .c3d-hint-pill {
+                display: none;
+            }
+            #cosmos3DContainer .c3d-bottom-pill {
+                bottom: 8px;
+                max-width: 95%;
+                font-size: 0.7em;
+                padding: 4px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #cosmos3DContainer {
+                height: 480px;
+                min-height: 400px;
+            }
+            #cosmos3DContainer .c3d-toolbar {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: flex-start;
+                -webkit-overflow-scrolling: touch;
+            }
         }
         
         /* ==================== 3D DASHBOARD GRID (BELOW VIEWPORT) ==================== */
@@ -2998,8 +3065,8 @@
             <!-- Month Stepper Group in Top Toolbar -->
             <div class="c3d-toolgroup" style="display:flex; align-items:center; gap:3px; padding:3px 8px;">
                 <span style="color:#34D399; font-size:0.8em; font-weight:800;">📅 الشهر:</span>
-                <button type="button" class="btn-view" style="padding:2px 7px; font-weight:800; color:#A7F3D0;" onclick="stepMonth(-1)" title="الانتقال للشهر السابق">◀</button>
-                <select id="c3dMonthSelect" class="btn-view" style="background:#0F172A; border-color:#059669; color:#6EE7B7; font-weight:700; padding:2px 6px; cursor:pointer;" onchange="snapMonth(parseInt(this.value))">
+                <button type="button" class="btn-view" style="padding:2px 7px; font-weight:800; color:#A7F3D0;" onclick="stepMonth(-1)" title="الانتقال للشهر السابق" aria-label="الانتقال للشهر السابق">◀</button>
+                <select id="c3dMonthSelect" class="btn-view" style="background:#0F172A; border-color:#059669; color:#6EE7B7; font-weight:700; padding:2px 6px; cursor:pointer;" onchange="snapMonth(parseInt(this.value))" aria-label="اختيار الشهر الفلكي">
                     <option value="1">1: كانون 2 (يناير) ♑</option>
                     <option value="2">2: شباط (فبراير) ♒</option>
                     <option value="3">3: آذار (مارس) ♓ 🌸</option>
@@ -3013,24 +3080,24 @@
                     <option value="11">11: تشرين 2 (نوفمبر) ♏</option>
                     <option value="12">12: كانون 1 (ديسمبر) ♐ ❄️</option>
                 </select>
-                <button type="button" class="btn-view" style="padding:2px 7px; font-weight:800; color:#A7F3D0;" onclick="stepMonth(1)" title="الانتقال للشهر التالي">▶</button>
+                <button type="button" class="btn-view" style="padding:2px 7px; font-weight:800; color:#A7F3D0;" onclick="stepMonth(1)" title="الانتقال للشهر التالي" aria-label="الانتقال للشهر التالي">▶</button>
             </div>
 
             <!-- Camera Presets Group -->
             <div class="c3d-toolgroup">
                 <span style="color:#94A3B8; font-size:0.8em; font-weight:bold;">👁️ الكاميرا:</span>
-                <button id="btnViewHorizon" class="btn-view" onclick="setCameraPreset('horizon')">الأفق</button>
-                <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')">★ القطب</button>
-                <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')">🌙 القمر</button>
-                <button id="btnViewSun" class="btn-view" onclick="setCameraPreset('sun')">☀️ الشمس</button>
-                <button id="btnViewOrbit" class="btn-view active" onclick="setCameraPreset('orbit')">🌌 كوني موسع</button>
-                <button id="btnViewPolar" class="btn-view" onclick="setCameraPreset('polar')">🧭 رأسي</button>
-                <button id="btnAutoRotate" class="btn-view" onclick="toggleAutoRotate()">🔄 تدوير</button>
+                <button id="btnViewHorizon" class="btn-view" onclick="setCameraPreset('horizon')" aria-label="منظور الأفق">الأفق</button>
+                <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')" aria-label="منظور نجم القطب الشمالي">★ القطب</button>
+                <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')" aria-label="التركيز على مدار القمر">🌙 القمر</button>
+                <button id="btnViewSun" class="btn-view" onclick="setCameraPreset('sun')" aria-label="التركيز على مدار الشمس">☀️ الشمس</button>
+                <button id="btnViewOrbit" class="btn-view active" onclick="setCameraPreset('orbit')" aria-label="عرض كوني موسع">🌌 كوني موسع</button>
+                <button id="btnViewPolar" class="btn-view" onclick="setCameraPreset('polar')" aria-label="عرض رأسي سمتي">🧭 رأسي</button>
+                <button id="btnAutoRotate" class="btn-view" onclick="toggleAutoRotate()" aria-label="تبديل الدوران التلقائي">🔄 تدوير</button>
             </div>
 
             <!-- Fullscreen Action -->
             <div class="c3d-toolgroup" style="padding:4px 8px;">
-                <button class="btn-view" style="background:#059669; border-color:#34D399; color:#FFF;" onclick="toggleCosmos3DFullscreen()">⛶ ملء الشاشة</button>
+                <button class="btn-view" style="background:#059669; border-color:#34D399; color:#FFF;" onclick="toggleCosmos3DFullscreen()" aria-label="عرض ملء الشاشة">⛶ ملء الشاشة</button>
             </div>
         </div>
 
@@ -3055,10 +3122,13 @@
 
         <!-- Right Vertical Panel: Seasonal & Monthly Sun Navigation -->
         <div id="c3dRightPanel" class="c3d-side-panel-right">
-            <!-- Mode Switch: Seasons vs Months -->
-            <div class="c3d-mode-switch" style="display:flex; width:100%; gap:2px; background:rgba(2,6,23,0.65); padding:2px; border-radius:8px; margin-bottom:2px;">
-                <button type="button" id="btnTabSeasons" class="c3d-switch-btn active" onclick="switchRightPanelTab('seasons')" title="التنقل بين فصول السنة والانقلابين">☀️ الفصول</button>
-                <button type="button" id="btnTabMonths" class="c3d-switch-btn" onclick="switchRightPanelTab('months')" title="التنقل المباشر بين شهور السنة الـ 12">📅 الشهور</button>
+            <div class="panel-collapse-bar" style="display:flex; align-items:center; justify-content:space-between; width:100%; cursor:pointer; gap:2px; margin-bottom:3px;" onclick="togglePanelCollapse(this)" title="نقر لطي / توسيع لوحة الفصول والشهور">
+                <!-- Mode Switch: Seasons vs Months -->
+                <div class="c3d-mode-switch" style="display:flex; flex:1; gap:2px; background:rgba(2,6,23,0.65); padding:2px; border-radius:8px;">
+                    <button type="button" id="btnTabSeasons" class="c3d-switch-btn active" onclick="event.stopPropagation(); switchRightPanelTab('seasons')" title="التنقل بين فصول السنة والانقلابين" aria-label="عرض لوحة الفصول">☀️ الفصول</button>
+                    <button type="button" id="btnTabMonths" class="c3d-switch-btn" onclick="event.stopPropagation(); switchRightPanelTab('months')" title="التنقل المباشر بين شهور السنة الـ 12" aria-label="عرض لوحة الشهور">📅 الشهور</button>
+                </div>
+                <span class="btn-toggle-icon" style="font-size:0.8em; color:var(--subtext); padding:0 3px; font-weight:bold;">−</span>
             </div>
 
             <!-- Panel 1: Seasons Navigation -->
@@ -3116,8 +3186,13 @@
 
         <!-- Left Vertical Panel: Orbit Tilt Angle & Cities -->
         <div id="c3dLeftPanel" class="c3d-side-panel-left">
-            <div class="panel-header-title" style="color:#38BDF8;">
-                🌐 زاوية المدارات<br>
+            <div class="panel-collapse-bar" style="display:flex; align-items:center; justify-content:space-between; width:100%; cursor:pointer; gap:4px; margin-bottom:2px;" onclick="togglePanelCollapse(this)" title="نقر لطي / توسيع لوحة زاوية المدارات والمدن">
+                <div class="panel-header-title" style="color:#38BDF8; margin:0;">
+                    🌐 زاوية المدارات
+                </div>
+                <span class="btn-toggle-icon" style="font-size:0.8em; color:var(--subtext); padding:0 3px; font-weight:bold;">−</span>
+            </div>
+            <div style="text-align:center; width:100%;">
                 <span id="c3dCityAngleBadge" class="c3d-city-badge">📍 دمشق (33.5°)</span>
             </div>
             <span style="font-size:0.7em; color:#94A3B8; cursor:pointer;" onclick="snapCityLat(90.0, 'pole_n')">+90° القطب الشمالي</span>
@@ -6291,6 +6366,9 @@ var cosmos3DInitialized = false;
         let sunSightlineRay, moonSightlineRay;
         let planetMeshes = {};
         let cameraPreset = 'orbit';
+        let lastPrayerArcsDecl = null;
+        let lastPrayerArcsPhi = null;
+        let forceRebuildPrayerArcs = true;
 
         // نصف قطر القبة السماوية
         const DOME_R = 140;
@@ -6842,6 +6920,7 @@ var cosmos3DInitialized = false;
 
         function rebuildSeasonalArcs() {
             cleanThreeGroup(seasonalArcsGroup);
+            forceRebuildPrayerArcs = true;
 
             const phi = currentLatRad;
 
@@ -7012,6 +7091,11 @@ var cosmos3DInitialized = false;
 
         function updateTextBadgeSprite(sprite, text, color) {
             if (!sprite || !sprite.material || !sprite.material.map) return;
+            if (sprite.userData && sprite.userData.lastText === text && sprite.userData.lastColor === color) return;
+            if (!sprite.userData) sprite.userData = {};
+            sprite.userData.lastText = text;
+            sprite.userData.lastColor = color;
+
             const canvas = sprite.material.map.image;
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -8269,21 +8353,32 @@ var cosmos3DInitialized = false;
             }
 
             // تحديث أقواس مدار الشمس اليومي مقسمة حسب مواقيت الصلاة (الرُبع المُجَيَّب) بألوان متميزة
-            updatePrayerDiurnalArcs(deltaSun, phi, simDate, H_sun);
+            const arcsNeedUpdate = forceRebuildPrayerArcs ||
+                lastPrayerArcsDecl === null ||
+                Math.abs(deltaSun - lastPrayerArcsDecl) > 0.0003 ||
+                Math.abs(phi - lastPrayerArcsPhi) > 0.0003;
+
+            if (arcsNeedUpdate) {
+                updatePrayerDiurnalArcs(deltaSun, phi, simDate, H_sun);
+
+                // رسم قوس هبوط الشمس الشفقي الغاطس من الغروب إلى زاوية 18°
+                if (twilightDescendingArcLine && H_sunset !== null && H_isha18 !== null) {
+                    const descPts = [];
+                    for (let k = 0; k <= 24; k++) {
+                        const hCur = H_sunset + (k / 24) * (H_isha18 - H_sunset);
+                        const { alt: a, az } = computeHorizontalCoords(deltaSun, hCur, phi);
+                        descPts.push(new THREE.Vector3(DOME_R * Math.cos(a) * Math.sin(az), DOME_R * Math.sin(a), -DOME_R * Math.cos(a) * Math.cos(az)));
+                    }
+                    twilightDescendingArcLine.geometry.setFromPoints(descPts);
+                }
+
+                lastPrayerArcsDecl = deltaSun;
+                lastPrayerArcsPhi = phi;
+                forceRebuildPrayerArcs = false;
+            }
 
             // تحديث شريط المدارات الفصلي المباشر وبيانات مقارنة العشائين
             updateSeasonalBarUI(deltaSun, phi, sunsetTimeStr, isha16TimeStr, diff16Min, isha18TimeStr, diff18Min, diffBetweenIshas);
-
-            // رسم قوس هبوط الشمس الشفقي الغاطس من الغروب إلى زاوية 18°
-            if (twilightDescendingArcLine && H_sunset !== null && H_isha18 !== null) {
-                const descPts = [];
-                for (let k = 0; k <= 24; k++) {
-                    const hCur = H_sunset + (k / 24) * (H_isha18 - H_sunset);
-                    const { alt: a, az } = computeHorizontalCoords(deltaSun, hCur, phi);
-                    descPts.push(new THREE.Vector3(DOME_R * Math.cos(a) * Math.sin(az), DOME_R * Math.sin(a), -DOME_R * Math.cos(a) * Math.cos(az)));
-                }
-                twilightDescendingArcLine.geometry.setFromPoints(descPts);
-            }
 
             // تحديد الحالة اللحظية للشمس والشفق بدقة مع التمييز بين الفجر الصباحي والعشاء المسائي
             const altSunDeg = altSun * 180 / Math.PI;
@@ -8638,6 +8733,8 @@ var cosmos3DInitialized = false;
 
             currentDate = new Date(Date.UTC(y, 0, 1 + Math.floor(dayOfYear), curH, curM, curS));
             updateDateTimeUI();
+            forceRebuildPrayerArcs = true;
+            lastBarDecl = null;
             if (cosmos3DInitialized) {
                 updateAstronomy(currentDate);
                 if (renderer && scene && camera) renderer.render(scene, camera);
@@ -8666,6 +8763,14 @@ var cosmos3DInitialized = false;
                 { num: 11, name: 'تشرين الثاني (نوفمبر)', sign: 'العقرب ♏', note: '🌧️ أواخر الخريف' },
                 { num: 12, name: 'كانون الأول (ديسمبر)', sign: 'القوس ♐', note: '❄️ الانقلاب الشتوي' }
             ];
+        }
+
+        function togglePanelCollapse(el) {
+            const panel = el.closest('.c3d-side-panel-right, .c3d-side-panel-left');
+            if (!panel) return;
+            const isMin = panel.classList.toggle('minimized');
+            const icon = panel.querySelector('.btn-toggle-icon');
+            if (icon) icon.innerText = isMin ? '+' : '−';
         }
 
         function switchRightPanelTab(tabName) {
@@ -8704,6 +8809,8 @@ var cosmos3DInitialized = false;
 
             currentDate = new Date(Date.UTC(y, targetMonth0, d, curH, curM, curS));
             updateDateTimeUI();
+            forceRebuildPrayerArcs = true;
+            lastBarDecl = null;
             if (cosmos3DInitialized) {
                 updateAstronomy(currentDate);
                 syncMonthControlsUI(currentDate);
@@ -8721,10 +8828,14 @@ var cosmos3DInitialized = false;
             snapMonth(nextM);
         }
 
+        let lastSyncedMonth = null;
         function syncMonthControlsUI(simDate) {
             if (typeof C3D_MONTHS_INFO === 'undefined' || !C3D_MONTHS_INFO) return;
             const d = simDate || currentDate;
             const curM1 = d.getUTCMonth() + 1;
+            if (curM1 === lastSyncedMonth) return;
+            lastSyncedMonth = curM1;
+
             const info = C3D_MONTHS_INFO[curM1 - 1];
 
             const badge = document.getElementById('c3dMonthBadge');
@@ -8817,9 +8928,20 @@ var cosmos3DInitialized = false;
             };
         }
 
+        let lastBarDecl = null;
+        let lastBarPhi = null;
         function updateSeasonalBarUI(deltaSun, phi, sunsetStr, isha16Str, diff16, isha18Str, diff18, diffBetween) {
             const declDeg = deltaSun * 180 / Math.PI;
             const isPole = Math.abs(Math.cos(phi)) < 0.001;
+
+            if (!isDraggingSeasonalOrbit && lastBarDecl !== null &&
+                Math.abs(declDeg - lastBarDecl) < 0.04 &&
+                Math.abs(phi - lastBarPhi) < 0.0005) {
+                syncMonthControlsUI(currentDate);
+                return;
+            }
+            lastBarDecl = declDeg;
+            lastBarPhi = phi;
 
             if (isPole) {
                 sunsetStr = declDeg >= 0 ? 'نهار قطبي مستمر (شمس منتصف الليل)' : 'ليل قطبي مستمر';
