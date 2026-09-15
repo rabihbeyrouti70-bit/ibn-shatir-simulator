@@ -1666,7 +1666,7 @@
             right: 14px;
             top: 50%;
             transform: translateY(-50%);
-            width: 142px;
+            width: 155px;
             z-index: 10;
             background: rgba(15, 23, 42, 0.92);
             backdrop-filter: blur(12px);
@@ -1794,6 +1794,47 @@
             border-color: #38BDF8;
             color: #FFF;
             box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+        }
+        .btn-season-snap.month-active {
+            background: linear-gradient(135deg, #059669, #047857) !important;
+            border-color: #34D399 !important;
+            color: #FFF !important;
+            box-shadow: 0 0 8px rgba(52, 211, 153, 0.45) !important;
+        }
+        .c3d-switch-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            padding: 3px 4px;
+            border-radius: 6px;
+            font-size: 0.72em;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .c3d-switch-btn:hover {
+            color: #FFF;
+        }
+        .c3d-switch-btn.active {
+            background: rgba(245, 158, 11, 0.25);
+            color: #FDE047;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+        .c3d-month-badge {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(52, 211, 153, 0.45);
+            color: #6EE7B7;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.78em;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 3px;
+            white-space: nowrap;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .btn-season-action {
             background: rgba(99, 102, 241, 0.22);
@@ -2954,6 +2995,27 @@
                 </div>
             </div>
 
+            <!-- Month Stepper Group in Top Toolbar -->
+            <div class="c3d-toolgroup" style="display:flex; align-items:center; gap:3px; padding:3px 8px;">
+                <span style="color:#34D399; font-size:0.8em; font-weight:800;">📅 الشهر:</span>
+                <button type="button" class="btn-view" style="padding:2px 7px; font-weight:800; color:#A7F3D0;" onclick="stepMonth(-1)" title="الانتقال للشهر السابق">◀</button>
+                <select id="c3dMonthSelect" class="btn-view" style="background:#0F172A; border-color:#059669; color:#6EE7B7; font-weight:700; padding:2px 6px; cursor:pointer;" onchange="snapMonth(parseInt(this.value))">
+                    <option value="1">1: كانون 2 (يناير) ♑</option>
+                    <option value="2">2: شباط (فبراير) ♒</option>
+                    <option value="3">3: آذار (مارس) ♓ 🌸</option>
+                    <option value="4">4: نيسان (أبريل) ♈</option>
+                    <option value="5">5: أيار (مايو) ♉</option>
+                    <option value="6">6: حزيران (يونيو) ♊ ☀️</option>
+                    <option value="7">7: تموز (يوليو) ♋</option>
+                    <option value="8">8: آب (أغسطس) ♌</option>
+                    <option value="9">9: أيلول (سبتمبر) ♍ 🍂</option>
+                    <option value="10">10: تشرين 1 (أكتوبر) ♎</option>
+                    <option value="11">11: تشرين 2 (نوفمبر) ♏</option>
+                    <option value="12">12: كانون 1 (ديسمبر) ♐ ❄️</option>
+                </select>
+                <button type="button" class="btn-view" style="padding:2px 7px; font-weight:800; color:#A7F3D0;" onclick="stepMonth(1)" title="الانتقال للشهر التالي">▶</button>
+            </div>
+
             <!-- Camera Presets Group -->
             <div class="c3d-toolgroup">
                 <span style="color:#94A3B8; font-size:0.8em; font-weight:bold;">👁️ الكاميرا:</span>
@@ -2991,25 +3053,64 @@
             </div>
         </div>
 
-        <!-- Right Vertical Panel: Seasonal Sun Declination -->
+        <!-- Right Vertical Panel: Seasonal & Monthly Sun Navigation -->
         <div id="c3dRightPanel" class="c3d-side-panel-right">
-            <div class="panel-header-title" style="color:var(--gold);">
-                ☀️ فصول السنة<br>
-                <span id="c3dDeclBadge" class="c3d-decl-badge">0.0°</span>
+            <!-- Mode Switch: Seasons vs Months -->
+            <div class="c3d-mode-switch" style="display:flex; width:100%; gap:2px; background:rgba(2,6,23,0.65); padding:2px; border-radius:8px; margin-bottom:2px;">
+                <button type="button" id="btnTabSeasons" class="c3d-switch-btn active" onclick="switchRightPanelTab('seasons')" title="التنقل بين فصول السنة والانقلابين">☀️ الفصول</button>
+                <button type="button" id="btnTabMonths" class="c3d-switch-btn" onclick="switchRightPanelTab('months')" title="التنقل المباشر بين شهور السنة الـ 12">📅 الشهور</button>
             </div>
-            <button type="button" id="btnSeasonSummer" class="btn-season-snap" onclick="snapSeason(23.516)" title="الانقلاب الصيفي">☀️ صيف (+23.5°)</button>
-            <div class="v-slider-box">
-                <input type="range" id="seasonalSlider" min="-23.516" max="23.516" step="0.2" value="0" 
-                       onpointerdown="isDraggingSeasonalOrbit = true"
-                       onpointerup="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
-                       ontouchstart="isDraggingSeasonalOrbit = true"
-                       ontouchend="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
-                       onchange="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
-                       oninput="onSeasonalSliderInput(parseFloat(this.value))" 
-                       title="اسحب رأسياً لتعديل ميل المدار الشمسي فصلياً">
+
+            <!-- Panel 1: Seasons Navigation -->
+            <div id="panelSeasonsView" style="display:flex; flex-direction:column; align-items:center; gap:5px; width:100%;">
+                <div class="panel-header-title" style="color:var(--gold);">
+                    ☀️ فصول السنة<br>
+                    <span id="c3dDeclBadge" class="c3d-decl-badge">0.0°</span>
+                </div>
+                <button type="button" id="btnSeasonSummer" class="btn-season-snap" onclick="snapSeason(23.516)" title="الانقلاب الصيفي">☀️ صيف (+23.5°)</button>
+                <div class="v-slider-box">
+                    <input type="range" id="seasonalSlider" min="-23.516" max="23.516" step="0.2" value="0" 
+                           onpointerdown="isDraggingSeasonalOrbit = true"
+                           onpointerup="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
+                           ontouchstart="isDraggingSeasonalOrbit = true"
+                           ontouchend="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
+                           onchange="isDraggingSeasonalOrbit = false; if(cosmos3DInitialized) updateAstronomy(currentDate);"
+                           oninput="onSeasonalSliderInput(parseFloat(this.value))" 
+                           title="اسحب رأسياً لتعديل ميل المدار الشمسي فصلياً">
+                </div>
+                <button type="button" id="btnSeasonEquinox" class="btn-season-snap active" onclick="snapSeason(0.0)" title="الاعتدالين">⚖️ اعتدال (0°)</button>
+                <button type="button" id="btnSeasonWinter" class="btn-season-snap" onclick="snapSeason(-23.516)" title="الانقلاب الشتوي">❄️ شتاء (-23.5°)</button>
             </div>
-            <button type="button" id="btnSeasonEquinox" class="btn-season-snap active" onclick="snapSeason(0.0)" title="الاعتدالين">⚖️ اعتدال (0°)</button>
-            <button type="button" id="btnSeasonWinter" class="btn-season-snap" onclick="snapSeason(-23.516)" title="الانقلاب الشتوي">❄️ شتاء (-23.5°)</button>
+
+            <!-- Panel 2: Months Navigation -->
+            <div id="panelMonthsView" style="display:none; flex-direction:column; align-items:center; gap:4px; width:100%;">
+                <div class="panel-header-title" style="color:#34D399;">
+                    📅 شهور السنة<br>
+                    <span id="c3dMonthBadge" class="c3d-month-badge">3 - آذار (مارس) ♓</span>
+                </div>
+                <!-- Stepper Buttons -->
+                <div style="display:flex; gap:3px; width:100%; margin-top:1px;">
+                    <button type="button" class="btn-season-snap" style="flex:1; padding:3px 2px;" onclick="stepMonth(-1)" title="الشهر السابق">◀ سابق</button>
+                    <button type="button" class="btn-season-snap" style="flex:1; padding:3px 2px;" onclick="stepMonth(1)" title="الشهر التالي">تالي ▶</button>
+                </div>
+                <!-- 12 Months Scrollable List -->
+                <div id="c3dMonthsList" style="display:flex; flex-direction:column; gap:2.5px; width:100%; max-height:165px; overflow-y:auto; margin-top:2px;">
+                    <button type="button" class="btn-season-snap btn-m-1" onclick="snapMonth(1)">1: كانون 2 (يناير) ♑</button>
+                    <button type="button" class="btn-season-snap btn-m-2" onclick="snapMonth(2)">2: شباط (فبراير) ♒</button>
+                    <button type="button" class="btn-season-snap btn-m-3" onclick="snapMonth(3)">3: آذار (مارس) ♓ 🌸</button>
+                    <button type="button" class="btn-season-snap btn-m-4" onclick="snapMonth(4)">4: نيسان (أبريل) ♈</button>
+                    <button type="button" class="btn-season-snap btn-m-5" onclick="snapMonth(5)">5: أيار (مايو) ♉</button>
+                    <button type="button" class="btn-season-snap btn-m-6" onclick="snapMonth(6)">6: حزيران (يونيو) ♊ ☀️</button>
+                    <button type="button" class="btn-season-snap btn-m-7" onclick="snapMonth(7)">7: تموز (يوليو) ♋</button>
+                    <button type="button" class="btn-season-snap btn-m-8" onclick="snapMonth(8)">8: آب (أغسطس) ♌</button>
+                    <button type="button" class="btn-season-snap btn-m-9" onclick="snapMonth(9)">9: أيلول (سبتمبر) ♍ 🍂</button>
+                    <button type="button" class="btn-season-snap btn-m-10" onclick="snapMonth(10)">10: تشرين 1 (أكتوبر) ♎</button>
+                    <button type="button" class="btn-season-snap btn-m-11" onclick="snapMonth(11)">11: تشرين 2 (نوفمبر) ♏</button>
+                    <button type="button" class="btn-season-snap btn-m-12" onclick="snapMonth(12)">12: كانون 1 (ديسمبر) ♐ ❄️</button>
+                </div>
+            </div>
+
+            <!-- Global Action for both Seasons and Months -->
             <button type="button" class="btn-season-action" onclick="jumpToSunsetTime()" style="width:100%; margin-top:4px;" title="ضبط التوقيت لحظة الغروب">🌅 قفز للغروب</button>
         </div>
 
@@ -8535,6 +8636,98 @@ var cosmos3DInitialized = false;
             showToast(`☀️ تم الانتقال إلى مدار: ${name}`);
         }
 
+        const C3D_MONTHS_INFO = [
+            { num: 1, name: 'كانون الثاني (يناير)', sign: 'الجدي ♑', note: '❄️ أبرد فترات الشتاء' },
+            { num: 2, name: 'شباط (فبراير)', sign: 'الدلو ♒', note: '🌦️ أواخر الشتاء' },
+            { num: 3, name: 'آذار (مارس)', sign: 'الحوت ♓', note: '🌸 الاعتدال الربيعي' },
+            { num: 4, name: 'نيسان (أبريل)', sign: 'الحمل ♈', note: '🌱 الربيع' },
+            { num: 5, name: 'أيار (مايو)', sign: 'الثور ♉', note: '🌿 أواخر الربيع' },
+            { num: 6, name: 'حزيران (يونيو)', sign: 'الجوزاء ♊', note: '☀️ الانقلاب الصيفي' },
+            { num: 7, name: 'تموز (يوليو)', sign: 'السرطان ♋', note: '🔥 ذروة حرارة الصيف' },
+            { num: 8, name: 'آب (أغسطس)', sign: 'الأسد ♌', note: '☀️ الصيف' },
+            { num: 9, name: 'أيلول (سبتمبر)', sign: 'السنبلة ♍', note: '🍂 الاعتدال الخريفي' },
+            { num: 10, name: 'تشرين الأول (أكتوبر)', sign: 'الميزان ♎', note: '🍁 الخريف' },
+            { num: 11, name: 'تشرين الثاني (نوفمبر)', sign: 'العقرب ♏', note: '🌧️ أواخر الخريف' },
+            { num: 12, name: 'كانون الأول (ديسمبر)', sign: 'القوس ♐', note: '❄️ الانقلاب الشتوي' }
+        ];
+
+        function switchRightPanelTab(tabName) {
+            const btnS = document.getElementById('btnTabSeasons');
+            const btnM = document.getElementById('btnTabMonths');
+            const panS = document.getElementById('panelSeasonsView');
+            const panM = document.getElementById('panelMonthsView');
+            if (!btnS || !btnM || !panS || !panM) return;
+            
+            if (tabName === 'months') {
+                btnS.classList.remove('active');
+                btnM.classList.add('active');
+                panS.style.display = 'none';
+                panM.style.display = 'flex';
+                syncMonthControlsUI(currentDate);
+            } else {
+                btnM.classList.remove('active');
+                btnS.classList.add('active');
+                panM.style.display = 'none';
+                panS.style.display = 'flex';
+            }
+        }
+
+        function snapMonth(month1Based) {
+            isDraggingSeasonalOrbit = false;
+            const y = currentDate.getUTCFullYear();
+            const targetMonth0 = Math.max(0, Math.min(11, month1Based - 1));
+            
+            let d = currentDate.getUTCDate();
+            const daysInMonth = new Date(Date.UTC(y, targetMonth0 + 1, 0)).getUTCDate();
+            if (d > daysInMonth) d = daysInMonth;
+
+            const curH = currentDate.getUTCHours();
+            const curM = currentDate.getUTCMinutes();
+            const curS = currentDate.getUTCSeconds();
+
+            currentDate = new Date(Date.UTC(y, targetMonth0, d, curH, curM, curS));
+            updateDateTimeUI();
+            if (cosmos3DInitialized) {
+                updateAstronomy(currentDate);
+                syncMonthControlsUI(currentDate);
+                if (renderer && scene && camera) renderer.render(scene, camera);
+            }
+            const info = C3D_MONTHS_INFO[targetMonth0];
+            showToast(`📅 تم الانتقال إلى: ${info.name} (${info.sign}) ${info.note ? '— ' + info.note : ''}`);
+        }
+
+        function stepMonth(delta) {
+            const curM = currentDate.getUTCMonth() + 1;
+            let nextM = curM + delta;
+            if (nextM < 1) nextM = 12;
+            if (nextM > 12) nextM = 1;
+            snapMonth(nextM);
+        }
+
+        function syncMonthControlsUI(simDate) {
+            const d = simDate || currentDate;
+            const curM1 = d.getUTCMonth() + 1;
+            const info = C3D_MONTHS_INFO[curM1 - 1];
+
+            const badge = document.getElementById('c3dMonthBadge');
+            if (badge && info) {
+                const shortName = info.name.split(' ')[0];
+                badge.innerText = `${curM1} - ${shortName} ${info.sign}`;
+            }
+
+            for (let i = 1; i <= 12; i++) {
+                const btn = document.querySelector(`.btn-m-${i}`);
+                if (btn) {
+                    btn.classList.toggle('month-active', i === curM1);
+                }
+            }
+
+            const sel = document.getElementById('c3dMonthSelect');
+            if (sel && sel.value != curM1) {
+                sel.value = curM1;
+            }
+        }
+
         function onSeasonalSliderInput(val) {
             isDraggingSeasonalOrbit = true;
             setSeasonalDeclination(val);
@@ -8641,6 +8834,9 @@ var cosmos3DInitialized = false;
                 btnE.classList.toggle('active', Math.abs(declDeg) <= 2);
                 btnS.classList.toggle('active', declDeg >= 22);
             }
+
+            // مزامنة أدوات الشهور في اللوحة الجانبية وشريط الأدوات
+            syncMonthControlsUI(simDate);
 
             // تحديث شريط القياسات اللحظية
             const elSet = document.getElementById('telemSunset');

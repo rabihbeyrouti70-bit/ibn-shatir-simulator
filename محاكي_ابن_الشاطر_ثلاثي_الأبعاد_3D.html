@@ -556,6 +556,26 @@
                 <button class="btn-ui" onclick="jumpToSeason('autumn')">🍂 اعتدال خريفي</button>
                 <button class="btn-ui" onclick="jumpToSeason('winter')">❄️ انقلاب شتوي</button>
             </div>
+
+            <div class="bar-group" style="display:flex; align-items:center; gap:3px;">
+                <span style="color:#34D399; font-weight:800; font-size:0.86em;">📅 تنقل الشهور:</span>
+                <button type="button" class="btn-ui" style="padding:4px 8px; font-weight:bold; color:#A7F3D0;" onclick="stepMonth(-1)" title="الشهر السابق">◀</button>
+                <select id="c3dMonthSelect" class="btn-ui" style="background:#0F172A; border-color:#059669; color:#6EE7B7; font-weight:700; padding:3px 6px; cursor:pointer;" onchange="snapMonth(parseInt(this.value))">
+                    <option value="1">1: كانون 2 (يناير) ♑</option>
+                    <option value="2">2: شباط (فبراير) ♒</option>
+                    <option value="3">3: آذار (مارس) ♓ 🌸</option>
+                    <option value="4">4: نيسان (أبريل) ♈</option>
+                    <option value="5">5: أيار (مايو) ♉</option>
+                    <option value="6">6: حزيران (يونيو) ♊ ☀️</option>
+                    <option value="7">7: تموز (يوليو) ♋</option>
+                    <option value="8">8: آب (أغسطس) ♌</option>
+                    <option value="9">9: أيلول (سبتمبر) ♍ 🍂</option>
+                    <option value="10">10: تشرين 1 (أكتوبر) ♎</option>
+                    <option value="11">11: تشرين 2 (نوفمبر) ♏</option>
+                    <option value="12">12: كانون 1 (ديسمبر) ♐ ❄️</option>
+                </select>
+                <button type="button" class="btn-ui" style="padding:4px 8px; font-weight:bold; color:#A7F3D0;" onclick="stepMonth(1)" title="الشهر التالي">▶</button>
+            </div>
         </div>
 
         <!-- الصف الثاني: تدفق الزمن والسرعات -->
@@ -1643,6 +1663,26 @@
             if (season === 'autumn') simDate = new Date(Date.UTC(y, 8, 23, 5, 45, 0));
             if (season === 'winter') simDate = new Date(Date.UTC(y, 11, 21, 6, 45, 0));
             updateAstronomy();
+        }
+
+        function snapMonth(month1Based) {
+            const y = simDate.getUTCFullYear();
+            const targetM0 = Math.max(0, Math.min(11, month1Based - 1));
+            let d = simDate.getUTCDate();
+            const maxDays = new Date(Date.UTC(y, targetM0 + 1, 0)).getUTCDate();
+            if (d > maxDays) d = maxDays;
+            simDate = new Date(Date.UTC(y, targetM0, d, simDate.getUTCHours(), simDate.getUTCMinutes(), simDate.getUTCSeconds()));
+            updateAstronomy();
+            const sel = document.getElementById('c3dMonthSelect');
+            if (sel) sel.value = month1Based;
+        }
+
+        function stepMonth(delta) {
+            let curM = simDate.getUTCMonth() + 1;
+            let nextM = curM + delta;
+            if (nextM < 1) nextM = 12;
+            if (nextM > 12) nextM = 1;
+            snapMonth(nextM);
         }
 
         function onWindowResize() {
