@@ -3086,6 +3086,7 @@
             <!-- Camera Presets Group -->
             <div class="c3d-toolgroup">
                 <span style="color:#94A3B8; font-size:0.8em; font-weight:bold;">👁️ الكاميرا:</span>
+                <button id="btnViewPerspective" class="btn-view" onclick="setCameraPreset('perspective')" aria-label="منظور مجسم ثلاثي الأبعاد" title="منظور مجسم ثلاثي الأبعاد (Perspective View): زاوية رؤية مجسمة متوازنة">📐 منظور</button>
                 <button id="btnViewHorizon" class="btn-view" onclick="setCameraPreset('horizon')" aria-label="منظور الأفق">الأفق</button>
                 <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')" aria-label="منظور نجم القطب الشمالي">★ القطب</button>
                 <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')" aria-label="التركيز على مدار القمر">🌙 القمر</button>
@@ -7787,6 +7788,7 @@ var cosmos3DInitialized = false;
                 if (!b.id.includes('AutoRotate')) b.classList.remove('active');
             });
             const activeBtn = document.getElementById(
+                preset === 'perspective' ? 'btnViewPerspective' :
                 preset === 'horizon' ? 'btnViewHorizon' :
                 preset === 'moon' ? 'btnViewMoon' :
                 preset === 'sun' ? 'btnViewSun' :
@@ -7795,7 +7797,12 @@ var cosmos3DInitialized = false;
             );
             if (activeBtn) activeBtn.classList.add('active');
 
-            if (preset === 'horizon') {
+            if (preset === 'perspective') {
+                // المنظور المجسم (Perspective View): زاوية ثلاثية الأبعاد متوازنة تبرز القبة والراصد والمدارات في الفضاء
+                camera.position.set(220, 160, 250);
+                controls.target.set(0, 25, 0);
+                showC3DToast('📐 تم ضبط الكاميرا: منظور مجسم (Perspective View)');
+            } else if (preset === 'horizon') {
                 camera.position.set(0, 16, 65);
                 controls.target.set(0, 15, -45);
             } else if (preset === 'moon' && moonMesh) {

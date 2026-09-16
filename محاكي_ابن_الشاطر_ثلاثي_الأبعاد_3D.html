@@ -376,6 +376,7 @@
     <div class="top-nav">
         <h1>🪐 محاكي الأفلاك التسعة وتغير المشارق والمغارب ودورة القمر</h1>
         <div style="display: flex; gap: 6px;">
+            <button id="btnViewPerspective" class="btn-view" onclick="setCameraPreset('perspective')" title="منظور مجسم ثلاثي الأبعاد (Perspective View)">📐 منظور</button>
             <button id="btnViewHorizon" class="btn-view active" onclick="setCameraPreset('horizon')">👁️ منظور الأفق</button>
             <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')">★ نحو النجم القطبي</button>
             <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')">🌙 تتبع القمر</button>
@@ -1285,14 +1286,19 @@
                 if (!b.id.includes('AutoRotate')) b.classList.remove('active');
             });
             const activeBtn = document.getElementById(
+                preset === 'perspective' ? 'btnViewPerspective' :
                 preset === 'horizon' ? 'btnViewHorizon' :
                 preset === 'moon' ? 'btnViewMoon' :
                 preset === 'sun' ? 'btnViewSun' :
-                preset === 'orbit' ? 'btnViewOrbit' : 'btnViewPolar'
+                preset === 'orbit' ? 'btnViewOrbit' :
+                preset === 'polaris' ? 'btnViewPolaris' : 'btnViewPolar'
             );
             if (activeBtn) activeBtn.classList.add('active');
 
-            if (preset === 'horizon') {
+            if (preset === 'perspective') {
+                camera.position.set(220, 160, 250);
+                controls.target.set(0, 25, 0);
+            } else if (preset === 'horizon') {
                 camera.position.set(0, 16, 65);
                 controls.target.set(0, 15, -45);
             } else if (preset === 'moon' && moonMesh) {
