@@ -3106,20 +3106,6 @@
             <span>💡 <strong>التحكم:</strong> سحب بالماوس للتدوير 360° | عجلة الماوس للتقريب | الزر الأيمن للإزاحة</span>
         </div>
 
-        <!-- Top Center Floating Isha Difference Hero Banner -->
-        <div id="c3dIshaDiffBanner" class="c3d-diff-banner" onclick="toggleSeasonalComparisonTable()" title="نقر لعرض جدول المقارنة الفصلي الشامل لاختلاف وقت العشائين">
-            <div class="diff-badge-main">
-                <span class="diff-icon">⚡</span>
-                <span class="diff-label">الفارق بين العشائين:</span>
-                <span id="bannerIshaDiffVal" class="diff-highlight">10 دقائق</span>
-            </div>
-            <div class="diff-badge-sub">
-                <span>🟠 الشافعي (16°): <b id="bannerIsha16">19:17</b> (+<span id="bannerIsha16Diff">77</span>د)</span>
-                <span class="diff-arrow">⟵ <b id="bannerIshaGap">10د</b> ⟶</span>
-                <span>🟣 الحنفي (18°): <b id="bannerIsha18">19:27</b> (+<span id="bannerIsha18Diff">87</span>د)</span>
-            </div>
-        </div>
-
         <!-- Right Vertical Panel: Seasonal & Monthly Sun Navigation -->
         <div id="c3dRightPanel" class="c3d-side-panel-right">
             <div class="panel-collapse-bar" style="display:flex; align-items:center; justify-content:space-between; width:100%; cursor:pointer; gap:2px; margin-bottom:3px;" onclick="togglePanelCollapse(this)" title="نقر لطي / توسيع لوحة الفصول والشهور">
@@ -6589,7 +6575,7 @@ var cosmos3DInitialized = false;
             createStarfield();
 
             // منع تدوير كاميرا Three.js عند التفاعل مع اللوحتين الجانبيتين أو الكبسولة السفلية
-            ['c3dRightPanel', 'c3dLeftPanel', 'c3dBottomPill', 'seasonalComparisonDrawer', 'c3dIshaDiffBanner'].forEach(id => {
+            ['c3dRightPanel', 'c3dLeftPanel', 'c3dBottomPill', 'seasonalComparisonDrawer'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     el.addEventListener('pointerdown', e => e.stopPropagation());
@@ -8992,21 +8978,6 @@ var cosmos3DInitialized = false;
             if (el18) el18.innerText = isha18Str;
             if (el18Diff) el18Diff.innerText = `(بعد ${diff18}د)`;
             if (elDiff) elDiff.innerText = isPole ? 'فلك دائر (أفقي)' : `${diffBetween}m (${diffBetween} min)`;
-
-            // تحديث شارة الفارق البارزة في أعلى المشهد
-            const elBDiff = document.getElementById('bannerIshaDiffVal');
-            const elB16 = document.getElementById('bannerIsha16');
-            const elB16D = document.getElementById('bannerIsha16Diff');
-            const elB18 = document.getElementById('bannerIsha18');
-            const elB18D = document.getElementById('bannerIsha18Diff');
-            const elBGap = document.getElementById('bannerIshaGap');
-
-            if (elBDiff) elBDiff.innerText = isPole ? 'فلك دائر (أفقي 360°)' : `${diffBetween} دقائق`;
-            if (elB16) elB16.innerText = isha16Str;
-            if (elB16D) elB16D.innerText = isPole ? '--' : diff16;
-            if (elB18) elB18.innerText = isha18Str;
-            if (elB18D) elB18D.innerText = isPole ? '--' : diff18;
-            if (elBGap) elBGap.innerText = isPole ? 'دوران كامل' : `${diffBetween}د`;
 
             // تحديث جدول المقارنة الفوري
             const tSummer = computeTwilightForDecl(phi, EPSILON);
