@@ -1,0 +1,19 @@
+{
+  "name": "ibn-shatir-simulator",
+  "version": "1.0.0",
+  "description": "Interactive 3D reconstruction of medieval Islamic astronomical models by Ibn al-Shatir",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "astronomy",
+    "ibn-al-shatir",
+    "ptolemy",
+    "threejs",
+    "celestial-mechanics",
+    "islamic-astronomy"
+  ],
+  "author": "Rabih Beyrouti",
+  "license": "MIT"
+}
