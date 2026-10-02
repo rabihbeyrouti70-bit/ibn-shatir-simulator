@@ -1,4 +1,4 @@
-﻿# Node.js dependencies
+# Node.js dependencies
 node_modules/
 **/node_modules/
 dist/
@@ -43,6 +43,8 @@ scratch_code.py
 !README.md
 !مرجع_محاكي_ابن_الشاطر_وبطلميوس_الفلكي_الشامل.md
 !ibn-shatir-react/README.md
+!CONTRIBUTING.md
+!CITATION.cff
 
 # Non-planetary diagrams
 مخططات_الرسالة_الجيبية/
