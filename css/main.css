@@ -62,6 +62,45 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
+            position: relative;
+            width: 100%;
+        }
+
+        .btn-lang-toggle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border-hover);
+            color: var(--blue);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(8px);
+            z-index: 100;
+        }
+        .btn-lang-toggle:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: var(--blue);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+        }
+        [dir="ltr"] .btn-lang-toggle {
+            left: auto;
+            right: 0;
+        }
+        @media (max-width: 768px) {
+            .btn-lang-toggle {
+                position: static;
+                margin-bottom: 8px;
+            }
         }
 
         .brand-badge {

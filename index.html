@@ -57,9 +57,10 @@
 </head>
 <body>
 
-<header>
-    <h1>⚖️ المحاكي الفلكي المقارن: بطلميوس وابن الشاطر الدمشقي (ت 777هـ)</h1>
-    <div class="subtitle">
+<header style="position:relative;">
+    <button id="btnLangToggle" class="btn-lang-toggle" onclick="window.i18n && window.i18n.toggleLanguage()" title="Switch Language / تبديل اللغة">English 🌐</button>
+    <h1 data-i18n="app.title">⚖️ المحاكي الفلكي المقارن: بطلميوس وابن الشاطر الدمشقي (ت 777هـ)</h1>
+    <div class="subtitle" data-i18n="app.subtitle">
         مقارنة تفاعلية متزامنة زمنياً بين النماذج الفلكية البطلمية وإصلاحات ابن الشاطر<br>
         تُبيِّن الفلك الخارج المركز ونقطة معدل المسير في نظام بطلميوس، ومزدوجة الطوسي وحل معضلة القمر في نظام ابن الشاطر
     </div>
@@ -150,13 +151,13 @@
 
 <!-- Tab buttons -->
 <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('cosmos')">🌌 1. هيأة الأفلاك التسعة</button>
-    <button class="tab-btn" onclick="switchTab('sunComp')">☀️ 2. مقارنة نموذج الشمس</button>
-    <button class="tab-btn" onclick="switchTab('moonComp')">🌙 3. مقارنة نموذج القمر</button>
-    <button class="tab-btn" onclick="switchTab('planets')">🪐 4. الكواكب ومعادل بطلميوس</button>
-    <button class="tab-btn" onclick="switchTab('study')">📚 5. الدراسة المقارنة الشاملة</button>
-    <button class="tab-btn" onclick="switchTab('revolution')">🔭 6. ثورة كوبرنيكوس وكيبلر (الشاطر vs المركزية الشمسية)</button>
-    <button class="tab-btn" onclick="switchTab('cosmos3D')" style="color:#67E8F9; border:1.5px solid rgba(56,189,248,0.5); background:rgba(56,189,248,0.12); box-shadow:0 0 15px rgba(56,189,248,0.2);">🌐 7. المحاكي ثلاثي الأبعاد 3D (قبة السماء والأفلاك)</button>
+    <button class="tab-btn active" onclick="switchTab('cosmos')" data-i18n="tab.cosmos">🌌 1. هيأة الأفلاك التسعة</button>
+    <button class="tab-btn" onclick="switchTab('sunComp')" data-i18n="tab.sun">☀️ 2. مقارنة نموذج الشمس</button>
+    <button class="tab-btn" onclick="switchTab('moonComp')" data-i18n="tab.moon">🌙 3. مقارنة نموذج القمر</button>
+    <button class="tab-btn" onclick="switchTab('planets')" data-i18n="tab.planets">🪐 4. الكواكب ومعادل بطلميوس</button>
+    <button class="tab-btn" onclick="switchTab('study')" data-i18n="tab.study">📚 5. الدراسة المقارنة الشاملة</button>
+    <button class="tab-btn" onclick="switchTab('revolution')" data-i18n="tab.revolution">🔭 6. ثورة كوبرنيكوس وكيبلر (الشاطر vs المركزية الشمسية)</button>
+    <button class="tab-btn" onclick="switchTab('cosmos3D')" data-i18n="tab.3d" style="color:#67E8F9; border:1.5px solid rgba(56,189,248,0.5); background:rgba(56,189,248,0.12); box-shadow:0 0 15px rgba(56,189,248,0.2);">🌐 7. المحاكي ثلاثي الأبعاد 3D (قبة السماء والأفلاك)</button>
 </div>
 
 <!-- ===== PANEL 1: COSMOS ===== -->
@@ -1611,6 +1612,11 @@
 
 <script src="data/astro-data.js"></script>
 <script src="data/cities.js"></script>
+<script type="module">
+    import { i18n } from './js/i18n.js';
+    window.i18n = i18n;
+    i18n.init();
+</script>
 
 <script>
 
