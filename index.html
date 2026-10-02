@@ -3,6 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="محاكي فلكي تفاعلي ثلاثي الأبعاد يقارن بين نماذج ابن الشاطر الدمشقي وبطلميوس وكوبرنيكوس وكيبلر — مع حساب مواقيت الصلاة بطريقة الربع المجيب التراثية. Interactive 3D astronomical simulator comparing Ibn al-Shatir, Ptolemy, Copernicus, and Kepler models with Islamic prayer time calculations.">
+    <meta name="keywords" content="ابن الشاطر, Ibn al-Shatir, محاكي فلكي, astronomy simulator, بطلميوس, Ptolemy, كوبرنيكوس, Copernicus, كيبلر, Kepler, مواقيت الصلاة, prayer times, الربع المجيب, فلك البروج, Three.js, 3D planetarium, Islamic astronomy, علم الفلك الإسلامي">
+    <meta name="author" content="Rabih Beyrouti — ربيع بيروتي">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#060913">
+    <!-- Open Graph -->
+    <meta property="og:title" content="محاكي ابن الشاطر الفلكي المقارن — Ibn al-Shatir Astronomical Simulator">
+    <meta property="og:description" content="أول محاكي تفاعلي ثلاثي الأبعاد يجسد النماذج الفلكية الرياضية لابن الشاطر الدمشقي مع مقارنة بطلميوس وكوبرنيكوس وكيبلر">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://rabihbeyrouti70-bit.github.io/ibn-shatir-simulator/">
+    <meta property="og:locale" content="ar_SA">
+    <meta property="og:locale:alternate" content="en_US">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ibn al-Shatir Astronomical Simulator">
+    <meta name="twitter:description" content="Interactive 3D reconstruction of medieval Islamic astronomical models">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "محاكي ابن الشاطر الفلكي المقارن",
+      "alternateName": "Ibn al-Shatir Astronomical Simulator",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web Browser",
+      "url": "https://rabihbeyrouti70-bit.github.io/ibn-shatir-simulator/",
+      "author": {
+        "@type": "Person",
+        "name": "Rabih Beyrouti",
+        "alternateName": "ربيع بيروتي"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": "Islamic Astronomy — علم الفلك الإسلامي",
+        "sameAs": "https://en.wikipedia.org/wiki/Islamic_astronomy"
+      },
+      "license": "https://opensource.org/licenses/MIT",
+      "inLanguage": ["ar", "en"]
+    }
+    </script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2182,8 +2222,8 @@
         }
     </style>
 <!-- Three.js and OrbitControls for 3D Celestial Simulator -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 

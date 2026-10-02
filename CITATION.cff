@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+title: "Ibn al-Shatir Astronomical Simulator — محاكي ابن الشاطر الفلكي المقارن"
+message: "If you use this software in academic work, please cite it using these metadata."
+type: software
+authors:
+  - given-names: Rabih
+    family-names: Beyrouti
+    alias: "ربيع بيروتي"
+repository-code: "https://github.com/rabihbeyrouti70-bit/ibn-shatir-simulator"
+url: "https://rabihbeyrouti70-bit.github.io/ibn-shatir-simulator/"
+license: MIT
+keywords:
+  - "Islamic astronomy"
+  - "Ibn al-Shatir"
+  - "ابن الشاطر"
+  - "Ptolemaic models"
+  - "celestial mechanics"
+  - "prayer time calculation"
+  - "مواقيت الصلاة"
+  - "الربع المجيب"
+  - "Sine Quadrant"
+  - "Copernicus"
+  - "Kepler"
+  - "Three.js"
+  - "3D planetarium"
+  - "نهاية السول في تصحيح الأصول"
+abstract: >-
+  An interactive 3D web-based astronomical simulator that reconstructs and
+  compares the mathematical planetary models of the 14th-century Damascus
+  astronomer Ala al-Din Ali ibn al-Shatir (d. 1375 CE / 777 AH) with those
+  of Ptolemy, Copernicus, and Kepler. Features include a full Three.js
+  celestial dome, Islamic prayer time calculations using the historical
+  Sine Quadrant (Rub' al-Mujayyab) method, seasonal declination arcs,
+  twilight depression circles, and a database of 465+ world cities.
+  The simulator demonstrates Ibn al-Shatir's revolutionary elimination
+  of the Ptolemaic equant and eccentric, achieving uniform circular motion
+  through his double-epicycle mechanism — the same geometric construction
+  later adopted by Copernicus.
