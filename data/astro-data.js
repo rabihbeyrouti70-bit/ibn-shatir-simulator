@@ -1,4 +1,4 @@
-const zodiacData = [
+var zodiacData = window.zodiacData = [
     { name: "برج الحمل", symbol: "♈", elem: "ناري", season: "أوائل الربيع (الاعتدال)" },
     { name: "برج الثور", symbol: "♉", elem: "ترابي", season: "منتصف فصل الربيع" },
     { name: "برج الجوزاء", symbol: "♊", elem: "هوائي", season: "أواخر فصل الربيع" },
@@ -13,14 +13,14 @@ const zodiacData = [
     { name: "برج الحوت", symbol: "♓", elem: "مائي", season: "أواخر فصل الشتاء" }
 ];
 
-const lunarMansions = [
+var lunarMansions = window.lunarMansions = [
     "الشرطان", "البطين", "الثريا", "الدبران", "الهقعة", "الهنعة", "الذراع",
     "النثرة", "الطرف", "الجبهة", "الزبرة", "الصرفة", "العواء", "السماك الأعزل",
     "الغفر", "الزبانا", "الإكليل", "القلب", "الشولة", "النعائم", "البلدة",
     "سعد الذابح", "سعد بلع", "سعد السعود", "سعد الأخبية", "فرغ الدلو المقدم", "فرغ الدلو المؤخر", "الرشاء (بطن الحوت)"
 ];
 
-const planetData = {
+var planetData = window.planetData = {
     mars: {
         nameAr:"المريخ",symbol:"♂",color:"#F87171",
         // Ptolemy: eccentricity e=6, equant at 2e=12, epicycle r_ep=39.5
@@ -55,7 +55,7 @@ const planetData = {
     }
 };
 
-        const PLANETS_CONFIG = [
+        var PLANETS_CONFIG = window.PLANETS_CONFIG = [
             { key: 'mercury', name: 'عطارد ☿', r: 55, color: 0xC084FC, size: 3.5, periodDays: 87.97, inc: 0.122 },
             { key: 'venus', name: 'الزهرة ♀', r: 85, color: 0xF472B6, size: 4.8, periodDays: 224.70, inc: 0.059 },
             { key: 'mars', name: 'المريخ ♂', r: 165, color: 0xF87171, size: 4.5, periodDays: 686.97, inc: 0.032 },

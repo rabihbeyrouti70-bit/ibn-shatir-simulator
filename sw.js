@@ -1,10 +1,14 @@
 /* Service Worker for Ibn al-Shatir Astronomical Simulator */
-const CACHE_NAME = 'ibn-shatir-v1.0.0';
+const CACHE_NAME = 'ibn-shatir-v1.0.1';
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './css/main.css',
+  './js/app.js',
+  './js/astronomy-core.js',
+  './js/prayer-core.js',
+  './js/i18n.js',
   './data/astro-data.js',
   './data/cities.js',
   './manifest.json',
