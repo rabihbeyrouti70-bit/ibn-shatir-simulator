@@ -1,0 +1,28 @@
+{
+  "name": "المحاكي الفلكي المقارن: ابن الشاطر وبطلميوس",
+  "short_name": "ابن الشاطر",
+  "description": "محاكي فلكي تفاعلي ثلاثي الأبعاد يجسد نماذج ابن الشاطر الدمشقي وحساب مواقيت الصلاة بالربع المجيب",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#060913",
+  "background_color": "#060913",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["education", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

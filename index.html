@@ -48,6 +48,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>المحاكي الفلكي المقارن: بطلميوس وابن الشاطر الدمشقي (ت 777هـ)</title>
     <link rel="stylesheet" href="css/main.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
 <!-- Three.js and OrbitControls for 3D Celestial Simulator -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -6911,6 +6914,18 @@ var cosmos3DInitialized = false;
             });
         }
 
+    </script>
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    console.log('PWA ServiceWorker registered with scope:', reg.scope);
+                }).catch(err => {
+                    console.warn('PWA ServiceWorker registration failed:', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
