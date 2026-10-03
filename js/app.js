@@ -1462,6 +1462,13 @@ function switchTab(tab) {
     }
 }
 
+
+window._fullSwitchTab = switchTab;
+window.switchTab = switchTab;
+if (typeof window !== "undefined" && window._pendingTab && window._pendingTab !== "cosmos") {
+    switchTab(window._pendingTab);
+}
+
 /* ==================== REVOLUTION ENGINE CODE (COPERNICUS & KEPLER) ==================== */
 // ==================== SIMULATION STATE ====================
         // isPlaying, simDays, timeSpeed are unified globally

@@ -1,5 +1,5 @@
 /* Service Worker for Ibn al-Shatir Astronomical Simulator */
-const CACHE_NAME = 'ibn-shatir-v1.0.1';
+const CACHE_NAME = 'ibn-shatir-v1.0.2';
 
 const PRECACHE_ASSETS = [
   './',

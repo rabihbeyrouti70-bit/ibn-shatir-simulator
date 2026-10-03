@@ -353,11 +353,12 @@
             flex-wrap: wrap;
             gap: 20px;
             justify-content: center;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.12s ease-out;
+            will-change: opacity, transform;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
+            from { opacity: 0.2; transform: translateY(3px); }
             to { opacity: 1; transform: translateY(0); }
         }
 

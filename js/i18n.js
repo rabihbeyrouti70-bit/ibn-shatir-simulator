@@ -4,21 +4,63 @@
  * Lightweight internationalization engine with embedded offline dictionary fallback
  */
 
-const LOCALES = {
-    ar: null,
-    en: null
+const AR_LOCALE = {
+  "app.title": "المحاكي الفلكي المقارن: بطلميوس وابن الشاطر الدمشقي (ت 777هـ)",
+  "app.subtitle": "مقارنة تفاعلية متزامنة زمنياً بين النماذج الفلكية البطلمية وإصلاحات ابن الشاطر",
+  "tab.cosmos": "🪐 هيأة الأفلاك التسعة (Cosmos)",
+  "tab.sun": "☀️ مقارنة نموذج الشمس (Sun)",
+  "tab.moon": "🌙 مقارنة نموذج القمر (Moon)",
+  "tab.planets": "🪐 نماذج الكواكب وإلغاء معدل المسير (Planets)",
+  "tab.study": "📜 الدراسة المقارنة والتوثيق (Study)",
+  "tab.revolution": "⚖️ ثورة كوبرنيكوس وكيبلر (Revolution)",
+  "tab.3d": "🌌 المحاكي ثلاثي الأبعاد 3D (Cosmos 3D)",
+  "btn.play": "▶️ تشغيل المحاكاة",
+  "btn.pause": "⏸️ إيقاف مؤقت",
+  "btn.now": "⏱️ الوقت الحالي",
+  "label.speed": "سرعة المحاكاة:",
+  "label.speed_real": "1 ث/ث (حقيقي)",
+  "label.speed_hour": "ساعة/ث",
+  "label.speed_day": "يوم/ث",
+  "label.speed_week": "أسبوع/ث",
+  "label.speed_month": "شهر/ث",
+  "label.speed_year": "سنة/ث",
+  "cam.perspective": "📐 منظور",
+  "cam.horizon": "👁️ عين الراصد (الأفق)",
+  "cam.polaris": "⭐ الجدي (القطب)",
+  "cam.moon": "🌙 تتبع القمر",
+  "cam.sun": "☀️ تتبع الشمس",
+  "cam.orbit": "🌐 مداري موسع",
+  "cam.polar": "🧭 مسقط قطبي",
+  "prayer.fajr": "الفجر",
+  "prayer.sunrise": "الشروق",
+  "prayer.dhuha": "صلاة الضحى",
+  "prayer.duhr": "الظهر",
+  "prayer.asr": "العصر الشافعي",
+  "prayer.asrHanafi": "العصر الحنفي",
+  "prayer.sunset": "المغرب",
+  "prayer.ishaa": "العشاء (18°)",
+  "prayer.isha16": "العشاء الشافعي (16°)",
+  "search.placeholder": "🔍 ابحث عن مدينة أو مرصد فلكي...",
+  "search.btn": "بحث",
+  "geo.lat": "خط العرض:",
+  "geo.lon": "خط الطول:",
+  "geo.city": "المدينة المختارة:",
+  "season.spring": "الاعتدال الربيعي",
+  "season.summer": "الانقلاب الصيفي",
+  "season.autumn": "الاعتدال الخريفي",
+  "season.winter": "الانقلاب الشتوي",
+  "lang.switch": "English 🌐"
 };
 
 class I18nManager {
     constructor() {
-        this.currentLang = localStorage.getItem('ibn_shatir_lang') || 'ar';
-        this.translations = {};
+        this.currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('ibn_shatir_lang')) || 'ar';
+        this.translations = { ar: AR_LOCALE };
         this.initialized = false;
     }
 
     async init() {
-        // Load default locale
-        await this.loadLocale('ar');
+        // Arabic is pre-embedded. Only fetch if user explicitly chose English or another language
         if (this.currentLang !== 'ar') {
             await this.loadLocale(this.currentLang);
         }
