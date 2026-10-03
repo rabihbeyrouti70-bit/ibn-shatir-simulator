@@ -2277,7 +2277,7 @@ var cosmos3DInitialized = false;
         let moonDeferentLine, moonEpicycle1Line, moonEpicycle2Line, moonEpicycle1Mesh, moonEpicycle2Mesh, moonArmDeferent, moonArmEp1, moonArmEp2, moonOrbsLabelSprite;
         let qiblaGroup, qiblaPointerMesh, qiblaLineRay, qiblaLabelSprite;
         let ishaShafiLine, ishaHanafiLine, ishaShafiSector, ishaHanafiSector;
-        let ishaShafiLabelSprite, ishaDiffLabelSprite;
+        let ishaShafiLabelSprite;
         let twilightDescendingArcLine;
         let showTwilightCircles = false;
         let isIshaFocusMode = false;
@@ -3359,10 +3359,6 @@ var cosmos3DInitialized = false;
             ishaShafiLabelSprite = createTextBadgeSprite('🟠 العشاء الشافعي (16°)', '#F97316', 26, 6.2);
             twilightGroup.add(ishaShafiLabelSprite);
 
-            // وسم الفارق بين العشائين في الفضاء ثلاثي الأبعاد بين الدائرتين
-            ishaDiffLabelSprite = createTextBadgeSprite('⚡ فارق العشائين: 10د', '#38BDF8', 24, 5.8);
-            twilightGroup.add(ishaDiffLabelSprite);
-
             // دوائر العشائين مخفية حتى يتم النقر على زر العشائين أو تفعيل الطبقة
             twilightGroup.visible = false;
         }
@@ -3402,7 +3398,6 @@ var cosmos3DInitialized = false;
                 if (twilightGroup) twilightGroup.visible = true;
                 if (moonArcGroup) moonArcGroup.visible = true;
                 if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
-                if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = show3DLabels;
                 showTwilightCircles = true;
                 const chkTw = document.getElementById('chkTwilight');
                 if (chkTw) chkTw.checked = true;
@@ -3441,10 +3436,10 @@ var cosmos3DInitialized = false;
         // ⚙️ الفلك الحامل والمدير للشمس والقمر (Ibn al-Shatir 3D Deferents & Directors)
         // =========================================================================
         const R_SUN_DEF = 115;   // نصف قطر فلك الشمس الحامل المتراكز مع الأرض
-        const R_SUN_DIR = 16;    // نصف قطر فلك الشمس المدير (التدوير)
-        const R_MOON_DEF = 90;   // نصف قطر فلك القمر الحامل المتراكز مع الأرض
-        const R_MOON_EP1 = 15;   // نصف قطر فلك تدوير القمر الأول (الحامل الصغير)
-        const R_MOON_EP2 = 6.5;  // نصف قطر فلك تدوير القمر الثاني (المدير)
+        const R_SUN_DIR = 25;    // نصف قطر فلك الشمس المدير (التدوير) المطابق للمسافة لجرم الشمس
+        const R_MOON_DEF = 112;  // نصف قطر فلك القمر الحامل المتراكز مع الأرض
+        const R_MOON_EP1 = 18;   // نصف قطر فلك تدوير القمر الأول (الحامل الصغير)
+        const R_MOON_EP2 = 8;    // نصف قطر فلك تدوير القمر الثاني (المدير)
 
         function createIbnShatirOrbs() {
             if (!ibnShatirOrbsGroup) {
@@ -3611,14 +3606,15 @@ var cosmos3DInitialized = false;
             const cSunFwd = getEcliptic3DPos(lambdaSun + 0.05, H_sun, alpha_sun, phi, R_SUN_DEF);
             const tSun = cSunFwd.sub(cSun).normalize();
 
-            // 3. نقاط فلك المدير للشمس
+            // 3. نقاط فلك المدير للشمس (متصلة بدقة بجرم الشمس)
+            const actualSunDirR = sunMesh ? cSun.distanceTo(sunMesh.position) : R_SUN_DIR;
             const sunDirPts = [];
             for (let k = 0; k <= 36; k++) {
                 const th = (k / 36) * Math.PI * 2;
                 const pt = new THREE.Vector3()
                     .copy(cSun)
-                    .addScaledVector(uSun, R_SUN_DIR * Math.cos(th))
-                    .addScaledVector(tSun, R_SUN_DIR * Math.sin(th));
+                    .addScaledVector(uSun, actualSunDirR * Math.cos(th))
+                    .addScaledVector(tSun, actualSunDirR * Math.sin(th));
                 sunDirPts.push(pt);
             }
             if (sunDirectorLine) {
@@ -3712,14 +3708,15 @@ var cosmos3DInitialized = false;
                 moonEpicycle2Mesh.position.copy(p2Moon);
             }
 
-            // 4. فلك التدوير الثاني للقمر (المدير r2)
+            // 4. فلك التدوير الثاني للقمر (المدير r2 - متصل مباشرة بجرم القمر)
+            const actualMoonEp2R = moonMesh ? p2Moon.distanceTo(moonMesh.position) : R_MOON_EP2;
             const moonEp2Pts = [];
             for (let k = 0; k <= 28; k++) {
                 const th = (k / 28) * Math.PI * 2;
                 const pt = new THREE.Vector3()
                     .copy(p2Moon)
-                    .addScaledVector(uMoon, R_MOON_EP2 * Math.cos(th))
-                    .addScaledVector(tMoon, R_MOON_EP2 * Math.sin(th));
+                    .addScaledVector(uMoon, actualMoonEp2R * Math.cos(th))
+                    .addScaledVector(tMoon, actualMoonEp2R * Math.sin(th));
                 moonEp2Pts.push(pt);
             }
             if (moonEpicycle2Line) {
@@ -4344,7 +4341,6 @@ var cosmos3DInitialized = false;
                 twilightGroup.visible = isVisible;
                 showTwilightCircles = isVisible;
                 if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = isVisible && show3DLabels;
-                if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = isVisible && show3DLabels;
             }
             if (layer === 'meridian') {
                 if (meridianLine) meridianLine.visible = isVisible;
@@ -4660,6 +4656,38 @@ var cosmos3DInitialized = false;
                 elIshaDetails.innerText = `${prayers.prayers.isha16.civil} / ${prayers.prayers.ishaa.civil}`;
             }
 
+            // مزامنة شريط القياسات اللحظي السفلي وجدول المقارنة الفصلي فوراً مع مواقيت الصلاة المعتمدة
+            const diff16M = Math.round((pObj.isha16.solarH - pObj.sunset.solarH) * 60);
+            const diff18M = Math.round((pObj.ishaa.solarH - pObj.sunset.solarH) * 60);
+            const diffBetweenIshas = diff18M - diff16M;
+
+            const elTelemSunset = document.getElementById('telemSunset');
+            if (elTelemSunset) elTelemSunset.innerText = pObj.sunset.civil;
+            const elTelemIsha16 = document.getElementById('telemIsha16');
+            if (elTelemIsha16) elTelemIsha16.innerText = pObj.isha16.civil;
+            const elTelemIsha16Diff = document.getElementById('telemIsha16Diff');
+            if (elTelemIsha16Diff) elTelemIsha16Diff.innerText = `(+${diff16M}د)`;
+            const elTelemIsha18 = document.getElementById('telemIsha18');
+            if (elTelemIsha18) elTelemIsha18.innerText = pObj.ishaa.civil;
+            const elTelemIsha18Diff = document.getElementById('telemIsha18Diff');
+            if (elTelemIsha18Diff) elTelemIsha18Diff.innerText = `(+${diff18M}د)`;
+            const elTelemIshaDiff = document.getElementById('telemIshaDiff');
+            if (elTelemIshaDiff) elTelemIshaDiff.innerText = `${diffBetweenIshas}m (${diffBetweenIshas} min)`;
+
+            const elHudIshaDiff = document.getElementById('hudIshaDiffTime');
+            if (elHudIshaDiff) elHudIshaDiff.innerText = `${diffBetweenIshas} دقيقة (الفارق بين مغيب الشفقين الأحمر والأبيض)`;
+
+            const tdCurrSS = document.getElementById('tdCurrSunset');
+            if (tdCurrSS) {
+                tdCurrSS.innerText = pObj.sunset.civil;
+                const td16 = document.getElementById('tdCurrIsha16');
+                if (td16) td16.innerText = `${pObj.isha16.civil} (+${diff16M}د)`;
+                const td18 = document.getElementById('tdCurrIsha18');
+                if (td18) td18.innerText = `${pObj.ishaa.civil} (+${diff18M}د)`;
+                const tdDf = document.getElementById('tdCurrDiff');
+                if (tdDf) tdDf.innerText = `${diffBetweenIshas} دقيقة`;
+            }
+
             // تحديد الصلاة الحالية بناءً على زاوية ساعة الشمس H_sun
             const { H_fajr, H_sunrise, H_dhuha, H_asr, H_asrHanafi, H_sunset, H_ishaa } = prayers.hourAngles;
             let currentPrayerName = 'الليل (العشاء)';
@@ -4786,11 +4814,14 @@ var cosmos3DInitialized = false;
                 if (H_val === null || isNaN(H_val)) return '--:--';
                 const hoursFromNoon = H_val * (180 / Math.PI) / 15.0;
                 let solH = 12.0 + hoursFromNoon;
-                let civH = solH;
-                if (typeof currentPrayersData !== 'undefined' && currentPrayersData) {
-                    const lonOffsetMin = (currentPrayersData.tzHours * 15.0 - currentLonDeg) * 4.0;
-                    civH = solH + (reserveMin / 60.0) + (lonOffsetMin - currentPrayersData.eotMin) / 60.0;
-                }
+                const tz = (currentPrayersData && currentPrayersData.tzHours !== undefined)
+                    ? currentPrayersData.tzHours
+                    : getCityTimezoneHours(currentLatDeg, currentLonDeg, currentCityCountry, simDate);
+                const eot = (currentPrayersData && currentPrayersData.eotMin !== undefined)
+                    ? currentPrayersData.eotMin
+                    : 0;
+                const lonOffsetMin = (tz * 15.0 - currentLonDeg) * 4.0;
+                let civH = solH + (reserveMin / 60.0) + (lonOffsetMin - eot) / 60.0;
                 while (civH < 0) civH += 24.0;
                 while (civH >= 24.0) civH -= 24.0;
                 const totalM = Math.round(civH * 60.0);
@@ -4814,10 +4845,14 @@ var cosmos3DInitialized = false;
                 : calcSolarTimeStr(H_isha18, 0);
 
             let diff16Min = 0, diff18Min = 0, diffBetweenIshas = 0;
-            if (H_sunset !== null && H_isha16 !== null) {
+            if (currentPrayersData && currentPrayersData.prayers && currentPrayersData.prayers.sunset && currentPrayersData.prayers.isha16) {
+                diff16Min = Math.round((currentPrayersData.prayers.isha16.solarH - currentPrayersData.prayers.sunset.solarH) * 60);
+            } else if (H_sunset !== null && H_isha16 !== null) {
                 diff16Min = Math.round(((H_isha16 - H_sunset) * (180 / Math.PI) / 15.0) * 60);
             }
-            if (H_sunset !== null && H_isha18 !== null) {
+            if (currentPrayersData && currentPrayersData.prayers && currentPrayersData.prayers.sunset && currentPrayersData.prayers.ishaa) {
+                diff18Min = Math.round((currentPrayersData.prayers.ishaa.solarH - currentPrayersData.prayers.sunset.solarH) * 60);
+            } else if (H_sunset !== null && H_isha18 !== null) {
                 diff18Min = Math.round(((H_isha18 - H_sunset) * (180 / Math.PI) / 15.0) * 60);
             }
             diffBetweenIshas = diff18Min - diff16Min;
@@ -4842,16 +4877,6 @@ var cosmos3DInitialized = false;
                 ishaShafiLabelSprite.position.set(p16.x + 14, p16.y + 3, p16.z - 10);
                 updateTextBadgeSprite(ishaShafiLabelSprite, `🟠 العشاء الشافعي (16° | ${isha16TimeStr})`, '#F97316');
                 ishaShafiLabelSprite.visible = show3DLabels && (showTwilightCircles || isIshaFocusMode);
-            }
-
-            if (p16 && p18 && ishaDiffLabelSprite) {
-                // وسم الفارق بين العشائين (بين دائرتي 16° و 18°)
-                const midX = (p16.x + p18.x) / 2 + 16;
-                const midY = (p16.y + p18.y) / 2;
-                const midZ = (p16.z + p18.z) / 2;
-                ishaDiffLabelSprite.position.set(midX, midY, midZ);
-                updateTextBadgeSprite(ishaDiffLabelSprite, `⚡ Isha Diff: ${diffBetweenIshas}m`, '#38BDF8');
-                ishaDiffLabelSprite.visible = show3DLabels && (showTwilightCircles || isIshaFocusMode);
             }
 
             // تحديث أقواس مدار الشمس اليومي مقسمة حسب مواقيت الصلاة (الرُبع المُجَيَّب) بألوان متميزة
@@ -5208,7 +5233,6 @@ var cosmos3DInitialized = false;
         function toggle3DLabels() {
             show3DLabels = !show3DLabels;
             if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = show3DLabels;
-            if (ishaDiffLabelSprite) ishaDiffLabelSprite.visible = show3DLabels;
             if (prayerDiurnalSprites) {
                 Object.values(prayerDiurnalSprites).forEach(sp => {
                     if (sp) sp.visible = show3DLabels;
@@ -5401,7 +5425,9 @@ var cosmos3DInitialized = false;
                 if (Math.abs(cosH) > 1.0) return null;
                 return Math.acos(cosH);
             }
-            const hSetRad = -0.833 * Math.PI / 180;
+            const effElev = (currentCityCountry === 'سوريا' || (Math.abs(currentLatDeg - 33.5138) < 0.25 && Math.abs(currentLonDeg - 36.2924) < 0.25)) ? 690 : 0;
+            const horizonDip = effElev > 0 ? (1.76 * Math.sqrt(effElev)) / 60.0 : 0.0;
+            const hSetRad = -(0.833 + horizonDip) * Math.PI / 180;
             const h16Rad = -16.0 * Math.PI / 180;
             const h18Rad = -18.0 * Math.PI / 180;
 
@@ -5413,11 +5439,14 @@ var cosmos3DInitialized = false;
                 if (H_val === null || isNaN(H_val)) return '--:--';
                 const hoursFromNoon = H_val * (180 / Math.PI) / 15.0;
                 let solH = 12.0 + hoursFromNoon;
-                let civH = solH;
-                if (typeof currentPrayersData !== 'undefined' && currentPrayersData) {
-                    const lonOffsetMin = (currentPrayersData.tzHours * 15.0 - currentLonDeg) * 4.0;
-                    civH = solH + (reserveMin / 60.0) + (lonOffsetMin - currentPrayersData.eotMin) / 60.0;
-                }
+                const tz = (currentPrayersData && currentPrayersData.tzHours !== undefined)
+                    ? currentPrayersData.tzHours
+                    : getCityTimezoneHours(currentLatDeg, currentLonDeg, currentCityCountry, currentDate);
+                const eot = (currentPrayersData && currentPrayersData.eotMin !== undefined)
+                    ? currentPrayersData.eotMin
+                    : 0;
+                const lonOffsetMin = (tz * 15.0 - currentLonDeg) * 4.0;
+                let civH = solH + (reserveMin / 60.0) + (lonOffsetMin - eot) / 60.0;
                 while (civH < 0) civH += 24.0;
                 while (civH >= 24.0) civH -= 24.0;
                 const totalM = Math.round(civH * 60.0);
@@ -5449,18 +5478,21 @@ var cosmos3DInitialized = false;
 
         let lastBarDecl = null;
         let lastBarPhi = null;
+        let lastBarSunsetStr = null;
         function updateSeasonalBarUI(deltaSun, phi, sunsetStr, isha16Str, diff16, isha18Str, diff18, diffBetween) {
             const declDeg = deltaSun * 180 / Math.PI;
             const isPole = Math.abs(Math.cos(phi)) < 0.001;
 
             if (!isDraggingSeasonalOrbit && lastBarDecl !== null &&
                 Math.abs(declDeg - lastBarDecl) < 0.04 &&
-                Math.abs(phi - lastBarPhi) < 0.0005) {
+                Math.abs(phi - lastBarPhi) < 0.0005 &&
+                lastBarSunsetStr === sunsetStr) {
                 syncMonthControlsUI(currentDate);
                 return;
             }
             lastBarDecl = declDeg;
             lastBarPhi = phi;
+            lastBarSunsetStr = sunsetStr;
 
             if (isPole) {
                 sunsetStr = declDeg >= 0 ? 'نهار قطبي مستمر (شمس منتصف الليل)' : 'ليل قطبي مستمر';

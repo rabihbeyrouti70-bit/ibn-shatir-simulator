@@ -124,4 +124,23 @@ describe('مواقيت الصلاة وحسابات الربع المجيب (Rub 
             assert.ok(/PM/i.test(timeVal), `${t.name} في فترة بعد الظهر والمساء يجب أن يحمل لاحقة PM`);
         });
     });
+
+    it('تأثير الارتفاع عن سطح البحر على انحطاط الأفق للشروق والغروب (Horizon Dip)', () => {
+        const date = new Date(Date.UTC(2026, 2, 21, 12, 0, 0));
+        // حساب بدون ارتفاع (مستوى البحر: 0م)
+        const seaLevel = computePrayersMujaib(33.5138, 36.2924, date, 3, null, 0);
+        // حساب بارتفاع دمشق (690م)
+        const damascusAlt = computePrayersMujaib(33.5138, 36.2924, date, 3, 'سوريا', 690);
+
+        const seaRise = parseTime(seaLevel.prayers.sunrise.civil);
+        const seaSet = parseTime(seaLevel.prayers.sunset.civil);
+        const damRise = parseTime(damascusAlt.prayers.sunrise.civil);
+        const damSet = parseTime(damascusAlt.prayers.sunset.civil);
+
+        // على ارتفاع 690م يتقدم الشروق بحوالي 3-4 دقائق ويتأخر الغروب بحوالي 3-4 دقائق
+        assert.ok(damRise <= seaRise, 'الشروق على ارتفاع 690م أسبق من أو يساوي مستوى البحر');
+        assert.ok(damSet >= seaSet, 'الغروب على ارتفاع 690م متأخر عن أو يساوي مستوى البحر');
+        assert.ok(damSet - seaSet >= 2 && damSet - seaSet <= 6, `فارق الغروب بالارتفاع يجب أن يكون بين 2 و 6 دقائق، الناتج: ${damSet - seaSet}`);
+    });
 });
+

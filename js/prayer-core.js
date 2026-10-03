@@ -159,8 +159,9 @@ export function getCityTimezoneHours(lat, lon, country = null, dateObj = null) {
  * @param {Date} dateObj كائن التاريخ
  * @param {number|null} tzHours فارق المنطقة الزمنية بالساعات
  * @param {string|null} country اسم الدولة
+ * @param {number|null} elevation الارتفاع عن سطح البحر بالأمتار (لحساب انحطاط الأفق الفلكي)
  */
-export function computePrayersMujaib(lat, lon, dateObj, tzHours = null, country = null) {
+export function computePrayersMujaib(lat, lon, dateObj, tzHours = null, country = null, elevation = null) {
     const date = dateObj || new Date();
     if (tzHours === null || isNaN(tzHours)) {
         tzHours = getCityTimezoneHours(lat, lon, country, date);
@@ -195,8 +196,18 @@ export function computePrayersMujaib(lat, lon, dateObj, tzHours = null, country 
     const fajrSolarHours = 4.0 * fajrFirstResult / 60.0;
     const H_fajr_rad = Math.max(0.1, (12.0 - fajrSolarHours) * 15.0 * Math.PI / 180.0);
 
-    // 2. الشروق والغروب (مع انكسار الأفق ونصف قطر الشمس: 0.833°)
-    const zenithRad = 90.833 * Math.PI / 180.0;
+    // 2. الشروق والغروب (مع انكسار الأفق ونصف قطر الشمس: 0.833° بالإضافة لانحطاط الأفق بالارتفاع كما في برنامج المواقيت: (1.76 * sqrt(h)) / 60)
+    let effElevation = elevation;
+    if (effElevation === null || isNaN(effElevation)) {
+        if (country === 'سوريا' || (Math.abs(lat - 33.5138) < 0.25 && Math.abs(lon - 36.2924) < 0.25)) {
+            effElevation = 690; // ارتفاع دمشق عن مستوى سطح البحر (690م)
+        } else {
+            effElevation = 0;
+        }
+    }
+    const horizonDip = effElevation > 0 ? (1.76 * Math.sqrt(effElevation)) / 60.0 : 0.0;
+    const zenithDeg = 90.833 + horizonDip;
+    const zenithRad = zenithDeg * Math.PI / 180.0;
     const cosH_val = (Math.cos(zenithRad) - Math.sin(latRad) * Math.sin(declRad)) /
                      Math.max(0.0001, Math.cos(latRad) * Math.cos(declRad));
     let H_sun_deg = 90.0;
