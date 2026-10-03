@@ -4,7 +4,8 @@
   "description": "Interactive 3D reconstruction of medieval Islamic astronomical models by Ibn al-Shatir",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "build": "node build_bundle.cjs"
   },
   "keywords": [
     "astronomy",

@@ -1652,13 +1652,20 @@
 
 <script src="data/astro-data.js"></script>
 <script src="data/cities.js"></script>
-<script type="module">
-    import { i18n } from './js/i18n.js';
-    window.i18n = i18n;
-    i18n.init();
+<script>
+    // دعم التشغيل المباشر عبر النقر المزدوج على ملف index.html في الفولدر (بروتوكول file://)
+    if (window.location.protocol === 'file:') {
+        document.write('<script src="js/bundle.js"><\/script>');
+    }
 </script>
-
-<script type="module" src="js/app.js"></script>
+<script type="module">
+    if (window.location.protocol !== 'file:') {
+        const { i18n } = await import('./js/i18n.js');
+        window.i18n = i18n;
+        i18n.init();
+        await import('./js/app.js');
+    }
+</script>
     <!-- PWA Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
