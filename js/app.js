@@ -4782,19 +4782,36 @@ var cosmos3DInitialized = false;
             const H_isha16 = getSettingHourAngle(h16Rad);
             const H_isha18 = getSettingHourAngle(h18Rad);
 
-            function calcSolarTimeStr(H_val) {
-                if (H_val === null) return '--:--';
+            function calcSolarTimeStr(H_val, reserveMin = 0) {
+                if (H_val === null || isNaN(H_val)) return '--:--';
                 const hoursFromNoon = H_val * (180 / Math.PI) / 15.0;
-                // الوقت بالساعة المحلية الشمسية
-                const totalHours = (12.0 + hoursFromNoon + 24.0) % 24.0;
-                const hh = Math.floor(totalHours);
-                const mm = Math.floor((totalHours - hh) * 60);
-                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+                let solH = 12.0 + hoursFromNoon;
+                let civH = solH;
+                if (typeof currentPrayersData !== 'undefined' && currentPrayersData) {
+                    const lonOffsetMin = (currentPrayersData.tzHours * 15.0 - currentLonDeg) * 4.0;
+                    civH = solH + (reserveMin / 60.0) + (lonOffsetMin - currentPrayersData.eotMin) / 60.0;
+                }
+                while (civH < 0) civH += 24.0;
+                while (civH >= 24.0) civH -= 24.0;
+                const totalM = Math.round(civH * 60.0);
+                const hh24 = Math.floor(totalM / 60.0) % 24;
+                const mm = totalM % 60;
+                const mmStr = String(mm).padStart(2, '0');
+                const period = hh24 >= 12 ? 'PM' : 'AM';
+                const hh12 = hh24 % 12 || 12;
+                const hh12Str = String(hh12).padStart(2, '0');
+                return `${hh12Str}:${mmStr} ${period}`;
             }
 
-            let sunsetTimeStr = calcSolarTimeStr(H_sunset);
-            let isha16TimeStr = calcSolarTimeStr(H_isha16);
-            let isha18TimeStr = calcSolarTimeStr(H_isha18);
+            let sunsetTimeStr = (currentPrayersData && currentPrayersData.prayers && currentPrayersData.prayers.sunset)
+                ? currentPrayersData.prayers.sunset.civil
+                : calcSolarTimeStr(H_sunset, 5);
+            let isha16TimeStr = (currentPrayersData && currentPrayersData.prayers && currentPrayersData.prayers.isha16)
+                ? currentPrayersData.prayers.isha16.civil
+                : calcSolarTimeStr(H_isha16, 0);
+            let isha18TimeStr = (currentPrayersData && currentPrayersData.prayers && currentPrayersData.prayers.ishaa)
+                ? currentPrayersData.prayers.ishaa.civil
+                : calcSolarTimeStr(H_isha18, 0);
 
             let diff16Min = 0, diff18Min = 0, diffBetweenIshas = 0;
             if (H_sunset !== null && H_isha16 !== null) {
@@ -4860,6 +4877,8 @@ var cosmos3DInitialized = false;
                 lastPrayerArcsDecl = deltaSun;
                 lastPrayerArcsPhi = phi;
                 forceRebuildPrayerArcs = false;
+            } else if (currentPrayersData) {
+                updatePrayerHUD(currentPrayersData, H_sun);
             }
 
             // تحديث شريط المدارات الفصلي المباشر وبيانات مقارنة العشائين
@@ -5390,18 +5409,30 @@ var cosmos3DInitialized = false;
             const H_16 = getSettingH(h16Rad);
             const H_18 = getSettingH(h18Rad);
 
-            function fmt(H_val) {
-                if (H_val === null) return '--:--';
+            function fmt(H_val, reserveMin = 0) {
+                if (H_val === null || isNaN(H_val)) return '--:--';
                 const hoursFromNoon = H_val * (180 / Math.PI) / 15.0;
-                const totalHours = (12.0 + hoursFromNoon + 24.0) % 24.0;
-                const hh = Math.floor(totalHours);
-                const mm = Math.floor((totalHours - hh) * 60);
-                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+                let solH = 12.0 + hoursFromNoon;
+                let civH = solH;
+                if (typeof currentPrayersData !== 'undefined' && currentPrayersData) {
+                    const lonOffsetMin = (currentPrayersData.tzHours * 15.0 - currentLonDeg) * 4.0;
+                    civH = solH + (reserveMin / 60.0) + (lonOffsetMin - currentPrayersData.eotMin) / 60.0;
+                }
+                while (civH < 0) civH += 24.0;
+                while (civH >= 24.0) civH -= 24.0;
+                const totalM = Math.round(civH * 60.0);
+                const hh24 = Math.floor(totalM / 60.0) % 24;
+                const mm = totalM % 60;
+                const mmStr = String(mm).padStart(2, '0');
+                const period = hh24 >= 12 ? 'PM' : 'AM';
+                const hh12 = hh24 % 12 || 12;
+                const hh12Str = String(hh12).padStart(2, '0');
+                return `${hh12Str}:${mmStr} ${period}`;
             }
 
-            const sunsetStr = fmt(H_set);
-            const isha16Str = fmt(H_16);
-            const isha18Str = fmt(H_18);
+            const sunsetStr = fmt(H_set, 5);
+            const isha16Str = fmt(H_16, 0);
+            const isha18Str = fmt(H_18, 0);
 
             let d16 = 0, d18 = 0;
             if (H_set !== null && H_16 !== null) d16 = Math.round(((H_16 - H_set) * (180 / Math.PI) / 15.0) * 60);

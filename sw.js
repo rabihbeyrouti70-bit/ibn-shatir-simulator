@@ -1,5 +1,5 @@
 /* Service Worker for Ibn al-Shatir Astronomical Simulator */
-const CACHE_NAME = 'ibn-shatir-v1.0.4';
+const CACHE_NAME = 'ibn-shatir-v1.0.5';
 
 const PRECACHE_ASSETS = [
   './',
@@ -36,7 +36,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch: Cache-first for local assets, Network-first (with cache fallback) for CDN/external resources
+// Fetch: Network-first for local assets (ensures latest updates, falls back to cache offline), Cache-first for CDN/external resources
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -46,24 +46,14 @@ self.addEventListener('fetch', event => {
   // If local origin (or same directory relative path)
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(req).then(cachedResponse => {
-        if (cachedResponse) {
-          // Return cached and optionally revalidate in background
-          fetch(req).then(networkResponse => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then(cache => cache.put(req, networkResponse));
-            }
-          }).catch(() => {/* Offline */});
-          return cachedResponse;
-        }
-        return fetch(req).then(networkResponse => {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse;
-          }
+      fetch(req).then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(req, responseToCache));
-          return networkResponse;
-        });
+        }
+        return networkResponse;
+      }).catch(() => {
+        return caches.match(req);
       })
     );
   } else {

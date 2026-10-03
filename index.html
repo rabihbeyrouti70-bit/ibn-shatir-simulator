@@ -1123,18 +1123,18 @@
         <div id="c3dBottomPill" class="c3d-bottom-pill">
             <div class="telem-item">
                 <span class="telem-lbl">🌇 الغروب:</span>
-                <span id="telemSunset" class="telem-val" style="color:#F59E0B;">18:00</span>
+                <span id="telemSunset" class="telem-val" style="color:#F59E0B;">06:00 PM</span>
             </div>
             <div class="telem-sep">•</div>
             <div class="telem-item">
                 <span class="telem-lbl">🟠 الشافعي (16°):</span>
-                <span id="telemIsha16" class="telem-val" style="color:#FB923C;">19:17</span>
+                <span id="telemIsha16" class="telem-val" style="color:#FB923C;">07:17 PM</span>
                 <span id="telemIsha16Diff" class="telem-sub">(+77د)</span>
             </div>
             <div class="telem-sep">•</div>
             <div class="telem-item">
                 <span class="telem-lbl">🟣 الحنفي (18°):</span>
-                <span id="telemIsha18" class="telem-val" style="color:#A78BFA;">19:27</span>
+                <span id="telemIsha18" class="telem-val" style="color:#A78BFA;">07:27 PM</span>
                 <span id="telemIsha18Diff" class="telem-sub">(+87د)</span>
             </div>
             <div class="telem-sep">•</div>
@@ -1165,36 +1165,36 @@
                     <tr id="rowCompareSummer">
                         <td><strong style="color:#EF4444;">☀️ الانقلاب الصيفي (مدار السرطان)</strong></td>
                         <td>+23.5&deg;</td>
-                        <td id="tdSummerSunset">19:07</td>
-                        <td id="tdSummerIsha16">20:42 (+95د)</td>
-                        <td id="tdSummerIsha18">20:55 (+108د)</td>
+                        <td id="tdSummerSunset">07:07 PM</td>
+                        <td id="tdSummerIsha16">08:42 PM (+95د)</td>
+                        <td id="tdSummerIsha18">08:55 PM (+108د)</td>
                         <td><span class="diff-tag summer">13 دقيقة</span></td>
                         <td style="color:#FDA4AF; font-size:0.88em;">أطول شفق في السنة؛ مسار الهبوط مائل جداً فيتأخر غياب الشفق</td>
                     </tr>
                     <tr id="rowCompareEquinox">
                         <td><strong style="color:#38BDF8;">⚖️ الاعتدالين (مدار الاستواء)</strong></td>
                         <td>0.0&deg;</td>
-                        <td id="tdEquinoxSunset">18:00</td>
-                        <td id="tdEquinoxIsha16">19:17 (+77د)</td>
-                        <td id="tdEquinoxIsha18">19:27 (+87د)</td>
+                        <td id="tdEquinoxSunset">06:00 PM</td>
+                        <td id="tdEquinoxIsha16">07:17 PM (+77د)</td>
+                        <td id="tdEquinoxIsha18">07:27 PM (+87د)</td>
                         <td><span class="diff-tag equinox">10 دقائق</span></td>
                         <td style="color:#BAE6FD; font-size:0.88em;">شفق متوسط معتدل؛ مسار الهبوط عمودي نسبياً على الأفق</td>
                     </tr>
                     <tr id="rowCompareWinter">
                         <td><strong style="color:#34D399;">❄️ الانقلاب الشتوي (مدار الجدي)</strong></td>
                         <td>-23.5&deg;</td>
-                        <td id="tdWinterSunset">16:53</td>
-                        <td id="tdWinterIsha16">18:17 (+84د)</td>
-                        <td id="tdWinterIsha18">18:27 (+94د)</td>
+                        <td id="tdWinterSunset">04:53 PM</td>
+                        <td id="tdWinterIsha16">06:17 PM (+84د)</td>
+                        <td id="tdWinterIsha18">06:27 PM (+94د)</td>
                         <td><span class="diff-tag winter">10 دقائق</span></td>
                         <td style="color:#A7F3D0; font-size:0.88em;">أبكر غروب في السنة؛ يتقدم وقت العشائين مبكراً</td>
                     </tr>
                     <tr id="rowCompareCurrent" class="current-row">
                         <td><strong style="color:#FBBF24;">📍 المدار الحالي المسحوب</strong></td>
                         <td id="tdCurrDecl">0.0&deg;</td>
-                        <td id="tdCurrSunset">18:00</td>
-                        <td id="tdCurrIsha16">19:17 (+77د)</td>
-                        <td id="tdCurrIsha18">19:27 (+87د)</td>
+                        <td id="tdCurrSunset">06:00 PM</td>
+                        <td id="tdCurrIsha16">07:17 PM (+77د)</td>
+                        <td id="tdCurrIsha18">07:27 PM (+87د)</td>
                         <td><span id="tdCurrDiff" class="diff-tag current">10 دقائق</span></td>
                         <td id="tdCurrNote" style="color:#FEF08A; font-size:0.88em;">موضع الشمس اللحظي المختار بالسلايدر</td>
                     </tr>
@@ -1665,6 +1665,7 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
                     console.log('PWA ServiceWorker registered with scope:', reg.scope);
+                    reg.update();
                 }).catch(err => {
                     console.warn('PWA ServiceWorker registration failed:', err);
                 });

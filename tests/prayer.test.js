@@ -97,4 +97,31 @@ describe('مواقيت الصلاة وحسابات الربع المجيب (Rub 
         const qiblaSouthPole = calculateQiblaDirection(-89.9, 0);
         assert.ok(!isNaN(qiblaSouthPole) && qiblaSouthPole >= 0 && qiblaSouthPole < 360);
     });
+
+    it('التحقق الصارم من أن العصر الشافعي والحنفي والمغرب والعشائين تظهر جميعها بنظام 12 ساعة (AM/PM) وليس 24', () => {
+        const date = new Date(Date.UTC(2026, 2, 21, 12, 0, 0));
+        const res = computePrayersMujaib(DAMASCUS.lat, DAMASCUS.lon, date, DAMASCUS.tz, 'سوريا');
+
+        const targets = [
+            { key: 'asr', name: 'العصر الشافعي' },
+            { key: 'asrHanafi', name: 'العصر الحنفي' },
+            { key: 'sunset', name: 'المغرب' },
+            { key: 'ishaa', name: 'العشاء الحنفي (18°)' },
+            { key: 'isha16', name: 'العشاء الشافعي (16°)' }
+        ];
+
+        const time12Regex = /^(0[1-9]|1[0-2]):[0-5][0-9]\s+(AM|PM)$/;
+
+        targets.forEach(t => {
+            const timeVal = res.prayers[t.key].civil;
+            assert.ok(
+                time12Regex.test(timeVal),
+                `${t.name} (${t.key}) يجب أن يطابق صيغة 12 ساعة AM/PM، القيمة المستلمة: ${timeVal}`
+            );
+            // التأكد من أن الساعة لا تتجاوز 12 (نظام 24 مرفوض تماماً)
+            const hourPart = parseInt(timeVal.split(':')[0], 10);
+            assert.ok(hourPart >= 1 && hourPart <= 12, `الساعة في ${t.name} يجب أن تكون بين 1 و 12 وليس أكثر، القيمة: ${hourPart}`);
+            assert.ok(/PM/i.test(timeVal), `${t.name} في فترة بعد الظهر والمساء يجب أن يحمل لاحقة PM`);
+        });
+    });
 });
