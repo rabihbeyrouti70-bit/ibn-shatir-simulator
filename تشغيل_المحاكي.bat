@@ -27,7 +27,7 @@ where node >nul 2>nul
 if %ERRORLEVEL% equ 0 (
     echo [✓] تم العثور على Node.js. جاري فتح المتصفح وتشغيل الخادم على المنفذ 8090...
     start "" http://localhost:8090/index.html
-    node -e "const http=require('http'),fs=require('fs'),path=require('path');http.createServer((req,res)=>{let f=path.join('.',req.url.split('?')[0]);if(f==='.')f='./index.html';fs.readFile(f,(e,d)=>{if(e){res.writeHead(404);res.end();}else{const m={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml'};res.writeHead(200,{'Content-Type':m[path.extname(f)]||'text/plain'});res.end(d);}});}).listen(8090);"
+    node -e "const http=require('http'),fs=require('fs'),path=require('path');http.createServer(function(req,res){var f=path.join('.',req.url.split('?')[0]);if(f==='.')f='./index.html';fs.readFile(f,function(e,d){if(e){res.writeHead(404);res.end();}else{var m={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml'};res.writeHead(200,{'Content-Type':m[path.extname(f)]||'text/plain'});res.end(d);}});}).listen(8090);"
     goto end
 )
 

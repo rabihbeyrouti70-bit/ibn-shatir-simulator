@@ -3022,10 +3022,10 @@ var cosmos3DInitialized = false;
 
         // كائنات Three.js
         let scene, camera, renderer, controls;
-        let horizonGroup, seasonalArcsGroup, planetsGroup, zodiacGroup, atlasGroup, moonArcGroup, twilightGroup;
-        let ibnShatirOrbsGroup;
-        let sunDeferentLine, sunDirectorLine, sunDirectorMesh, sunArmDeferent, sunArmDirector, sunDirectorLabelSprite;
-        let moonDeferentLine, moonEpicycle1Line, moonEpicycle2Line, moonEpicycle1Mesh, moonEpicycle2Mesh, moonArmDeferent, moonArmEp1, moonArmEp2, moonOrbsLabelSprite;
+        let horizonGroup, seasonalArcsGroup, planetsGroup, zodiacGroup, atlasGroup, moonArcGroup, sunArcGroup, twilightGroup;
+        let ibnShatirOrbsGroup, ibnShatirSunGroup, ibnShatirMoonGroup;
+        let sunDeferentLine, sunEp1Line, sunDirectorLine, sunJointDefMesh, sunJointEp1Mesh, sunBodyIbsMesh, sunArmDeferent, sunArm1, sunArm2, sunIbsSightlineRay, sunDirectorLabelSprite;
+        let moonDeferentLine, moonEp1Line, moonEp2Line, moonJointDefMesh, moonJointEp1Mesh, moonBodyIbsMesh, moonArmDeferent, moonArmEp1, moonArmEp2, moonIbsSightlineRay, moonOrbsLabelSprite;
         let qiblaGroup, qiblaPointerMesh, qiblaLineRay, qiblaLabelSprite;
         let ishaShafiLine, ishaHanafiLine, ishaShafiSector, ishaHanafiSector;
         let ishaShafiLabelSprite;
@@ -3350,7 +3350,10 @@ var cosmos3DInitialized = false;
             );
             primeVerticalLine.computeLineDistances();
             scene.add(primeVerticalLine);
+            sunArcGroup = new THREE.Group(); scene.add(sunArcGroup);
             moonArcGroup = new THREE.Group(); scene.add(moonArcGroup);
+            window.sunArcGroup = sunArcGroup;
+            window.moonArcGroup = moonArcGroup;
             planetsGroup = new THREE.Group(); scene.add(planetsGroup);
             zodiacGroup = new THREE.Group(); scene.add(zodiacGroup);
             atlasGroup = new THREE.Group(); scene.add(atlasGroup);
@@ -3861,6 +3864,7 @@ var cosmos3DInitialized = false;
 
         // تحديث قوس مسار القمر لليوم الحالي
         function updateMoonSkyArc(moonDelta) {
+            if (!moonArcGroup) return;
             cleanThreeGroup(moonArcGroup);
 
             const phi = currentLatRad;
@@ -3876,6 +3880,38 @@ var cosmos3DInitialized = false;
             );
             line.computeLineDistances();
             moonArcGroup.add(line);
+        }
+
+        // تحديث مدار وقوس مسار الشمس لليوم الحالي (الموازي لمدار السرطان والجدي)
+        function updateSunSkyArc(sunDelta) {
+            if (!sunArcGroup) return;
+            cleanThreeGroup(sunArcGroup);
+
+            const phi = currentLatRad;
+            const pts = [];
+            for (let i = 0; i <= 72; i++) {
+                const H = -Math.PI + (i / 72) * Math.PI * 2;
+                const { alt, az } = computeHorizontalCoords(sunDelta, H, phi);
+                pts.push(new THREE.Vector3(
+                    DOME_R * Math.cos(alt) * Math.sin(az),
+                    DOME_R * Math.sin(alt),
+                    -DOME_R * Math.cos(alt) * Math.cos(az)
+                ));
+            }
+            const line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints(pts),
+                new THREE.LineDashedMaterial({
+                    color: 0xFDE047,
+                    dashSize: 6,
+                    gapSize: 3,
+                    transparent: true,
+                    opacity: 0.92,
+                    linewidth: 2.5
+                })
+            );
+            line.computeLineDistances();
+            sunArcGroup.add(line);
+            currentSunOrbitLine = line;
         }
 
         // 5. الكواكب الخمسة الأخرى
@@ -4184,126 +4220,169 @@ var cosmos3DInitialized = false;
         }
 
         // =========================================================================
-        // ⚙️ الفلك الحامل والمدير للشمس والقمر (Ibn al-Shatir 3D Deferents & Directors)
+        // ⚙️ الفلك الحامل والمدير للشمس والقمر (Ibn al-Shatir 3D Kinematic Mechanism)
         // =========================================================================
-        const R_SUN_DEF = 115;   // نصف قطر فلك الشمس الحامل المتراكز مع الأرض
-        const R_SUN_DIR = 25;    // نصف قطر فلك الشمس المدير (التدوير) المطابق للمسافة لجرم الشمس
-        const R_MOON_DEF = 112;  // نصف قطر فلك القمر الحامل المتراكز مع الأرض
-        const R_MOON_EP1 = 18;   // نصف قطر فلك تدوير القمر الأول (الحامل الصغير)
-        const R_MOON_EP2 = 8;    // نصف قطر فلك تدوير القمر الثاني (المدير)
-
         function createIbnShatirOrbs() {
             if (!ibnShatirOrbsGroup) {
                 ibnShatirOrbsGroup = new THREE.Group();
                 scene.add(ibnShatirOrbsGroup);
             }
+            cleanThreeGroup(ibnShatirOrbsGroup);
 
-            // 1. فلك الشمس الحامل (حلقة دائرة متراكزة مع الأرض في مستوى فلك البروج)
-            const sunDefGeom = new THREE.BufferGeometry();
+            ibnShatirSunGroup = new THREE.Group();
+            ibnShatirMoonGroup = new THREE.Group();
+            ibnShatirOrbsGroup.add(ibnShatirSunGroup);
+            ibnShatirOrbsGroup.add(ibnShatirMoonGroup);
+
+            // -------------------------------------------------------------
+            // 1. فلك الشمس الحامل وفلكا التدوير (الحامل الصغير والمدير)
+            // -------------------------------------------------------------
+            // أ. فلك الحامل الرئيسي للشمس (متراكز مع الأرض في فلك البروج)
             sunDeferentLine = new THREE.Line(
-                sunDefGeom,
-                new THREE.LineBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.8, linewidth: 2 })
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.82, linewidth: 2.2 })
             );
-            ibnShatirOrbsGroup.add(sunDeferentLine);
+            ibnShatirSunGroup.add(sunDeferentLine);
 
-            // 2. فلك الشمس المدير (دائرة تدوير تدور على محيط الحامل)
-            const sunDirGeom = new THREE.BufferGeometry();
+            // ب. فلك التدوير الأول للشمس (الحامل الصغير r1)
+            sunEp1Line = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.85, linewidth: 1.8 })
+            );
+            ibnShatirSunGroup.add(sunEp1Line);
+
+            // ج. فلك التدوير الثاني للشمس (المدير r2)
             sunDirectorLine = new THREE.Line(
-                sunDirGeom,
-                new THREE.LineBasicMaterial({ color: 0xF59E0B, transparent: true, opacity: 0.9, linewidth: 2 })
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({ color: 0xF59E0B, transparent: true, opacity: 0.95, linewidth: 2.4 })
             );
-            ibnShatirOrbsGroup.add(sunDirectorLine);
+            ibnShatirSunGroup.add(sunDirectorLine);
 
-            // نقطة مركز مدير الشمس P_sun
-            const pSunGeom = new THREE.SphereGeometry(1.6, 16, 16);
-            const pSunMat = new THREE.MeshStandardMaterial({ color: 0x38BDF8, emissive: 0x0284C7, roughness: 0.3 });
-            sunDirectorMesh = new THREE.Mesh(pSunGeom, pSunMat);
-            ibnShatirOrbsGroup.add(sunDirectorMesh);
+            // مفاصل وأجرام حركة الشمس
+            sunJointDefMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(1.6, 16, 16),
+                new THREE.MeshStandardMaterial({ color: 0x38BDF8, emissive: 0x0284C7, roughness: 0.3 })
+            );
+            ibnShatirSunGroup.add(sunJointDefMesh);
 
-            // أذرع ميكانيكية للشمس: من الأرض إلى مركز المدير، ومن المدير إلى جرم الشمس
+            sunJointEp1Mesh = new THREE.Mesh(
+                new THREE.SphereGeometry(1.4, 16, 16),
+                new THREE.MeshStandardMaterial({ color: 0x60A5FA, emissive: 0x2563EB, roughness: 0.3 })
+            );
+            ibnShatirSunGroup.add(sunJointEp1Mesh);
+
+            sunBodyIbsMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(3.6, 24, 24),
+                new THREE.MeshStandardMaterial({ color: 0xFDE047, emissive: 0xF59E0B, emissiveIntensity: 0.8, roughness: 0.2 })
+            );
+            ibnShatirSunGroup.add(sunBodyIbsMesh);
+
+            // أذرع الربط الميكانيكية للشمس
             sunArmDeferent = new THREE.Line(
                 new THREE.BufferGeometry(),
-                new THREE.LineBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.7 })
+                new THREE.LineBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.8, linewidth: 2 })
             );
-            sunArmDirector = new THREE.Line(
+            sunArm1 = new THREE.Line(
                 new THREE.BufferGeometry(),
-                new THREE.LineBasicMaterial({ color: 0xFBBF24, transparent: true, opacity: 0.85 })
+                new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.9, linewidth: 2 })
             );
-            ibnShatirOrbsGroup.add(sunArmDeferent);
-            ibnShatirOrbsGroup.add(sunArmDirector);
+            sunArm2 = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({ color: 0xFBBF24, transparent: true, opacity: 0.95, linewidth: 2.5 })
+            );
+            sunIbsSightlineRay = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineDashedMaterial({ color: 0xFDE047, dashSize: 4, gapSize: 3, transparent: true, opacity: 0.45 })
+            );
+            ibnShatirSunGroup.add(sunArmDeferent);
+            ibnShatirSunGroup.add(sunArm1);
+            ibnShatirSunGroup.add(sunArm2);
+            ibnShatirSunGroup.add(sunIbsSightlineRay);
 
-            // شارة وسم فلك الشمس لابن الشاطر
-            sunDirectorLabelSprite = createIbsBadgeSprite('☉ فلك الشمس المدير (ابن الشاطر)', '#F59E0B');
-            ibnShatirOrbsGroup.add(sunDirectorLabelSprite);
+            sunDirectorLabelSprite = createIbsBadgeSprite('☉ فلك الشمس الحامل والمدير (ابن الشاطر)', '#F59E0B');
+            ibnShatirSunGroup.add(sunDirectorLabelSprite);
 
-            // 3. فلك القمر الحامل (حلقة متراكزة مع الأرض مائلة 5.14° عن فلك البروج)
-            const moonDefGeom = new THREE.BufferGeometry();
+            // -------------------------------------------------------------
+            // 2. فلك القمر الحامل وفلكا التدوير (الحامل الصغير والمدير)
+            // -------------------------------------------------------------
+            // أ. فلك الحامل الرئيسي للقمر (في فلك مائل 5.14° متراكز مع الأرض)
             moonDeferentLine = new THREE.Line(
-                moonDefGeom,
-                new THREE.LineBasicMaterial({ color: 0xA78BFA, transparent: true, opacity: 0.75, linewidth: 2 })
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({ color: 0xA78BFA, transparent: true, opacity: 0.78, linewidth: 2.0 })
             );
-            ibnShatirOrbsGroup.add(moonDeferentLine);
+            ibnShatirMoonGroup.add(moonDeferentLine);
 
-            // 4. فلك تدوير القمر الأول (الحامل الصغير)
-            const moonEp1Geom = new THREE.BufferGeometry();
-            moonEpicycle1Line = new THREE.Line(
-                moonEp1Geom,
-                new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.85, linewidth: 2 })
+            // ب. فلك التدوير الأول للقمر (الحامل الصغير r1)
+            moonEp1Line = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.85, linewidth: 1.8 })
             );
-            ibnShatirOrbsGroup.add(moonEpicycle1Line);
+            ibnShatirMoonGroup.add(moonEp1Line);
 
-            // نقطة مركز تدوير القمر الأول P1
-            const pMoon1Geom = new THREE.SphereGeometry(1.4, 16, 16);
-            const pMoon1Mat = new THREE.MeshStandardMaterial({ color: 0x60A5FA, emissive: 0x2563EB, roughness: 0.3 });
-            moonEpicycle1Mesh = new THREE.Mesh(pMoon1Geom, pMoon1Mat);
-            ibnShatirOrbsGroup.add(moonEpicycle1Mesh);
-
-            // 5. فلك تدوير القمر الثاني (المدير)
-            const moonEp2Geom = new THREE.BufferGeometry();
-            moonEpicycle2Line = new THREE.Line(
-                moonEp2Geom,
-                new THREE.LineBasicMaterial({ color: 0xFDE047, transparent: true, opacity: 0.9, linewidth: 2 })
+            // ج. فلك التدوير الثاني للقمر (المدير r2)
+            moonEp2Line = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({ color: 0xFDE047, transparent: true, opacity: 0.92, linewidth: 2.2 })
             );
-            ibnShatirOrbsGroup.add(moonEpicycle2Line);
+            ibnShatirMoonGroup.add(moonEp2Line);
 
-            // نقطة مركز تدوير القمر الثاني P2
-            const pMoon2Geom = new THREE.SphereGeometry(1.2, 16, 16);
-            const pMoon2Mat = new THREE.MeshStandardMaterial({ color: 0xFDE047, emissive: 0xD97706, roughness: 0.3 });
-            moonEpicycle2Mesh = new THREE.Mesh(pMoon2Geom, pMoon2Mat);
-            ibnShatirOrbsGroup.add(moonEpicycle2Mesh);
+            // مفاصل وأجرام حركة القمر
+            moonJointDefMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(1.4, 16, 16),
+                new THREE.MeshStandardMaterial({ color: 0xA78BFA, emissive: 0x7C3AED, roughness: 0.3 })
+            );
+            ibnShatirMoonGroup.add(moonJointDefMesh);
 
-            // أذرع ميكانيكية للقمر: الأرض -> P_def -> P1 -> P2 -> Moon
+            moonJointEp1Mesh = new THREE.Mesh(
+                new THREE.SphereGeometry(1.3, 16, 16),
+                new THREE.MeshStandardMaterial({ color: 0x60A5FA, emissive: 0x2563EB, roughness: 0.3 })
+            );
+            ibnShatirMoonGroup.add(moonJointEp1Mesh);
+
+            moonBodyIbsMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(2.8, 20, 20),
+                new THREE.MeshStandardMaterial({ color: 0xF1F5F9, emissive: 0xCBD5E1, emissiveIntensity: 0.7, roughness: 0.3 })
+            );
+            ibnShatirMoonGroup.add(moonBodyIbsMesh);
+
+            // أذرع الربط الميكانيكية للقمر
             moonArmDeferent = new THREE.Line(
                 new THREE.BufferGeometry(),
-                new THREE.LineBasicMaterial({ color: 0xA78BFA, transparent: true, opacity: 0.65 })
+                new THREE.LineBasicMaterial({ color: 0xA78BFA, transparent: true, opacity: 0.75, linewidth: 1.8 })
             );
             moonArmEp1 = new THREE.Line(
                 new THREE.BufferGeometry(),
-                new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.8 })
+                new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.85, linewidth: 2 })
             );
             moonArmEp2 = new THREE.Line(
                 new THREE.BufferGeometry(),
-                new THREE.LineBasicMaterial({ color: 0xFDE047, transparent: true, opacity: 0.9 })
+                new THREE.LineBasicMaterial({ color: 0xFDE047, transparent: true, opacity: 0.95, linewidth: 2.2 })
             );
-            ibnShatirOrbsGroup.add(moonArmDeferent);
-            ibnShatirOrbsGroup.add(moonArmEp1);
-            ibnShatirOrbsGroup.add(moonArmEp2);
+            moonIbsSightlineRay = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineDashedMaterial({ color: 0xC084FC, dashSize: 4, gapSize: 3, transparent: true, opacity: 0.45 })
+            );
+            ibnShatirMoonGroup.add(moonArmDeferent);
+            ibnShatirMoonGroup.add(moonArmEp1);
+            ibnShatirMoonGroup.add(moonArmEp2);
+            ibnShatirMoonGroup.add(moonIbsSightlineRay);
 
-            // شارة وسم فلك القمر لابن الشاطر
             moonOrbsLabelSprite = createIbsBadgeSprite('☽ فلك القمر الحامل والمدير (ابن الشاطر)', '#C084FC');
-            ibnShatirOrbsGroup.add(moonOrbsLabelSprite);
+            ibnShatirMoonGroup.add(moonOrbsLabelSprite);
 
             window.ibnShatirOrbsGroup = ibnShatirOrbsGroup;
+            window.ibnShatirSunGroup = ibnShatirSunGroup;
+            window.ibnShatirMoonGroup = ibnShatirMoonGroup;
             window.sunDeferentLine = sunDeferentLine;
             window.sunDirectorLine = sunDirectorLine;
             window.moonDeferentLine = moonDeferentLine;
-            window.moonEpicycle1Line = moonEpicycle1Line;
-            window.moonEpicycle2Line = moonEpicycle2Line;
+            window.moonEpicycle1Line = moonEp1Line;
+            window.moonEpicycle2Line = moonEp2Line;
         }
 
         function createIbsBadgeSprite(text, borderColor) {
             const canvas = document.createElement('canvas');
-            canvas.width = 360;
+            canvas.width = 380;
             canvas.height = 70;
             const ctx = canvas.getContext('2d');
 
@@ -4311,187 +4390,290 @@ var cosmos3DInitialized = false;
             ctx.strokeStyle = borderColor;
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.roundRect(8, 8, 344, 54, 14);
+            ctx.roundRect(8, 8, 364, 54, 14);
             ctx.fill();
             ctx.stroke();
 
             ctx.fillStyle = '#F8FAFC';
-            ctx.font = 'bold 20px "Cairo", sans-serif';
+            ctx.font = 'bold 19px "Cairo", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(text, 180, 35);
+            ctx.fillText(text, 190, 35);
 
             const texture = new THREE.CanvasTexture(canvas);
             const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
-            sprite.scale.set(22, 4.5, 1);
+            sprite.scale.set(23, 4.6, 1);
             return sprite;
         }
 
-        function updateIbnShatirOrbs(lambdaSun, alpha_sun, H_sun, moonLambda, moonDelta, H_moon, phi) {
+        function updateIbnShatirOrbs(lambdaSun, alpha_sun, H_sun, moonLambda, moonDelta, H_moon, phi, dayOfYearInput) {
             if (!ibnShatirOrbsGroup || !ibnShatirOrbsGroup.visible) return;
 
             const obsPos = new THREE.Vector3(0, 2, 0);
+            const simDate = currentDate || new Date();
+            const dayOfYear = dayOfYearInput !== undefined
+                ? dayOfYearInput
+                : ((simDate.getTime() - new Date(Date.UTC(simDate.getUTCFullYear(), 0, 1)).getTime()) / 86400000);
 
-            // -------------------------------------------------------------
-            // A. فلك الشمس الحامل وفلك الشمس المدير
-            // -------------------------------------------------------------
-            // 1. فلك الشمس الحامل: دائرة متراكزة مع الأرض بنصف قطر R_SUN_DEF في مستوى فلك البروج
-            const sunDefPts = [];
-            for (let j = 0; j <= 64; j++) {
-                const lam = (j / 64) * Math.PI * 2;
-                sunDefPts.push(getEcliptic3DPos(lam, H_sun, alpha_sun, phi, R_SUN_DEF));
-            }
-            if (sunDeferentLine) {
-                if (sunDeferentLine.geometry) sunDeferentLine.geometry.dispose();
-                sunDeferentLine.geometry = new THREE.BufferGeometry().setFromPoints(sunDefPts);
-            }
+            // =============================================================
+            // A. فلك الشمس الحامل والمدير (نموذج ابن الشاطر الشمسي في فلك البروج)
+            // =============================================================
+            if (ibnShatirSunGroup && ibnShatirSunGroup.visible) {
+                const R_SUN_DEF = 105;
+                const r_sun_1 = 11;
+                const r_sun_2 = 6;
+                const lambda_apo = 77.0 * Math.PI / 180.0;
+                const alpha_anom = ((lambdaSun - lambda_apo) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
 
-            // 2. مركز فلك المدير للشمس C_sun على فلك الحامل
-            const cSun = getEcliptic3DPos(lambdaSun, H_sun, alpha_sun, phi, R_SUN_DEF);
-            if (sunDirectorMesh) {
-                sunDirectorMesh.position.copy(cSun);
-            }
+                // متجها الأساس المتعامدان لمستوى فلك البروج عند زاوية الساعة الحالية
+                const H0 = H_sun + alpha_sun;
+                const { alt: alt0, az: az0 } = computeHorizontalCoords(0, H0, phi);
+                const uEcl = new THREE.Vector3(
+                    Math.cos(alt0) * Math.sin(az0),
+                    Math.sin(alt0),
+                    -Math.cos(alt0) * Math.cos(az0)
+                ).normalize();
 
-            // متجهات الأساس لمستوى فلك البروج عند موضع C_sun لبناء دائرة المدير في مستواها المداري
-            const uSun = cSun.clone().normalize();
-            const cSunFwd = getEcliptic3DPos(lambdaSun + 0.05, H_sun, alpha_sun, phi, R_SUN_DEF);
-            const tSun = cSunFwd.sub(cSun).normalize();
+                const H90 = H_sun - (Math.PI / 2 - alpha_sun);
+                const { alt: alt90, az: az90 } = computeHorizontalCoords(EPSILON, H90, phi);
+                let vEcl = new THREE.Vector3(
+                    Math.cos(alt90) * Math.sin(az90),
+                    Math.sin(alt90),
+                    -Math.cos(alt90) * Math.cos(az90)
+                );
+                vEcl.addScaledVector(uEcl, -vEcl.dot(uEcl)).normalize();
 
-            // 3. نقاط فلك المدير للشمس (متصلة بدقة بجرم الشمس)
-            const actualSunDirR = sunMesh ? cSun.distanceTo(sunMesh.position) : R_SUN_DIR;
-            const sunDirPts = [];
-            for (let k = 0; k <= 36; k++) {
-                const th = (k / 36) * Math.PI * 2;
-                const pt = new THREE.Vector3()
-                    .copy(cSun)
-                    .addScaledVector(uSun, actualSunDirR * Math.cos(th))
-                    .addScaledVector(tSun, actualSunDirR * Math.sin(th));
-                sunDirPts.push(pt);
-            }
-            if (sunDirectorLine) {
-                if (sunDirectorLine.geometry) sunDirectorLine.geometry.dispose();
-                sunDirectorLine.geometry = new THREE.BufferGeometry().setFromPoints(sunDirPts);
-            }
+                // 1. مركز فلك التدوير الأول على فلك الحامل
+                const cSunDef = new THREE.Vector3()
+                    .copy(obsPos)
+                    .addScaledVector(uEcl, R_SUN_DEF * Math.cos(lambdaSun))
+                    .addScaledVector(vEcl, R_SUN_DEF * Math.sin(lambdaSun));
 
-            // 4. أذرع الشمس
-            if (sunArmDeferent) {
-                if (sunArmDeferent.geometry) sunArmDeferent.geometry.dispose();
-                sunArmDeferent.geometry = new THREE.BufferGeometry().setFromPoints([obsPos, cSun]);
-            }
-            if (sunArmDirector && sunMesh) {
-                if (sunArmDirector.geometry) sunArmDirector.geometry.dispose();
-                sunArmDirector.geometry = new THREE.BufferGeometry().setFromPoints([cSun, sunMesh.position]);
-            }
+                if (sunJointDefMesh) sunJointDefMesh.position.copy(cSunDef);
 
-            if (sunDirectorLabelSprite) {
-                sunDirectorLabelSprite.position.set(cSun.x, cSun.y + 6, cSun.z);
-                sunDirectorLabelSprite.visible = show3DLabels;
-            }
+                // 2. الذراع الأول (الحامل الصغير r1 نحو الأوج)
+                const uApo = new THREE.Vector3()
+                    .addScaledVector(uEcl, Math.cos(lambda_apo))
+                    .addScaledVector(vEcl, Math.sin(lambda_apo));
+                const pSun1 = new THREE.Vector3()
+                    .copy(cSunDef)
+                    .addScaledVector(uApo, r_sun_1);
 
-            // -------------------------------------------------------------
-            // B. فلك القمر الحامل وفلك القمر المدير الأول والثاني
-            // -------------------------------------------------------------
-            // 1. فلك القمر الحامل: دائرة متراكزة مع الأرض بنصف قطر R_MOON_DEF مائلة 5.14°
-            const moonDefPts = [];
-            for (let j = 0; j <= 64; j++) {
-                const lam = (j / 64) * Math.PI * 2;
-                const d = Math.asin(Math.sin(EPSILON + MOON_INC) * Math.sin(lam));
-                const h = H_sun + (lam - lambdaSun);
-                const { alt, az } = computeHorizontalCoords(d, h, phi);
-                moonDefPts.push(new THREE.Vector3(
-                    R_MOON_DEF * Math.cos(alt) * Math.sin(az),
-                    R_MOON_DEF * Math.sin(alt),
-                    -R_MOON_DEF * Math.cos(alt) * Math.cos(az)
-                ));
-            }
-            if (moonDeferentLine) {
-                if (moonDeferentLine.geometry) moonDeferentLine.geometry.dispose();
-                moonDeferentLine.geometry = new THREE.BufferGeometry().setFromPoints(moonDefPts);
-            }
+                if (sunJointEp1Mesh) sunJointEp1Mesh.position.copy(pSun1);
 
-            // 2. مركز فلك التدوير الأول P_def على فلك القمر الحامل
-            const { alt: altDefM, az: azDefM } = computeHorizontalCoords(moonDelta, H_moon, phi);
-            const cMoon = new THREE.Vector3(
-                R_MOON_DEF * Math.cos(altDefM) * Math.sin(azDefM),
-                R_MOON_DEF * Math.sin(altDefM),
-                -R_MOON_DEF * Math.cos(altDefM) * Math.cos(azDefM)
-            );
-            if (moonEpicycle1Mesh) {
-                moonEpicycle1Mesh.position.copy(cMoon);
-            }
+                // 3. الذراع الثاني (المدير r2 يدور بضعف الخاصة 2*alpha)
+                const theta2 = lambda_apo + 2 * alpha_anom;
+                const uDir = new THREE.Vector3()
+                    .addScaledVector(uEcl, Math.cos(theta2))
+                    .addScaledVector(vEcl, Math.sin(theta2));
+                const pSunIbs = new THREE.Vector3()
+                    .copy(pSun1)
+                    .addScaledVector(uDir, r_sun_2);
 
-            // متجهات الأساس لمستوى مدار القمر عند C_moon
-            const uMoon = cMoon.clone().normalize();
-            const dFwd = Math.asin(Math.sin(EPSILON + MOON_INC) * Math.sin(moonLambda + 0.05));
-            const hFwd = H_sun + (moonLambda + 0.05 - lambdaSun);
-            const { alt: altFwd, az: azFwd } = computeHorizontalCoords(dFwd, hFwd, phi);
-            const cMoonFwd = new THREE.Vector3(
-                R_MOON_DEF * Math.cos(altFwd) * Math.sin(azFwd),
-                R_MOON_DEF * Math.sin(altFwd),
-                -R_MOON_DEF * Math.cos(altFwd) * Math.cos(azFwd)
-            );
-            const tMoon = cMoonFwd.sub(cMoon).normalize();
+                if (sunBodyIbsMesh) sunBodyIbsMesh.position.copy(pSunIbs);
 
-            // 3. فلك التدوير الأول للقمر (الحامل الصغير r1)
-            const moonEp1Pts = [];
-            for (let k = 0; k <= 32; k++) {
-                const th = (k / 32) * Math.PI * 2;
-                const pt = new THREE.Vector3()
-                    .copy(cMoon)
-                    .addScaledVector(uMoon, R_MOON_EP1 * Math.cos(th))
-                    .addScaledVector(tMoon, R_MOON_EP1 * Math.sin(th));
-                moonEp1Pts.push(pt);
-            }
-            if (moonEpicycle1Line) {
-                if (moonEpicycle1Line.geometry) moonEpicycle1Line.geometry.dispose();
-                moonEpicycle1Line.geometry = new THREE.BufferGeometry().setFromPoints(moonEp1Pts);
-            }
+                // 4. رسم دائرة فلك الحامل
+                const sunDefPts = [];
+                for (let k = 0; k <= 64; k++) {
+                    const th = (k / 64) * Math.PI * 2;
+                    sunDefPts.push(new THREE.Vector3()
+                        .copy(obsPos)
+                        .addScaledVector(uEcl, R_SUN_DEF * Math.cos(th))
+                        .addScaledVector(vEcl, R_SUN_DEF * Math.sin(th))
+                    );
+                }
+                if (sunDeferentLine) {
+                    sunDeferentLine.geometry.dispose();
+                    sunDeferentLine.geometry = new THREE.BufferGeometry().setFromPoints(sunDefPts);
+                }
 
-            // مركز فلك التدوير الثاني P2 (المدير)
-            // استطالة القمر eta وزاوية خاصة القمر gamma
-            const eta = ((moonLambda - lambdaSun) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-            const p2Moon = new THREE.Vector3()
-                .copy(cMoon)
-                .addScaledVector(uMoon, R_MOON_EP1 * Math.cos(eta))
-                .addScaledVector(tMoon, R_MOON_EP1 * Math.sin(eta));
+                // 5. رسم دائرة فلك التدوير الأول (الحامل الصغير) حول cSunDef
+                const sunEp1Pts = [];
+                for (let k = 0; k <= 32; k++) {
+                    const th = (k / 32) * Math.PI * 2;
+                    sunEp1Pts.push(new THREE.Vector3()
+                        .copy(cSunDef)
+                        .addScaledVector(uEcl, r_sun_1 * Math.cos(th))
+                        .addScaledVector(vEcl, r_sun_1 * Math.sin(th))
+                    );
+                }
+                if (sunEp1Line) {
+                    sunEp1Line.geometry.dispose();
+                    sunEp1Line.geometry = new THREE.BufferGeometry().setFromPoints(sunEp1Pts);
+                }
 
-            if (moonEpicycle2Mesh) {
-                moonEpicycle2Mesh.position.copy(p2Moon);
-            }
+                // 6. رسم دائرة فلك المدير حول pSun1
+                const sunDirPts = [];
+                for (let k = 0; k <= 32; k++) {
+                    const th = (k / 32) * Math.PI * 2;
+                    sunDirPts.push(new THREE.Vector3()
+                        .copy(pSun1)
+                        .addScaledVector(uEcl, r_sun_2 * Math.cos(th))
+                        .addScaledVector(vEcl, r_sun_2 * Math.sin(th))
+                    );
+                }
+                if (sunDirectorLine) {
+                    sunDirectorLine.geometry.dispose();
+                    sunDirectorLine.geometry = new THREE.BufferGeometry().setFromPoints(sunDirPts);
+                }
 
-            // 4. فلك التدوير الثاني للقمر (المدير r2 - متصل مباشرة بجرم القمر)
-            const actualMoonEp2R = moonMesh ? p2Moon.distanceTo(moonMesh.position) : R_MOON_EP2;
-            const moonEp2Pts = [];
-            for (let k = 0; k <= 28; k++) {
-                const th = (k / 28) * Math.PI * 2;
-                const pt = new THREE.Vector3()
-                    .copy(p2Moon)
-                    .addScaledVector(uMoon, actualMoonEp2R * Math.cos(th))
-                    .addScaledVector(tMoon, actualMoonEp2R * Math.sin(th));
-                moonEp2Pts.push(pt);
-            }
-            if (moonEpicycle2Line) {
-                if (moonEpicycle2Line.geometry) moonEpicycle2Line.geometry.dispose();
-                moonEpicycle2Line.geometry = new THREE.BufferGeometry().setFromPoints(moonEp2Pts);
+                // 7. تحديث الأذرع الميكانيكية للشمس
+                if (sunArmDeferent) {
+                    sunArmDeferent.geometry.dispose();
+                    sunArmDeferent.geometry = new THREE.BufferGeometry().setFromPoints([obsPos, cSunDef]);
+                }
+                if (sunArm1) {
+                    sunArm1.geometry.dispose();
+                    sunArm1.geometry = new THREE.BufferGeometry().setFromPoints([cSunDef, pSun1]);
+                }
+                if (sunArm2) {
+                    sunArm2.geometry.dispose();
+                    sunArm2.geometry = new THREE.BufferGeometry().setFromPoints([pSun1, pSunIbs]);
+                }
+
+                // شعاع الرصد من شمس ابن الشاطر إلى موقع الشمس في القبة السماوية
+                if (sunIbsSightlineRay && sunMesh) {
+                    sunIbsSightlineRay.geometry.dispose();
+                    sunIbsSightlineRay.geometry = new THREE.BufferGeometry().setFromPoints([pSunIbs, sunMesh.position]);
+                    sunIbsSightlineRay.computeLineDistances();
+                }
+
+                if (sunDirectorLabelSprite) {
+                    sunDirectorLabelSprite.position.set(pSun1.x, pSun1.y + 7, pSun1.z);
+                    sunDirectorLabelSprite.visible = show3DLabels;
+                }
             }
 
-            // 5. أذرع القمر الميكانيكية
-            if (moonArmDeferent) {
-                if (moonArmDeferent.geometry) moonArmDeferent.geometry.dispose();
-                moonArmDeferent.geometry = new THREE.BufferGeometry().setFromPoints([obsPos, cMoon]);
-            }
-            if (moonArmEp1) {
-                if (moonArmEp1.geometry) moonArmEp1.geometry.dispose();
-                moonArmEp1.geometry = new THREE.BufferGeometry().setFromPoints([cMoon, p2Moon]);
-            }
-            if (moonArmEp2 && moonMesh) {
-                if (moonArmEp2.geometry) moonArmEp2.geometry.dispose();
-                moonArmEp2.geometry = new THREE.BufferGeometry().setFromPoints([p2Moon, moonMesh.position]);
-            }
+            // =============================================================
+            // B. فلك القمر الحامل والمديران (نموذج ابن الشاطر القمري في فلك مائل 5.14°)
+            // =============================================================
+            if (ibnShatirMoonGroup && ibnShatirMoonGroup.visible) {
+                const R_MOON_DEF = 70;
+                const r_moon_1 = 9.5;
+                const r_moon_2 = 4.0;
+                const epsMoon = EPSILON + MOON_INC;
 
-            if (moonOrbsLabelSprite) {
-                moonOrbsLabelSprite.position.set(cMoon.x, cMoon.y + 6, cMoon.z);
-                moonOrbsLabelSprite.visible = show3DLabels;
+                // زوايا حركة القمر
+                const eta = ((moonLambda - lambdaSun) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+                const gamma = ((dayOfYear / 27.55455 * Math.PI * 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+
+                // متجها الأساس المتعامدان لمستوى مدار القمر
+                const Hm0 = H_sun - lambdaSun;
+                const { alt: altM0, az: azM0 } = computeHorizontalCoords(0, Hm0, phi);
+                const uMoon = new THREE.Vector3(
+                    Math.cos(altM0) * Math.sin(azM0),
+                    Math.sin(altM0),
+                    -Math.cos(altM0) * Math.cos(azM0)
+                ).normalize();
+
+                const Hm90 = H_sun + (Math.PI / 2 - lambdaSun);
+                const { alt: altM90, az: azM90 } = computeHorizontalCoords(epsMoon, Hm90, phi);
+                let vMoon = new THREE.Vector3(
+                    Math.cos(altM90) * Math.sin(azM90),
+                    Math.sin(altM90),
+                    -Math.cos(altM90) * Math.cos(azM90)
+                );
+                vMoon.addScaledVector(uMoon, -vMoon.dot(uMoon)).normalize();
+
+                // 1. مركز فلك التدوير الأول على فلك القمر الحامل (بزاوية الاستطالة eta)
+                const cMoonDef = new THREE.Vector3()
+                    .copy(obsPos)
+                    .addScaledVector(uMoon, R_MOON_DEF * Math.cos(eta))
+                    .addScaledVector(vMoon, R_MOON_DEF * Math.sin(eta));
+
+                if (moonJointDefMesh) moonJointDefMesh.position.copy(cMoonDef);
+
+                // 2. فلك التدوير الأول (الحامل الصغير r1 بزاوية eta + gamma)
+                const uM1 = new THREE.Vector3()
+                    .addScaledVector(uMoon, Math.cos(eta + gamma))
+                    .addScaledVector(vMoon, Math.sin(eta + gamma));
+                const pMoon1 = new THREE.Vector3()
+                    .copy(cMoonDef)
+                    .addScaledVector(uM1, r_moon_1);
+
+                if (moonJointEp1Mesh) moonJointEp1Mesh.position.copy(pMoon1);
+
+                // 3. فلك التدوير الثاني (المدير r2 بزاوية pi - eta + gamma)
+                const angM = Math.PI - eta + gamma;
+                const uM2 = new THREE.Vector3()
+                    .addScaledVector(uMoon, Math.cos(angM))
+                    .addScaledVector(vMoon, Math.sin(angM));
+                const pMoonIbs = new THREE.Vector3()
+                    .copy(pMoon1)
+                    .addScaledVector(uM2, r_moon_2);
+
+                if (moonBodyIbsMesh) moonBodyIbsMesh.position.copy(pMoonIbs);
+
+                // 4. رسم دائرة فلك القمر الحامل
+                const moonDefPts = [];
+                for (let k = 0; k <= 64; k++) {
+                    const th = (k / 64) * Math.PI * 2;
+                    moonDefPts.push(new THREE.Vector3()
+                        .copy(obsPos)
+                        .addScaledVector(uMoon, R_MOON_DEF * Math.cos(th))
+                        .addScaledVector(vMoon, R_MOON_DEF * Math.sin(th))
+                    );
+                }
+                if (moonDeferentLine) {
+                    moonDeferentLine.geometry.dispose();
+                    moonDeferentLine.geometry = new THREE.BufferGeometry().setFromPoints(moonDefPts);
+                }
+
+                // 5. رسم دائرة فلك التدوير الأول للقمر
+                const moonEp1Pts = [];
+                for (let k = 0; k <= 32; k++) {
+                    const th = (k / 32) * Math.PI * 2;
+                    moonEp1Pts.push(new THREE.Vector3()
+                        .copy(cMoonDef)
+                        .addScaledVector(uMoon, r_moon_1 * Math.cos(th))
+                        .addScaledVector(vMoon, r_moon_1 * Math.sin(th))
+                    );
+                }
+                if (moonEp1Line) {
+                    moonEp1Line.geometry.dispose();
+                    moonEp1Line.geometry = new THREE.BufferGeometry().setFromPoints(moonEp1Pts);
+                }
+
+                // 6. رسم دائرة فلك التدوير الثاني للقمر (المدير)
+                const moonEp2Pts = [];
+                for (let k = 0; k <= 32; k++) {
+                    const th = (k / 32) * Math.PI * 2;
+                    moonEp2Pts.push(new THREE.Vector3()
+                        .copy(pMoon1)
+                        .addScaledVector(uMoon, r_moon_2 * Math.cos(th))
+                        .addScaledVector(vMoon, r_moon_2 * Math.sin(th))
+                    );
+                }
+                if (moonEp2Line) {
+                    moonEp2Line.geometry.dispose();
+                    moonEp2Line.geometry = new THREE.BufferGeometry().setFromPoints(moonEp2Pts);
+                }
+
+                // 7. تحديث الأذرع الميكانيكية للقمر
+                if (moonArmDeferent) {
+                    moonArmDeferent.geometry.dispose();
+                    moonArmDeferent.geometry = new THREE.BufferGeometry().setFromPoints([obsPos, cMoonDef]);
+                }
+                if (moonArmEp1) {
+                    moonArmEp1.geometry.dispose();
+                    moonArmEp1.geometry = new THREE.BufferGeometry().setFromPoints([cMoonDef, pMoon1]);
+                }
+                if (moonArmEp2) {
+                    moonArmEp2.geometry.dispose();
+                    moonArmEp2.geometry = new THREE.BufferGeometry().setFromPoints([pMoon1, pMoonIbs]);
+                }
+
+                // شعاع الرصد من قمر ابن الشاطر إلى موقع القمر في السماء
+                if (moonIbsSightlineRay && moonMesh) {
+                    moonIbsSightlineRay.geometry.dispose();
+                    moonIbsSightlineRay.geometry = new THREE.BufferGeometry().setFromPoints([pMoonIbs, moonMesh.position]);
+                    moonIbsSightlineRay.computeLineDistances();
+                }
+
+                if (moonOrbsLabelSprite) {
+                    moonOrbsLabelSprite.position.set(cMoonDef.x, cMoonDef.y + 6, cMoonDef.z);
+                    moonOrbsLabelSprite.visible = show3DLabels;
+                }
             }
         }
         window.createIbnShatirOrbs = createIbnShatirOrbs;
@@ -5097,8 +5279,15 @@ var cosmos3DInitialized = false;
                 if (meridianLine) meridianLine.visible = isVisible;
                 if (primeVerticalLine) primeVerticalLine.visible = isVisible;
             }
+            if (layer === 'sunTodayArc' && sunArcGroup) sunArcGroup.visible = isVisible;
             if (layer === 'moonArc' && moonArcGroup) moonArcGroup.visible = isVisible;
-            if (layer === 'ibsOrbs' && ibnShatirOrbsGroup) ibnShatirOrbsGroup.visible = isVisible;
+            if (layer === 'ibsOrbs') {
+                if (ibnShatirOrbsGroup) ibnShatirOrbsGroup.visible = isVisible;
+                if (ibnShatirSunGroup) ibnShatirSunGroup.visible = isVisible;
+                if (ibnShatirMoonGroup) ibnShatirMoonGroup.visible = isVisible;
+            }
+            if (layer === 'ibsSunOrbs' && ibnShatirSunGroup) ibnShatirSunGroup.visible = isVisible;
+            if (layer === 'ibsMoonOrbs' && ibnShatirMoonGroup) ibnShatirMoonGroup.visible = isVisible;
         }
 
         // قفز لأطوار القمر
@@ -5739,6 +5928,9 @@ var cosmos3DInitialized = false;
             // رسم قوس مسار القمر لليوم الحالي
             updateMoonSkyArc(moonDelta);
 
+            // رسم مدار وقوس مسار الشمس لليوم الحالي (الموازي لمدار السرطان والجدي)
+            updateSunSkyArc(deltaSun);
+
             // حساب المطلع المستقيم للشمس alpha_sun لمزامنة حركة فلك البروج بالكامل
             const alpha_sun = Math.atan2(Math.cos(EPSILON) * Math.sin(lambdaSun), Math.cos(lambdaSun));
             const zR = 260;
@@ -5753,8 +5945,8 @@ var cosmos3DInitialized = false;
                 zodiacLine.geometry.setFromPoints(zPts);
             }
 
-            // تحديث الفلك الحامل والمدير للشمس والقمر وفق هندسة ابن الشاطر
-            updateIbnShatirOrbs(lambdaSun, alpha_sun, H_sun, moonLambda, moonDelta, H_moon, phi);
+            // تحديث الفلك الحامل والمدير للشمس والقمر وفق هندسة ابن الشاطر الحركية
+            updateIbnShatirOrbs(lambdaSun, alpha_sun, H_sun, moonLambda, moonDelta, H_moon, phi, dayOfYear);
 
             // تحديث مواضع شارات البروج الاثني عشر وحساب البرج الطالع والغارب اللحظيين
             let bestAscIdx = 0, minAscDist = 9999;
@@ -6555,6 +6747,9 @@ window.executeMapSearch = executeMapSearch;
 window.calcSunDeclination_Mujaib = calcSunDeclination_Mujaib;
 window.selectPredefinedCity = selectPredefinedCity;
 window.updateCityAngleBadge = updateCityAngleBadge;
+window.updateSunSkyArc = updateSunSkyArc;
+window.sunArcGroup = sunArcGroup;
+
 
 
 })();

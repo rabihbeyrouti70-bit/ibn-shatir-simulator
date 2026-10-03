@@ -1531,8 +1531,22 @@
 
             <div class="c3d-layers-list">
                 <label class="c3d-toggle-item" style="border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.08); border-radius: 6px; padding: 5px 8px; margin-bottom: 2px;">
-                    <span style="color:#38BDF8; font-weight:bold;">⚙️ الفلك الحامل والمدير للشمس والقمر (ابن الشاطر)</span>
-                    <input type="checkbox" id="chkIbsOrbs" checked onchange="toggleLayer('ibsOrbs', this.checked)">
+                    <span style="color:#38BDF8; font-weight:bold;">⚙️ أفلاك ابن الشاطر الحامل والمدير (الشمس والقمر)</span>
+                    <input type="checkbox" id="chkIbsOrbs" checked onchange="toggleLayer('ibsOrbs', this.checked); if(document.getElementById('chkIbsSunOrbs')) document.getElementById('chkIbsSunOrbs').checked = this.checked; if(document.getElementById('chkIbsMoonOrbs')) document.getElementById('chkIbsMoonOrbs').checked = this.checked;">
+                </label>
+                <div style="display:flex; gap:6px; margin: 0 4px 6px 4px;">
+                    <label class="c3d-toggle-item" style="flex:1; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05); border-radius: 6px; padding: 4px 6px; margin:0; font-size:0.82em;">
+                        <span style="color:#F59E0B; font-weight:bold;">☉ فلك الشمس</span>
+                        <input type="checkbox" id="chkIbsSunOrbs" checked onchange="toggleLayer('ibsSunOrbs', this.checked)">
+                    </label>
+                    <label class="c3d-toggle-item" style="flex:1; border: 1px solid rgba(192, 132, 252, 0.3); background: rgba(192, 132, 252, 0.05); border-radius: 6px; padding: 4px 6px; margin:0; font-size:0.82em;">
+                        <span style="color:#C084FC; font-weight:bold;">☽ فلك القمر</span>
+                        <input type="checkbox" id="chkIbsMoonOrbs" checked onchange="toggleLayer('ibsMoonOrbs', this.checked)">
+                    </label>
+                </div>
+                <label class="c3d-toggle-item" style="border: 1px solid rgba(253, 224, 71, 0.3); background: rgba(253, 224, 71, 0.05); border-radius: 6px; padding: 5px 8px; margin-bottom: 2px;">
+                    <span style="color:#FDE047; font-weight:bold;">☀️ مدار مسار اليوم للشمس (موازٍ للسرطان والجدي)</span>
+                    <input type="checkbox" id="chkSunTodayArc" checked onchange="toggleLayer('sunTodayArc', this.checked)">
                 </label>
                 <label class="c3d-toggle-item">
                     <span style="color:#E9D5FF; font-weight:bold;">🌙 مدار وقوس مسار القمر في السماء</span>
