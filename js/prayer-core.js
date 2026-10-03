@@ -13,33 +13,157 @@ import {
 export const COUNTRY_TIMEZONE_MAP = {
     'سورia': 3, 'سوريا': 3, 'لبنان': 3, 'فلسطين': 3, 'الأردن': 3,
     'السعودية': 3, 'الكويت': 3, 'قطر': 3, 'البحرين': 3, 'اليمن': 3, 'العراق': 3,
-    'الإمارات': 4, 'عمان': 4, 'مصر': 2, 'السودان': 2, 'ليبيا': 2,
+    'الإمارات': 4, 'عمان': 4, 'عُمان': 4, 'مصر': 2, 'السودان': 2, 'ليبيا': 2,
     'تركيا': 3, 'إيران': 3.5, 'تونس': 1, 'الجزائر': 1, 'المغرب': 1,
-    'بريطانيا': 0, 'فرنسا': 1, 'ألمانيا': 1, 'إيطاليا': 1, 'إسبانيا': 1,
-    'روسيا': 3, 'الهند': 5.5, 'باكستان': 5, 'إندونيسيا': 7, 'ماليزيا': 8
+    'موريتانيا': 0, 'الصومال': 3, 'جيبوتي': 3, 'جزر القمر': 3,
+    'أفغانستان': 4.5, 'باكستان': 5, 'الهند': 5.5, 'بنغلاديش': 6,
+    'أوزبكستان': 5, 'تركمانستان': 5, 'كازاخستان': 5, 'أذربيجان': 4,
+    'بريطانيا': 0, 'المملكة المتحدة': 0, 'فرنسا': 1, 'ألمانيا': 1, 'إيطاليا': 1, 'إسبانيا': 1,
+    'إسبانيا / الأندلس': 1, 'البرتغال / الأندلس': 0,
+    'روسيا': 3, 'اليابان': 9, 'الصين': 8, 'ماليزيا': 8, 'سنغافورة': 8, 'إندونيسيا': 7,
+    'الولايات المتحدة': -5, 'كندا': -5, 'أستراليا': 10
+};
+
+export const COUNTRY_TIMEZONE_IANA = {
+    'سوريا': 'Asia/Damascus', 'سورia': 'Asia/Damascus',
+    'لبنان': 'Asia/Beirut',
+    'فلسطين': 'Asia/Jerusalem',
+    'الأردن': 'Asia/Amman',
+    'السعودية': 'Asia/Riyadh',
+    'الكويت': 'Asia/Kuwait',
+    'قطر': 'Asia/Qatar',
+    'البحرين': 'Asia/Bahrain',
+    'اليمن': 'Asia/Aden',
+    'العراق': 'Asia/Baghdad',
+    'الإمارات': 'Asia/Dubai',
+    'عمان': 'Asia/Muscat', 'عُمان': 'Asia/Muscat',
+    'مصر': 'Africa/Cairo',
+    'السودان': 'Africa/Khartoum',
+    'ليبيا': 'Africa/Tripoli',
+    'تونس': 'Africa/Tunis',
+    'الجزائر': 'Africa/Algiers',
+    'المغرب': 'Africa/Casablanca',
+    'موريتانيا': 'Africa/Nouakchott',
+    'الصومال': 'Africa/Mogadishu',
+    'جيبوتي': 'Africa/Djibouti',
+    'جزر القمر': 'Indian/Comoro',
+    'تركيا': 'Europe/Istanbul',
+    'إيران': 'Asia/Tehran',
+    'أفغانستان': 'Asia/Kabul',
+    'باكستان': 'Asia/Karachi',
+    'الهند': 'Asia/Kolkata',
+    'بنغلاديش': 'Asia/Dhaka',
+    'سريلانكا': 'Asia/Colombo',
+    'نيبال': 'Asia/Kathmandu',
+    'أوزبكستان': 'Asia/Tashkent',
+    'تركمانستان': 'Asia/Ashgabat',
+    'كازاخستان': 'Asia/Almaty',
+    'أذربيجان': 'Asia/Baku',
+    'جورجيا': 'Asia/Tbilisi',
+    'أرمينيا': 'Asia/Yerevan',
+    'روسيا': 'Europe/Moscow',
+    'اليابان': 'Asia/Tokyo',
+    'الصين': 'Asia/Shanghai',
+    'تايوان': 'Asia/Taipei',
+    'كوريا الجنوبية': 'Asia/Seoul',
+    'تايلاند': 'Asia/Bangkok',
+    'ماليزيا': 'Asia/Kuala_Lumpur',
+    'سنغافورة': 'Asia/Singapore',
+    'إندونيسيا': 'Asia/Jakarta',
+    'الفلبين': 'Asia/Manila',
+    'فيتنام': 'Asia/Ho_Chi_Minh',
+    'المملكة المتحدة': 'Europe/London', 'بريطانيا': 'Europe/London',
+    'أيرلندا': 'Europe/Dublin',
+    'فرنسا': 'Europe/Paris',
+    'ألمانيا': 'Europe/Berlin',
+    'إيطاليا': 'Europe/Rome',
+    'إسبانيا': 'Europe/Madrid', 'إسبانيا / الأندلس': 'Europe/Madrid',
+    'إسبانيا (جزر الكناري)': 'Atlantic/Canary',
+    'البرتغال / الأندلس': 'Europe/Lisbon',
+    'النمسا': 'Europe/Vienna',
+    'التشيك': 'Europe/Prague',
+    'هولندا': 'Europe/Amsterdam',
+    'بلجيكا': 'Europe/Brussels',
+    'سويسرا': 'Europe/Zurich',
+    'اليونان': 'Europe/Athens',
+    'الدنمارك': 'Europe/Copenhagen',
+    'السويد': 'Europe/Stockholm',
+    'النرويج': 'Europe/Oslo',
+    'فنلندا': 'Europe/Helsinki',
+    'آيسلندا': 'Atlantic/Reykjavik',
+    'بولندا': 'Europe/Warsaw',
+    'المجر': 'Europe/Budapest',
+    'رومانيا': 'Europe/Bucharest',
+    'بلغاريا': 'Europe/Sofia',
+    'صربيا': 'Europe/Belgrade',
+    'البوسنة والهرسك': 'Europe/Sarajevo',
+    'جنوب إفريقيا': 'Africa/Johannesburg',
+    'كينيا': 'Africa/Nairobi',
+    'إثيوبيا': 'Africa/Addis_Ababa',
+    'نيجيريا': 'Africa/Lagos',
+    'غانا': 'Africa/Accra',
+    'أوغندا': 'Africa/Kampala',
+    'السنغال': 'Africa/Dakar',
+    'تنزانيا': 'Africa/Dar_es_Salaam',
+    'ناميبيا': 'Africa/Windhoek',
+    'مالي': 'Africa/Bamako',
+    'أستراليا': 'Australia/Sydney',
+    'نيوزيلندا': 'Pacific/Auckland',
+    'الولايات المتحدة': 'America/New_York',
+    'كندا': 'America/Toronto',
+    'المكسيك': 'America/Mexico_City',
+    'البرازيل': 'America/Sao_Paulo',
+    'الأرجنتين': 'America/Argentina/Buenos_Aires',
+    'تشيلي': 'America/Santiago',
+    'كولومبيا': 'America/Bogota',
+    'بيرو': 'America/Lima',
+    'فنزويلا': 'America/Caracas'
 };
 
 /**
- * تحديد المنطقة الزمنية التقديرية بناءً على الإحداثيات والدولة
+ * تحديد المنطقة الزمنية بدقة بناءً على الدولة أو أقرب مدينة أو الإحداثيات مع دعم التوقيت الصيفي
  */
-export function getCityTimezoneHours(lat, lon, country = null) {
+export function getCityTimezoneHours(lat, lon, country = null, dateObj = null) {
+    // 1. حساب التوقيت الصيفي آلياً عبر معيار IANA إذا تم تمرير كائن تاريخ محدد
+    if (country && dateObj && COUNTRY_TIMEZONE_IANA[country]) {
+        try {
+            const tzName = COUNTRY_TIMEZONE_IANA[country];
+            const utcDate = new Date(dateObj.toLocaleString('en-US', { timeZone: 'UTC' }));
+            const tzDate = new Date(dateObj.toLocaleString('en-US', { timeZone: tzName }));
+            const offsetHours = (tzDate.getTime() - utcDate.getTime()) / (1000 * 60 * 60);
+            if (!isNaN(offsetHours)) return offsetHours;
+        } catch (_) {}
+    }
+
+    // 2. خريطة الدول الثابتة (التوقيت القياسي الرسمي للدولة)
     if (country && COUNTRY_TIMEZONE_MAP[country] !== undefined) {
         return COUNTRY_TIMEZONE_MAP[country];
     }
+
+    // 3. محاولة التعرف على الدولة من قاعدة بيانات المدن إن توفرت في النطاق العالمي
+    if (typeof window !== 'undefined' && window.WORLD_CITIES_DB && Array.isArray(window.WORLD_CITIES_DB)) {
+        const match = window.WORLD_CITIES_DB.find(c => Math.abs(c.lat - lat) < 0.35 && Math.abs(c.lon - lon) < 0.35);
+        if (match && match.country) {
+            return getCityTimezoneHours(lat, lon, match.country, dateObj);
+        }
+    }
+
+    // 4. خريطة خطوط الطول المعيارية (15 درجة لكل ساعة)
     return Math.round(lon / 15.0);
 }
 
 /**
- * حساب مواقيت الصلاة بطريقة الربع المجيب التراثية
+ * حساب مواقيت الصلاة بطريقة الربع المجيب التراثية المطابقة للبرنامج المرفق لمواقيت الصلاة
  * @param {number} lat خط العرض بالدرجات
  * @param {number} lon خط الطول بالدرجات
  * @param {Date} dateObj كائن التاريخ
  * @param {number|null} tzHours فارق المنطقة الزمنية بالساعات
+ * @param {string|null} country اسم الدولة
  */
-export function computePrayersMujaib(lat, lon, dateObj, tzHours = null) {
+export function computePrayersMujaib(lat, lon, dateObj, tzHours = null, country = null) {
     const date = dateObj || new Date();
     if (tzHours === null || isNaN(tzHours)) {
-        tzHours = getCityTimezoneHours(lat, lon);
+        tzHours = getCityTimezoneHours(lat, lon, country, date);
     }
 
     const jd = getJD(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
@@ -153,32 +277,72 @@ export function computePrayersMujaib(lat, lon, dateObj, tzHours = null) {
     const isha16SolarHours = 18.0 + (4.0 * isha16FirstResult / 60.0);
     const H_isha16_rad = (isha16SolarHours - 12.0) * 15.0 * Math.PI / 180.0;
 
-    function toCivil(solH) {
-        if (solH === null || isNaN(solH)) return '--:--';
-        let civ = solH + (lonOffsetMin - eotMin) / 60.0;
+    function toCivil(solH, reserveMin = 0) {
+        if (solH === null || isNaN(solH)) {
+            return {
+                civil: '--:--',
+                civil12: '--:--',
+                civil12Ar: '--:--',
+                civil24: '--:--',
+                h: null,
+                m: null,
+                period: ''
+            };
+        }
+        let civ = solH + (reserveMin / 60.0) + (lonOffsetMin - eotMin) / 60.0;
         while (civ < 0) civ += 24.0;
         while (civ >= 24.0) civ -= 24.0;
         const totalM = Math.round(civ * 60.0);
-        const hh = Math.floor(totalM / 60.0) % 24;
+        const hh24 = Math.floor(totalM / 60.0) % 24;
         const mm = totalM % 60;
-        return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+        const mmStr = String(mm).padStart(2, '0');
+        const period = hh24 >= 12 ? 'PM' : 'AM';
+        const periodAr = hh24 >= 12 ? 'م' : 'ص';
+        const hh12 = hh24 % 12 || 12;
+        const hh12Str = String(hh12).padStart(2, '0');
+        const civil12 = `${hh12Str}:${mmStr} ${period}`;
+        const civil12Ar = `${hh12Str}:${mmStr} ${periodAr}`;
+        const civil24 = `${String(hh24).padStart(2, '0')}:${mmStr}`;
+
+        return {
+            civil: civil12,
+            civil12,
+            civil12Ar,
+            civil24,
+            h: hh24,
+            m: mm,
+            period
+        };
     }
+
+    // تطبيق دقائق الاحتياط الفقهية المعتمدة في برنامج مواقيت الصلاة (الربع المجيب)
+    // Duhr: +5 min, Asr: +5 min, Sunset: +5 min, Fajr: 0, Sunrise: 0, Ishaa: 0
+    const fajrCivil = toCivil(fajrSolarHours, 0);
+    const sunriseCivil = toCivil(sunriseSolarHours, 0);
+    const dhuhaCivil = toCivil(dhuhaSolarHours, 0);
+    const duhrCivil = toCivil(duhrSolarHours, 5);
+    const asrCivil = toCivil(asrSolarHours, 5);
+    const asrHanafiCivil = toCivil(asrHanafiSolarHours, 5);
+    const sunsetCivil = toCivil(sunsetSolarHours, 5);
+    const ishaaCivil = toCivil(ishaaSolarHours, 0);
+    const isha16Civil = toCivil(isha16SolarHours, 0);
 
     return {
         decl: decl,
         eotMin: eotMin,
+        tzHours: tzHours,
         polarDay: polarDay,
         polarNight: polarNight,
         prayers: {
-            fajr: { name: 'الفجر', civil: toCivil(fajrSolarHours), solarH: fajrSolarHours, color: '#06B6D4' },
-            sunrise: { name: 'الشروق', civil: toCivil(sunriseSolarHours), solarH: sunriseSolarHours, color: '#EAB308' },
-            dhuha: { name: 'صلاة الضحى', civil: toCivil(dhuhaSolarHours), solarH: dhuhaSolarHours, color: '#10B981' },
-            duhr: { name: 'الظهر', civil: toCivil(duhrSolarHours), solarH: duhrSolarHours, color: '#FACC15' },
-            asr: { name: 'العصر الشافعي', civil: toCivil(asrSolarHours), solarH: asrSolarHours, color: '#F97316' },
-            asrHanafi: { name: 'العصر الحنفي', civil: toCivil(asrHanafiSolarHours), solarH: asrHanafiSolarHours, color: '#A855F7' },
-            sunset: { name: 'المغرب', civil: toCivil(sunsetSolarHours), solarH: sunsetSolarHours, color: '#E11D48' },
-            ishaa: { name: 'العشاء', civil: toCivil(ishaaSolarHours), solarH: ishaaSolarHours, color: '#6366F1' },
-            isha16: { name: 'العشاء الشافعي 16°', civil: toCivil(isha16SolarHours), solarH: isha16SolarHours }
+            fajr: { name: 'الفجر', civil: fajrCivil.civil, civil12: fajrCivil.civil12, civil12Ar: fajrCivil.civil12Ar, civil24: fajrCivil.civil24, solarH: fajrSolarHours, color: '#06B6D4' },
+            sunrise: { name: 'الشروق', civil: sunriseCivil.civil, civil12: sunriseCivil.civil12, civil12Ar: sunriseCivil.civil12Ar, civil24: sunriseCivil.civil24, solarH: sunriseSolarHours, color: '#EAB308' },
+            dhuha: { name: 'صلاة الضحى', civil: dhuhaCivil.civil, civil12: dhuhaCivil.civil12, civil12Ar: dhuhaCivil.civil12Ar, civil24: dhuhaCivil.civil24, solarH: dhuhaSolarHours, color: '#10B981' },
+            duhr: { name: 'الظهر', civil: duhrCivil.civil, civil12: duhrCivil.civil12, civil12Ar: duhrCivil.civil12Ar, civil24: duhrCivil.civil24, solarH: duhrSolarHours + 5.0 / 60.0, color: '#FACC15' },
+            asr: { name: 'العصر الشافعي', civil: asrCivil.civil, civil12: asrCivil.civil12, civil12Ar: asrCivil.civil12Ar, civil24: asrCivil.civil24, solarH: asrSolarHours + 5.0 / 60.0, color: '#F97316' },
+            asrHanafi: { name: 'العصر الحنفي', civil: asrHanafiCivil.civil, civil12: asrHanafiCivil.civil12, civil12Ar: asrHanafiCivil.civil12Ar, civil24: asrHanafiCivil.civil24, solarH: asrHanafiSolarHours + 5.0 / 60.0, color: '#A855F7' },
+            sunset: { name: 'المغرب', civil: sunsetCivil.civil, civil12: sunsetCivil.civil12, civil12Ar: sunsetCivil.civil12Ar, civil24: sunsetCivil.civil24, solarH: sunsetSolarHours + 5.0 / 60.0, color: '#E11D48' },
+            ishaa: { name: 'العشاء', civil: ishaaCivil.civil, civil12: ishaaCivil.civil12, civil12Ar: ishaaCivil.civil12Ar, civil24: ishaaCivil.civil24, solarH: ishaaSolarHours, color: '#6366F1' },
+            isha16: { name: 'العشاء الشافعي 16°', civil: isha16Civil.civil, civil12: isha16Civil.civil12, civil12Ar: isha16Civil.civil12Ar, civil24: isha16Civil.civil24, solarH: isha16SolarHours }
         },
         hourAngles: {
             H_fajr: H_fajr_rad,

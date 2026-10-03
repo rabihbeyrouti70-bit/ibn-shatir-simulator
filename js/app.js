@@ -2288,6 +2288,7 @@ var cosmos3DInitialized = false;
         let prayerDiurnalArcsGroup = null;
         let prayerDiurnalLines = {};
         let prayerDiurnalSprites = {};
+            window.prayerDiurnalSprites = prayerDiurnalSprites;
         let prayerArcDurationSprites = {};
         let currentPrayersData = null;
 
@@ -3059,10 +3060,10 @@ var cosmos3DInitialized = false;
         // ==========================================
         // 🕌 دوائر العشائين الشافعي (16°) والحنفي (18°) وميقات الشفق
         // ==========================================
-        function createTextBadgeSprite(text, color, scaleX = 24, scaleY = 6) {
+        function createTextBadgeSprite(text, color, scaleX = 26, scaleY = 6.2) {
             const canvas = document.createElement('canvas');
-            canvas.width = 400;
-            canvas.height = 100;
+            canvas.width = 512;
+            canvas.height = 110;
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
             ctx.strokeStyle = color;
@@ -3073,7 +3074,7 @@ var cosmos3DInitialized = false;
             ctx.stroke();
 
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 34px "Segoe UI Emoji", "Cairo", "Segoe UI", sans-serif';
+            ctx.font = 'bold 30px "Segoe UI Emoji", "Cairo", "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -3106,7 +3107,7 @@ var cosmos3DInitialized = false;
             ctx.stroke();
 
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 34px "Segoe UI Emoji", "Cairo", "Segoe UI", sans-serif';
+            ctx.font = 'bold 30px "Segoe UI Emoji", "Cairo", "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -3968,7 +3969,8 @@ var cosmos3DInitialized = false;
         }
 
         function updatePrayerDiurnalArcs(deltaSun, phi, simDate, H_sun) {
-            const prayers = computePrayersMujaib(currentLatDeg, currentLonDeg, simDate);
+            const tz = getCityTimezoneHours(currentLatDeg, currentLonDeg, currentCityCountry, simDate);
+            const prayers = computePrayersMujaib(currentLatDeg, currentLonDeg, simDate, tz, currentCityCountry);
             currentPrayersData = prayers;
 
             // تحديث بطاقات الـ HUD اللحظية لأوقات الصلاة فوراً في كل تغير للمدينة أو الفصل

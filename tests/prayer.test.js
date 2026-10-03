@@ -7,16 +7,27 @@ describe('مواقيت الصلاة وحسابات الربع المجيب (Rub 
     const MECCA = { lat: 21.4225, lon: 39.8262, tz: 3 };
 
     function parseTime(timeStr) {
-        const [h, m] = timeStr.split(':').map(Number);
+        if (!timeStr || timeStr === '--:--') return NaN;
+        const isPM = /PM|م/i.test(timeStr);
+        const isAM = /AM|ص/i.test(timeStr);
+        const cleanStr = timeStr.replace(/[^0-9:]/g, '');
+        let [h, m] = cleanStr.split(':').map(Number);
+        if (isPM && h < 12) h += 12;
+        if (isAM && h === 12) h = 0;
         return h * 60 + m; // minutes from midnight
     }
 
     it('مواقيت الصلاة لمدينة دمشق عند الاعتدال الربيعي (21 مارس 2026)', () => {
         const date = new Date(Date.UTC(2026, 2, 21, 12, 0, 0));
-        const res = computePrayersMujaib(DAMASCUS.lat, DAMASCUS.lon, date, DAMASCUS.tz);
+        const res = computePrayersMujaib(DAMASCUS.lat, DAMASCUS.lon, date, DAMASCUS.tz, 'سوريا');
 
         assert.ok(res.prayers, 'Prayers object must exist');
         assert.strictEqual(typeof res.prayers.fajr.civil, 'string');
+
+        // التحقق من ظهور التوقيت بصيغة 12 AM / PM
+        assert.ok(/AM/i.test(res.prayers.fajr.civil), 'الفجر يظهر بصيغة 12 AM');
+        assert.ok(/PM/i.test(res.prayers.duhr.civil), 'الظهر يظهر بصيغة 12 PM');
+        assert.ok(/PM/i.test(res.prayers.sunset.civil), 'المغرب يظهر بصيغة 12 PM');
 
         const fajrM = parseTime(res.prayers.fajr.civil);
         const sunriseM = parseTime(res.prayers.sunrise.civil);
@@ -36,13 +47,13 @@ describe('مواقيت الصلاة وحسابات الربع المجيب (Rub 
         assert.ok(asrHanafiM < sunsetM, 'العصر الحنفي قبل المغرب');
         assert.ok(sunsetM < ishaaM, 'المغرب قبل العشاء');
 
-        // التحقق من دقة التوقيت مقارنة بالتقويم المرجعي لدمشق (±5 دقائق)
-        // الفجر المعتمد ~ 05:14 (314 دقيقة)
+        // التحقق من دقة التوقيت المطابق لروزنامة برنامج الربع المجيب المرجعي (±5 دقائق)
+        // الفجر المعتمد ~ 05:14 AM (314 دقيقة)
         assert.ok(Math.abs(fajrM - 314) <= 5, `Fajr expected ~05:14, got ${res.prayers.fajr.civil}`);
-        // الظهر المعتمد ~ 12:42 (762 دقيقة)
-        assert.ok(Math.abs(duhrM - 762) <= 5, `Dhuhr expected ~12:42, got ${res.prayers.duhr.civil}`);
-        // المغرب المعتمد ~ 18:47 (1127 دقيقة)
-        assert.ok(Math.abs(sunsetM - 1127) <= 5, `Maghrib expected ~18:47, got ${res.prayers.sunset.civil}`);
+        // الظهر المعتمد مع دقائق الاحتياط (+5د) ~ 12:46 PM (766 دقيقة)
+        assert.ok(Math.abs(duhrM - 766) <= 5, `Dhuhr expected ~12:46, got ${res.prayers.duhr.civil}`);
+        // المغرب المعتمد مع دقائق الاحتياط (+5د) ~ 06:52 PM (1132 دقيقة)
+        assert.ok(Math.abs(sunsetM - 1132) <= 5, `Maghrib expected ~06:52, got ${res.prayers.sunset.civil}`);
     });
 
     it('حساب مواقيت الصلاة لمكة المكرمة بنجاح', () => {
