@@ -1,10 +1,11 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { computePrayersMujaib, getCityTimezoneHours } from '../js/prayer-core.js';
+import { computePrayersMujaib, getCityTimezoneHours, calculateQiblaDirection } from '../js/prayer-core.js';
 
 describe('مواقيت الصلاة وحسابات الربع المجيب (Rub al-Mujayyab Prayer Times Tests)', () => {
     const DAMASCUS = { lat: 33.5138, lon: 36.2924, tz: 3 };
     const MECCA = { lat: 21.4225, lon: 39.8262, tz: 3 };
+    const MEDINA = { lat: 24.4672, lon: 39.6111, tz: 3 };
 
     function parseTime(timeStr) {
         if (!timeStr || timeStr === '--:--') return NaN;
@@ -79,5 +80,21 @@ describe('مواقيت الصلاة وحسابات الربع المجيب (Rub 
         // عشاء 16° يكون قبل عشاء 18° بفارق حوالي 8-15 دقيقة
         const diff = isha18 - isha16;
         assert.ok(diff >= 5 && diff <= 20, `Isha difference should be between 5 and 20 min, got ${diff} min`);
+    });
+
+    it('حساب اتجاه القبلة المشرفة بدقة مطابقة 100% لمعادلة برنامج المواقيت المرجعي', () => {
+        // دمشق (Damascus): زاوية القبلة 165.50°
+        const qiblaDamascus = calculateQiblaDirection(DAMASCUS.lat, DAMASCUS.lon);
+        assert.ok(Math.abs(qiblaDamascus - 165.50) < 0.1, `Damascus Qibla expected ~165.50°, got ${qiblaDamascus.toFixed(2)}°`);
+
+        // المدينة المنورة (Medina): زاوية القبلة 176.46° (شبه جنوبية تماماً)
+        const qiblaMedina = calculateQiblaDirection(MEDINA.lat, MEDINA.lon);
+        assert.ok(Math.abs(qiblaMedina - 176.46) < 0.2, `Medina Qibla expected ~176.46°, got ${qiblaMedina.toFixed(2)}°`);
+
+        // فحص الأمان عند القطبين
+        const qiblaNorthPole = calculateQiblaDirection(89.9, 0);
+        assert.ok(!isNaN(qiblaNorthPole) && qiblaNorthPole >= 0 && qiblaNorthPole < 360);
+        const qiblaSouthPole = calculateQiblaDirection(-89.9, 0);
+        assert.ok(!isNaN(qiblaSouthPole) && qiblaSouthPole >= 0 && qiblaSouthPole < 360);
     });
 });

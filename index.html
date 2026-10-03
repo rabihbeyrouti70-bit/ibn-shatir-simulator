@@ -1526,10 +1526,14 @@
         <div class="c3d-card">
             <div class="c3d-card-header">
                 <h3 style="color:var(--blue);">🌐 2. طبقات الأفلاك التسعة والمحاور</h3>
-                <span class="c3d-badge" style="background:rgba(37,99,235,0.2); color:var(--blue); border:1px solid rgba(59,130,246,0.4);">8 طبقات تفاعلية</span>
+                <span class="c3d-badge" style="background:rgba(37,99,235,0.2); color:var(--blue); border:1px solid rgba(59,130,246,0.4);">10 طبقات تفاعلية</span>
             </div>
 
             <div class="c3d-layers-list">
+                <label class="c3d-toggle-item" style="border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.08); border-radius: 6px; padding: 5px 8px; margin-bottom: 2px;">
+                    <span style="color:#38BDF8; font-weight:bold;">⚙️ الفلك الحامل والمدير للشمس والقمر (ابن الشاطر)</span>
+                    <input type="checkbox" id="chkIbsOrbs" checked onchange="toggleLayer('ibsOrbs', this.checked)">
+                </label>
                 <label class="c3d-toggle-item">
                     <span style="color:#E9D5FF; font-weight:bold;">🌙 مدار وقوس مسار القمر في السماء</span>
                     <input type="checkbox" id="chkMoonArc" checked onchange="toggleLayer('moonArc', this.checked)">

@@ -357,3 +357,38 @@ export function computePrayersMujaib(lat, lon, dateObj, tzHours = null, country 
         }
     };
 }
+
+/**
+ * حساب زاوية اتجاه القبلة المشرفة (بالدرجات من الشمال باتجاه عقارب الساعة [0, 360))
+ * متطابق حرفياً مع الخوارزمية الفلكية المعتمدة في برنامج مواقيت الصلاة (calculation.js)
+ * Formula:
+ * x = ln(tan(radians(21.4224861111111)/2 + PI/4) / tan(radians(latitude)/2 + PI/4))
+ * y = radians(39.8261638888889) - radians(longitude)
+ * qibla = atan2(y, x) * 180 / PI; if (qibla < 0) qibla += 360;
+ *
+ * @param {number} lat - خط عرض الراصد بالدرجات (-90 إلى +90)
+ * @param {number} lon - خط طول الراصد بالدرجات (-180 إلى +180)
+ * @returns {number} اتجاه القبلة بالدرجات من الشمال باتجاه الشرق (Azimuth)
+ */
+export function calculateQiblaDirection(lat, lon) {
+    const kaabaLat = 21.4224861111111;
+    const kaabaLon = 39.8261638888889;
+
+    // الوقاية من التقارب عند القطبين ±90 لمنع tan(pi/2) والقسمة على صفر
+    const safeLat = Math.max(-89.9999, Math.min(89.9999, Number(lat) || 0));
+    const safeLon = Number(lon) || 0;
+
+    const radKaabaLat = kaabaLat * Math.PI / 180.0;
+    const radKaabaLon = kaabaLon * Math.PI / 180.0;
+    const radObsLat = safeLat * Math.PI / 180.0;
+    const radObsLon = safeLon * Math.PI / 180.0;
+
+    const x = Math.log(Math.tan(radKaabaLat / 2.0 + Math.PI / 4.0) / Math.tan(radObsLat / 2.0 + Math.PI / 4.0));
+    const y = radKaabaLon - radObsLon;
+
+    let qibla = Math.atan2(y, x) * 180.0 / Math.PI;
+    if (qibla < 0) {
+        qibla += 360.0;
+    }
+    return qibla;
+}
