@@ -4415,6 +4415,20 @@ var cosmos3DInitialized = false;
                 ? dayOfYearInput
                 : ((simDate.getTime() - new Date(Date.UTC(simDate.getUTCFullYear(), 0, 1)).getTime()) / 86400000);
 
+            // الأساس الاستوائي: مستوى عمودي على محور القطبين (موازٍ لدائرة النجم القطبي ولمداري السرطان والجدي)
+            const eqBasis = (ra) => {
+                const { alt, az } = computeHorizontalCoords(0, H_sun - (ra - alpha_sun), phi);
+                return new THREE.Vector3(
+                    Math.cos(alt) * Math.sin(az),
+                    Math.sin(alt),
+                    -Math.cos(alt) * Math.cos(az)
+                ).normalize();
+            };
+            const uEcl = eqBasis(0);
+            const vEcl = eqBasis(Math.PI / 2);
+            if (sunArmDeferent) sunArmDeferent.visible = false;
+            if (moonArmDeferent) moonArmDeferent.visible = false;
+
             // =============================================================
             // A. فلك الشمس الحامل والمدير (نموذج ابن الشاطر الشمسي في فلك البروج)
             // =============================================================
@@ -4425,23 +4439,7 @@ var cosmos3DInitialized = false;
                 const lambda_apo = 77.0 * Math.PI / 180.0;
                 const alpha_anom = ((lambdaSun - lambda_apo) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
 
-                // متجها الأساس المتعامدان لمستوى فلك البروج عند زاوية الساعة الحالية
-                const H0 = H_sun + alpha_sun;
-                const { alt: alt0, az: az0 } = computeHorizontalCoords(0, H0, phi);
-                const uEcl = new THREE.Vector3(
-                    Math.cos(alt0) * Math.sin(az0),
-                    Math.sin(alt0),
-                    -Math.cos(alt0) * Math.cos(az0)
-                ).normalize();
-
-                const H90 = H_sun - (Math.PI / 2 - alpha_sun);
-                const { alt: alt90, az: az90 } = computeHorizontalCoords(EPSILON, H90, phi);
-                let vEcl = new THREE.Vector3(
-                    Math.cos(alt90) * Math.sin(az90),
-                    Math.sin(alt90),
-                    -Math.cos(alt90) * Math.cos(az90)
-                );
-                vEcl.addScaledVector(uEcl, -vEcl.dot(uEcl)).normalize();
+                // الأفلاك موازية لدائرة النجم القطبي (الأساس الاستوائي المشترك uEcl/vEcl)
 
                 // 1. مركز فلك التدوير الأول على فلك الحامل
                 const cSunDef = new THREE.Vector3()
@@ -4557,23 +4555,9 @@ var cosmos3DInitialized = false;
                 const eta = ((moonLambda - lambdaSun) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
                 const gamma = ((dayOfYear / 27.55455 * Math.PI * 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
 
-                // متجها الأساس المتعامدان لمستوى مدار القمر
-                const Hm0 = H_sun - lambdaSun;
-                const { alt: altM0, az: azM0 } = computeHorizontalCoords(0, Hm0, phi);
-                const uMoon = new THREE.Vector3(
-                    Math.cos(altM0) * Math.sin(azM0),
-                    Math.sin(altM0),
-                    -Math.cos(altM0) * Math.cos(azM0)
-                ).normalize();
-
-                const Hm90 = H_sun + (Math.PI / 2 - lambdaSun);
-                const { alt: altM90, az: azM90 } = computeHorizontalCoords(epsMoon, Hm90, phi);
-                let vMoon = new THREE.Vector3(
-                    Math.cos(altM90) * Math.sin(azM90),
-                    Math.sin(altM90),
-                    -Math.cos(altM90) * Math.cos(azM90)
-                );
-                vMoon.addScaledVector(uMoon, -vMoon.dot(uMoon)).normalize();
+                // أفلاك القمر موازية لدائرة النجم القطبي (مستوى عمودي على محور القطبين)
+                const uMoon = uEcl.clone();
+                const vMoon = vEcl.clone();
 
                 // 1. مركز فلك التدوير الأول على فلك القمر الحامل (بزاوية الاستطالة eta)
                 const cMoonDef = new THREE.Vector3()
