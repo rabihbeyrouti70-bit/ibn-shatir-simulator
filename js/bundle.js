@@ -4235,6 +4235,11 @@ var cosmos3DInitialized = false;
             togglePrayerFocusMode();
         }
 
+        function activatePrayerPerspective() {
+            setCameraPreset('prayers');
+            togglePrayerFocusMode(true);
+        }
+
         // =========================================================================
         // ⚙️ الفلك الحامل والمدير للشمس والقمر (Ibn al-Shatir 3D Kinematic Mechanism)
         // =========================================================================
@@ -5196,9 +5201,10 @@ var cosmos3DInitialized = false;
             }
 
             if (preset === 'prayers') {
-                // منظور مواقيت الصلوات الافتراضي: زاوية ثلاثية الأبعاد متوازنة ومرفوعة تبرز كامل قوس اليوم وأوقات الصلاة والراصد وميكانيكا ابن الشاطر
-                camera.position.set(160, 115, 210);
-                controls.target.set(0, 20, 0);
+                // منظور مواقيت الصلوات الافتراضي: مشهد مسرحي متوازن متجه جنوباً يبرز كامل قوس النهار ومواقيت الصلاة والراصد وميكانيكا ابن الشاطر
+                camera.position.set(-35, 75, -240);
+                controls.target.set(0, 35, 25);
+                togglePrayerFocusMode(true);
                 showC3DToast('🕌 تم ضبط الكاميرا: منظور مواقيت الصلوات');
             } else if (preset === 'perspective') {
                 // المنظور المجسم (Perspective View): زاوية ثلاثية الأبعاد متوازنة تبرز القبة والراصد والمدارات في الفضاء
@@ -5219,6 +5225,8 @@ var cosmos3DInitialized = false;
                 // المنظور الكوني الموسع (Extended Cosmic View): رؤية بانورامية شاملة تغطي كامل أفلاك الكون والأطلس والبروج
                 camera.position.set(420, 340, 540);
                 controls.target.set(0, 0, 0);
+                togglePrayerFocusMode(false);
+                showC3DToast('🌌 تم ضبط الكاميرا: المشهد الكوني الموسع الشامل');
             } else if (preset === 'polar') {
                 camera.position.set(0, 520, 0);
                 controls.target.set(0, 0, 0);
@@ -6600,6 +6608,7 @@ window.onLatAngleSliderInput = onLatAngleSliderInput;
 window.drawPlanets = drawPlanets;
 window.togglePanelCollapse = togglePanelCollapse;
 window.togglePrayerFocusMode = togglePrayerFocusMode;
+window.activatePrayerPerspective = activatePrayerPerspective;
 window.toggleTwilightCircles = toggleTwilightCircles;
 window.drawCosmos = drawCosmos;
 window.getEcliptic3DPos = getEcliptic3DPos;
@@ -6747,11 +6756,11 @@ window.sunArcGroup = sunArcGroup;
         if (typeof switchTab === 'function') {
             switchTab('cosmos3D');
         }
-        if (typeof togglePrayerFocusMode === 'function') {
-            togglePrayerFocusMode(true);
-        }
-        if (typeof setCameraPreset === 'function') {
-            setCameraPreset('prayers');
+        if (typeof activatePrayerPerspective === 'function') {
+            activatePrayerPerspective();
+        } else {
+            if (typeof togglePrayerFocusMode === 'function') togglePrayerFocusMode(true);
+            if (typeof setCameraPreset === 'function') setCameraPreset('prayers');
         }
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
