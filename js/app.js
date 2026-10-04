@@ -92,8 +92,8 @@ window.addEventListener('keydown', (e) => {
         e.preventDefault();
         toggleClockPlay();
         showToast(isClockRunning ? '⏱️ بدء تدفق الزمن' : '⏸️ تم إيقاف تدفق الزمن');
-    } else if (e.key >= '1' && e.key <= '6') {
-        const tabKeys = ['cosmos', 'sunComp', 'moonComp', 'planets', 'study', 'revolution'];
+    } else if (e.key >= '1' && e.key <= '7') {
+        const tabKeys = ['cosmos3D', 'cosmos', 'sunComp', 'moonComp', 'planets', 'study', 'revolution'];
         const idx = parseInt(e.key) - 1;
         if (tabKeys[idx]) {
             switchTab(tabKeys[idx]);
@@ -1420,15 +1420,15 @@ function drawPlanets() {
 
 // ==================== TAB SWITCHING ====================
 const tabMap = {
+    cosmos3D:   'cosmos3DPanel',
     cosmos:     'cosmosPanel',
     sunComp:    'sunCompPanel',
     moonComp:   'moonCompPanel',
     planets:    'planetsPanel',
     study:      'studyPanel',
-    revolution: 'revolutionPanel',
-    cosmos3D:   'cosmos3DPanel'
+    revolution: 'revolutionPanel'
 };
-let activeTab = 'cosmos';
+let activeTab = 'cosmos3D';
 
 function switchTab(tab) {
     activeTab = tab;
@@ -1438,6 +1438,11 @@ function switchTab(tab) {
     const tabKeys = Object.keys(tabMap);
     const idx = tabKeys.indexOf(tab);
     if(idx>=0 && btns[idx]) btns[idx].classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + tab + "'") !== -1) {
+            b.classList.add('active');
+        }
+    });
     const panel = document.getElementById(tabMap[tab]);
     if(panel) panel.classList.add('active');
     if(tab === 'revolution' && typeof initRevolution === 'function') {
@@ -2194,7 +2199,7 @@ setLiveNow();
 initRevolution();
 applyUnifiedSpeed(5.0);
 setClockRunning(true);
-switchTab('cosmos');
+switchTab('cosmos3D');
 requestAnimationFrame(masterLoop);
 
 /* ==================== 3D CELESTIAL & CONCENTRIC ORBS SIMULATOR ENGINE ==================== */
@@ -4449,6 +4454,11 @@ var cosmos3DInitialized = false;
                 preset === 'polaris' ? 'btnViewPolaris' : 'btnViewPolar'
             );
             if (activeBtn) activeBtn.classList.add('active');
+            const cameraSelect = document.getElementById('cameraPresetSelect');
+            if (cameraSelect) {
+                const normVal = (preset === 'extended') ? 'orbit' : preset;
+                if (cameraSelect.value !== normVal) cameraSelect.value = normVal;
+            }
 
             if (preset === 'perspective') {
                 // المنظور المجسم (Perspective View): زاوية ثلاثية الأبعاد متوازنة تبرز القبة والراصد والمدارات في الفضاء
@@ -5983,3 +5993,20 @@ window.updateCityAngleBadge = updateCityAngleBadge;
 window.updateSunSkyArc = updateSunSkyArc;
 window.sunArcGroup = sunArcGroup;
 
+
+// طي بطاقات التيليمترية والأفلاك لتفريغ الشاشة، وتأكيد ظهور المحاكي ثلاثي الأبعاد 3D فور التشغيل
+(function initStartup3DAndCollapse() {
+    const go = () => {
+        document.querySelectorAll('.c3d-card').forEach(card => {
+            const hd = card.querySelector(':scope > .c3d-card-header');
+            if (!hd) return;
+            if (card.id !== 'hudPanel') card.classList.add('c3d-collapsed');
+            hd.addEventListener('click', () => card.classList.toggle('c3d-collapsed'));
+        });
+        if (typeof switchTab === 'function') {
+            switchTab('cosmos3D');
+        }
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+    else go();
+})();

@@ -2210,3 +2210,28 @@
             border-radius: 20px;
             font-weight: 800;
         }
+
+/* مجموعات الواجهة المخفية */
+.ui-group{background:rgba(15,23,42,.6);border:1px solid rgba(99,102,241,.35);border-radius:10px;margin:6px 0}
+.ui-group-wide{max-width:1320px;margin:6px auto}
+.ui-group>summary{cursor:pointer;padding:8px 14px;font-weight:700;color:#CBD5E1;list-style:none;user-select:none;display:flex;align-items:center;justify-content:space-between}
+.ui-group>summary::-webkit-details-marker{display:none}
+.ui-group>summary::after{content:'\25BE';color:#94A3B8;font-size:0.9em;margin-right:auto}
+.ui-group:not([open])>summary::after{content:'\25C2'}
+.ui-group[open]>summary{color:#67E8F9;border-bottom:1px solid rgba(99,102,241,.3)}
+.ui-group-body{display:flex;flex-wrap:wrap;gap:6px;padding:8px}
+
+.c3d-card.c3d-collapsed>*:not(.c3d-card-header){display:none!important}
+.c3d-card>.c3d-card-header{cursor:pointer;user-select:none}
+.c3d-card>.c3d-card-header::after{content:' \25BE';color:#94A3B8;font-size:0.95em}
+.c3d-card.c3d-collapsed>.c3d-card-header::after{content:' \25C2'}
+
+.c3d-action-subgroup{background:rgba(15,23,42,.45);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;margin-bottom:6px}
+.c3d-action-subgroup>summary{cursor:pointer;font-weight:700;font-size:0.84em;color:#CBD5E1;list-style:none;user-select:none;display:flex;align-items:center;justify-content:space-between}
+.c3d-action-subgroup>summary::-webkit-details-marker{display:none}
+.c3d-action-subgroup>summary::after{content:'\25BE';color:#94A3B8;font-size:0.9em}
+.c3d-action-subgroup:not([open])>summary::after{content:'\25C2'}
+.c3d-action-subgroup[open]>summary{margin-bottom:6px;color:#F8FAFC}
+
+.c3d-months-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:100%;margin-top:2px}
+.c3d-months-grid .btn-season-snap{font-size:0.7em;padding:3px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

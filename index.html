@@ -71,7 +71,8 @@
     </div>
 </header>
 
-<!-- Time control bar -->
+<!-- Time control bar (مجمّع ومخفي) -->
+<details class="ui-group ui-group-wide"><summary>⏱️ التحكم بالتاريخ والزمن</summary>
 <div class="time-control-bar">
     <div class="time-row">
         <div class="time-group">
@@ -85,15 +86,11 @@
             <button class="btn-time" onclick="addTime(1,'day')">⏩ +يوم</button>
             <button class="btn-time" onclick="addTime(-1,'month')">⏪ -شهر</button>
             <button class="btn-time" onclick="addTime(1,'month')">⏩ +شهر</button>
-            <button class="btn-time" onclick="addTime(-1,'year')">⏪ -سنة</button>
-            <button class="btn-time" onclick="addTime(1,'year')">⏩ +سنة</button>
         </div>
         <div class="time-group">
             <span style="font-size:0.86em; color:var(--subtext); font-weight:700;">قفزة تاريخية:</span>
             <button class="btn-time" onclick="jumpToEpoch(150)">عصر بطلميوس (150م)</button>
             <button class="btn-time" onclick="jumpToEpoch(1375)">عصر ابن الشاطر (1375م)</button>
-            <button class="btn-time" onclick="jumpToEpoch(1543)">عصر كوبرنيكوس (1543م)</button>
-            <button class="btn-time" onclick="jumpToEpoch(1609)">عصر كيبلر (1609م)</button>
             <button class="btn-time" onclick="jumpToEpoch(2026)">العصر الحاضر (2026م)</button>
         </div>
     </div>
@@ -102,10 +99,8 @@
             <label>⚡ سرعة الزمن:</label>
             <button class="btn-time" onclick="setTimeSpeed(0.0417)">1 ساعة/ث</button>
             <button class="btn-time" onclick="setTimeSpeed(1)">1 يوم/ث</button>
-            <button class="btn-time" onclick="setTimeSpeed(7)">أسبوع/ث</button>
             <button class="btn-time active-speed" onclick="setTimeSpeed(30)">شهر/ث</button>
             <button class="btn-time" onclick="setTimeSpeed(365.25)">سنة/ث</button>
-            <button class="btn-time" onclick="setTimeSpeed(3652.5)">عقد/ث</button>
             <button class="btn-time" onclick="setTimeSpeed(-30)">⏪ عكسي</button>
         </div>
         <div class="time-group">
@@ -115,8 +110,10 @@
         </div>
     </div>
 </div>
+</details>
 
 <!-- Zodiac banner: مقارنة البرج الاصطلاحي الفصلي بالكوكبة النجمية الفعلية -->
+<details class="ui-group ui-group-wide"><summary>♈ البروج والمنازل القمرية والتاريخ اليولياني</summary>
 <div class="zodiac-banner">
     <div class="zodiac-item card-tropical" style="flex:1 1 200px; border-radius:10px; padding:8px 14px; background:rgba(245,158,11,0.08); flex:1 1 200px;">
         <div class="z-label" style="color:var(--gold); font-weight:bold; font-size:0.85em;">☀️ البرج الفصلي الاصطلاحي (Tropical)</div>
@@ -153,19 +150,21 @@
         <div id="jdVal" class="z-val" style="color:#94A3B8; font-size:1em;">2451545.0</div>
     </div>
 </div>
+</details>
 
 <!-- استجابة فورية لحظية (0ms) لتبديل القوائم قبل وأثناء اكتمال تحميل المحركات الحسابية -->
 <script>
 (function() {
     const tabMap = {
+        cosmos3D: 'cosmos3DPanel',
         cosmos: 'cosmosPanel',
         sunComp: 'sunCompPanel',
         moonComp: 'moonCompPanel',
         planets: 'planetsPanel',
         study: 'studyPanel',
-        revolution: 'revolutionPanel',
-        cosmos3D: 'cosmos3DPanel'
+        revolution: 'revolutionPanel'
     };
+    window._pendingTab = "cosmos3D";
     window.switchTab = function(tab) {
         window._pendingTab = tab;
         const targetPanelId = tabMap[tab];
@@ -178,6 +177,11 @@
         const idx = tabKeys.indexOf(tab);
         const btns = document.querySelectorAll('.tab-btn');
         if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + tab + "'") !== -1) {
+                b.classList.add('active');
+            }
+        });
         if (window._fullSwitchTab) {
             window._fullSwitchTab(tab);
         }
@@ -185,19 +189,24 @@
 })();
 </script>
 
-<!-- Tab buttons -->
-<div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('cosmos')" data-i18n="tab.cosmos">🌌 1. هيأة الأفلاك التسعة</button>
-    <button class="tab-btn" onclick="switchTab('sunComp')" data-i18n="tab.sun">☀️ 2. مقارنة نموذج الشمس</button>
-    <button class="tab-btn" onclick="switchTab('moonComp')" data-i18n="tab.moon">🌙 3. مقارنة نموذج القمر</button>
-    <button class="tab-btn" onclick="switchTab('planets')" data-i18n="tab.planets">🪐 4. الكواكب ومعادل بطلميوس</button>
-    <button class="tab-btn" onclick="switchTab('study')" data-i18n="tab.study">📚 5. الدراسة المقارنة الشاملة</button>
-    <button class="tab-btn" onclick="switchTab('revolution')" data-i18n="tab.revolution">🔭 6. ثورة كوبرنيكوس وكيبلر (الشاطر vs المركزية الشمسية)</button>
-    <button class="tab-btn" onclick="switchTab('cosmos3D')" data-i18n="tab.3d" style="color:#67E8F9; border:1.5px solid rgba(56,189,248,0.5); background:rgba(56,189,248,0.12); box-shadow:0 0 15px rgba(56,189,248,0.2);">🌐 7. المحاكي ثلاثي الأبعاد 3D (قبة السماء والأفلاك)</button>
+<!-- Tab buttons: المحاكي الثلاثي الأبعاد هو الأساس، وبقية العروض مجمّعة في قائمة مخفية -->
+<div class="tabs" style="align-items:flex-start;">
+    <button class="tab-btn active" onclick="switchTab('cosmos3D')" data-i18n="tab.3d" style="color:#67E8F9; border:1.5px solid rgba(56,189,248,0.5); background:rgba(56,189,248,0.12); box-shadow:0 0 15px rgba(56,189,248,0.2);">🌐 المحاكي ثلاثي الأبعاد 3D (قبة السماء والأفلاك)</button>
+    <details class="ui-group">
+        <summary>📑 عروض ومقارنات أخرى</summary>
+        <div class="ui-group-body">
+            <button class="tab-btn" onclick="switchTab('cosmos')" data-i18n="tab.cosmos">🌌 هيأة الأفلاك التسعة</button>
+            <button class="tab-btn" onclick="switchTab('sunComp')" data-i18n="tab.sun">☀️ مقارنة نموذج الشمس</button>
+            <button class="tab-btn" onclick="switchTab('moonComp')" data-i18n="tab.moon">🌙 مقارنة نموذج القمر</button>
+            <button class="tab-btn" onclick="switchTab('planets')" data-i18n="tab.planets">🪐 الكواكب ومعادل بطلميوس</button>
+            <button class="tab-btn" onclick="switchTab('study')" data-i18n="tab.study">📚 الدراسة المقارنة الشاملة</button>
+            <button class="tab-btn" onclick="switchTab('revolution')" data-i18n="tab.revolution">🔭 ثورة كوبرنيكوس وكيبلر</button>
+        </div>
+    </details>
 </div>
 
 <!-- ===== PANEL 1: COSMOS ===== -->
-<div id="cosmosPanel" class="view-panel active">
+<div id="cosmosPanel" class="view-panel">
     <div class="canvas-wrap" style="flex:1 1 600px;">
         <h4 style="color:var(--gold);">🌌 هيأة الأفلاك التسعة — متزامن مع التاريخ والوقت</h4>
         <canvas id="cosmosCanvas" width="660" height="660"></canvas>
@@ -901,7 +910,7 @@
 
 
 <!-- ===== VIEW 7: 3D CELESTIAL & CONCENTRIC ORBS SIMULATOR ===== -->
-<div id="cosmos3DPanel" class="view-panel" style="flex-direction:column; align-items:center; gap:16px;">
+<div id="cosmos3DPanel" class="view-panel active" style="flex-direction:column; align-items:center; gap:16px;">
     <!-- Title & Intro Header -->
     <div style="text-align:center; max-width:1320px; width:100%; margin-top:4px; padding:14px 20px; background:rgba(15,23,42,0.65); border:1px solid rgba(99,102,241,0.3); border-radius:14px;">
         <h2 style="color:var(--gold); font-size:1.45em; font-weight:900; margin-bottom:4px;">
@@ -990,17 +999,19 @@
                 <button type="button" class="btn-view" style="padding:2px 7px; font-weight:800; color:#A7F3D0;" onclick="stepMonth(1)" title="الانتقال للشهر التالي" aria-label="الانتقال للشهر التالي">▶</button>
             </div>
 
-            <!-- Camera Presets Group -->
+            <!-- Camera Presets Group: قائمة منسدلة أنيقة لمنع الازدحام -->
             <div class="c3d-toolgroup">
                 <span style="color:#94A3B8; font-size:0.8em; font-weight:bold;">👁️ الكاميرا:</span>
-                <button id="btnViewPerspective" class="btn-view" onclick="setCameraPreset('perspective')" aria-label="منظور مجسم ثلاثي الأبعاد" title="منظور مجسم ثلاثي الأبعاد (Perspective View): زاوية رؤية مجسمة متوازنة">📐 منظور</button>
-                <button id="btnViewHorizon" class="btn-view" onclick="setCameraPreset('horizon')" aria-label="منظور الأفق">الأفق</button>
-                <button id="btnViewPolaris" class="btn-view" onclick="setCameraPreset('polaris')" aria-label="منظور نجم القطب الشمالي">★ القطب</button>
-                <button id="btnViewMoon" class="btn-view" onclick="setCameraPreset('moon')" aria-label="التركيز على مدار القمر">🌙 القمر</button>
-                <button id="btnViewSun" class="btn-view" onclick="setCameraPreset('sun')" aria-label="التركيز على مدار الشمس">☀️ الشمس</button>
-                <button id="btnViewOrbit" class="btn-view active" onclick="setCameraPreset('orbit')" aria-label="عرض كوني موسع">🌌 كوني موسع</button>
-                <button id="btnViewPolar" class="btn-view" onclick="setCameraPreset('polar')" aria-label="عرض رأسي سمتي">🧭 رأسي</button>
-                <button id="btnAutoRotate" class="btn-view" onclick="toggleAutoRotate()" aria-label="تبديل الدوران التلقائي">🔄 تدوير</button>
+                <select id="cameraPresetSelect" class="btn-view" style="background:#0F172A; border-color:#6366F1; color:#E0E7FF; font-weight:700; padding:2px 8px; cursor:pointer;" onchange="setCameraPreset(this.value)" aria-label="اختيار منظور الكاميرا">
+                    <option value="orbit" selected>🌌 كوني موسع (الافتراضي)</option>
+                    <option value="perspective">📐 منظور مجسم متوازن</option>
+                    <option value="horizon">🌅 منظور الأفق</option>
+                    <option value="polaris">★ نجم القطب الشمالي</option>
+                    <option value="sun">☀️ التركيز على الشمس</option>
+                    <option value="moon">🌙 التركيز على القمر</option>
+                    <option value="polar">🧭 عرض رأسي سمتي</option>
+                </select>
+                <button id="btnAutoRotate" class="btn-view" onclick="toggleAutoRotate()" aria-label="تبديل الدوران التلقائي" title="تشغيل / إيقاف التدوير التلقائي">🔄 تدوير</button>
             </div>
 
             <!-- Fullscreen Action -->
@@ -1057,20 +1068,20 @@
                     <button type="button" class="btn-season-snap" style="flex:1; padding:3px 2px;" onclick="stepMonth(-1)" title="الشهر السابق">◀ سابق</button>
                     <button type="button" class="btn-season-snap" style="flex:1; padding:3px 2px;" onclick="stepMonth(1)" title="الشهر التالي">تالي ▶</button>
                 </div>
-                <!-- 12 Months Scrollable List -->
-                <div id="c3dMonthsList" style="display:flex; flex-direction:column; gap:2.5px; width:100%; max-height:165px; overflow-y:auto; margin-top:2px;">
-                    <button type="button" class="btn-season-snap btn-m-1" onclick="snapMonth(1)">1: كانون 2 (يناير) ♑</button>
-                    <button type="button" class="btn-season-snap btn-m-2" onclick="snapMonth(2)">2: شباط (فبراير) ♒</button>
-                    <button type="button" class="btn-season-snap btn-m-3" onclick="snapMonth(3)">3: آذار (مارس) ♓ 🌸</button>
-                    <button type="button" class="btn-season-snap btn-m-4" onclick="snapMonth(4)">4: نيسان (أبريل) ♈</button>
-                    <button type="button" class="btn-season-snap btn-m-5" onclick="snapMonth(5)">5: أيار (مايو) ♉</button>
-                    <button type="button" class="btn-season-snap btn-m-6" onclick="snapMonth(6)">6: حزيران (يونيو) ♊ ☀️</button>
-                    <button type="button" class="btn-season-snap btn-m-7" onclick="snapMonth(7)">7: تموز (يوليو) ♋</button>
-                    <button type="button" class="btn-season-snap btn-m-8" onclick="snapMonth(8)">8: آب (أغسطس) ♌</button>
-                    <button type="button" class="btn-season-snap btn-m-9" onclick="snapMonth(9)">9: أيلول (سبتمبر) ♍ 🍂</button>
-                    <button type="button" class="btn-season-snap btn-m-10" onclick="snapMonth(10)">10: تشرين 1 (أكتوبر) ♎</button>
-                    <button type="button" class="btn-season-snap btn-m-11" onclick="snapMonth(11)">11: تشرين 2 (نوفمبر) ♏</button>
-                    <button type="button" class="btn-season-snap btn-m-12" onclick="snapMonth(12)">12: كانون 1 (ديسمبر) ♐ ❄️</button>
+                <!-- 12 Months Compact Grid -->
+                <div id="c3dMonthsList" class="c3d-months-grid">
+                    <button type="button" class="btn-season-snap btn-m-1" onclick="snapMonth(1)" title="كانون الثاني (يناير) ♑">1. كانون 2</button>
+                    <button type="button" class="btn-season-snap btn-m-2" onclick="snapMonth(2)" title="شباط (فبراير) ♒">2. شباط</button>
+                    <button type="button" class="btn-season-snap btn-m-3" onclick="snapMonth(3)" title="آذار (مارس) ♓ 🌸">3. آذار 🌸</button>
+                    <button type="button" class="btn-season-snap btn-m-4" onclick="snapMonth(4)" title="نيسان (أبريل) ♈">4. نيسان</button>
+                    <button type="button" class="btn-season-snap btn-m-5" onclick="snapMonth(5)" title="أيار (مايو) ♉">5. أيار</button>
+                    <button type="button" class="btn-season-snap btn-m-6" onclick="snapMonth(6)" title="حزيران (يونيو) ♊ ☀️">6. حزيران ☀️</button>
+                    <button type="button" class="btn-season-snap btn-m-7" onclick="snapMonth(7)" title="تموز (يوليو) ♋">7. تموز</button>
+                    <button type="button" class="btn-season-snap btn-m-8" onclick="snapMonth(8)" title="آب (أغسطس) ♌">8. آب</button>
+                    <button type="button" class="btn-season-snap btn-m-9" onclick="snapMonth(9)" title="أيلول (سبتمبر) ♍ 🍂">9. أيلول 🍂</button>
+                    <button type="button" class="btn-season-snap btn-m-10" onclick="snapMonth(10)" title="تشرين الأول (أكتوبر) ♎">10. تشرين 1</button>
+                    <button type="button" class="btn-season-snap btn-m-11" onclick="snapMonth(11)" title="تشرين الثاني (نوفمبر) ♏">11. تشرين 2</button>
+                    <button type="button" class="btn-season-snap btn-m-12" onclick="snapMonth(12)" title="كانون الأول (ديسمبر) ♐ ❄️">12. كانون 1 ❄️</button>
                 </div>
             </div>
 
@@ -1099,24 +1110,27 @@
                 <span style="cursor:pointer;" onclick="snapCityLat(0.0, 'equator')">0° الاستواء</span>
                 <span style="cursor:pointer;" onclick="snapCityLat(-90.0, 'pole_s')">-90° الجنوبي</span>
             </div>
-            <!-- Quick City Buttons List -->
-            <div style="display:flex; flex-direction:column; gap:3px; width:100%; max-height:140px; overflow-y:auto; margin-top:4px;">
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(90.0, 'pole_n')">القطب الشمالي (+90°)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(41.01, 'istanbul')">إسطنبول (41.0°N)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(37.89, 'cordoba')">قرطبة (37.9°N)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(34.44, 'tripoli_lb')">طرابلس الشام (34.4°N)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(33.89, 'beirut')">بيروت (33.9°N)</button>
-                <button type="button" class="btn-season-snap city-active" id="btnSnapDamascus" onclick="snapCityLat(33.51, 'damascus')">دمشق (33.5°N)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(31.78, 'jerusalem')">القدس الشريف (31.8°N)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(30.04, 'cairo')">القاهرة (30.0°N)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(24.71, 'riyadh')">الرياض (24.7°N)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(21.42, 'mecca')">مكة المكرمة (21.4°N)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(0.0, 'equator')">خط الاستواء (0°)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(-23.55, 'saopaulo')">ساو باولو (-23.6°S)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(-33.87, 'sydney')">سيدني (-33.9°S)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(-34.60, 'buenosaires')">بوينس آيرس (-34.6°S)</button>
-                <button type="button" class="btn-season-snap" onclick="snapCityLat(-90.0, 'pole_s')">القطب الجنوبي (-90°)</button>
-            </div>
+            <!-- Quick City Buttons List: مجمّع داخل قائمة قابلة للطي -->
+            <details class="c3d-quick-cities" style="width:100%; margin-top:4px;">
+                <summary style="cursor:pointer; font-size:0.75em; color:var(--gold); padding:3px 6px; text-align:center; background:rgba(15,23,42,0.7); border-radius:6px; border:1px solid rgba(245,158,11,0.25); list-style:none;">📍 مراصد وعواصم سريعة ▾</summary>
+                <div style="display:flex; flex-direction:column; gap:3px; width:100%; max-height:140px; overflow-y:auto; margin-top:4px;">
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(90.0, 'pole_n')">القطب الشمالي (+90°)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(41.01, 'istanbul')">إسطنبول (41.0°N)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(37.89, 'cordoba')">قرطبة (37.9°N)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(34.44, 'tripoli_lb')">طرابلس الشام (34.4°N)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(33.89, 'beirut')">بيروت (33.9°N)</button>
+                    <button type="button" class="btn-season-snap city-active" id="btnSnapDamascus" onclick="snapCityLat(33.51, 'damascus')">دمشق (33.5°N)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(31.78, 'jerusalem')">القدس الشريف (31.8°N)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(30.04, 'cairo')">القاهرة (30.0°N)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(24.71, 'riyadh')">الرياض (24.7°N)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(21.42, 'mecca')">مكة المكرمة (21.4°N)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(0.0, 'equator')">خط الاستواء (0°)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(-23.55, 'saopaulo')">ساو باولو (-23.6°S)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(-33.87, 'sydney')">سيدني (-33.9°S)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(-34.60, 'buenosaires')">بوينس آيرس (-34.6°S)</button>
+                    <button type="button" class="btn-season-snap" onclick="snapCityLat(-90.0, 'pole_s')">القطب الجنوبي (-90°)</button>
+                </div>
+            </details>
         </div>
 
         <!-- Bottom Center Floating Isha Telemetry Pill -->
@@ -1595,9 +1609,9 @@
             </div>
 
             <div class="c3d-actions-section">
-                <!-- Moon Phases -->
-                <div>
-                    <div class="c3d-sub-title">🌙 القفز المباشر لأوجه القمر الأربعة:</div>
+                <!-- Moon Phases Subgroup -->
+                <details open class="c3d-action-subgroup">
+                    <summary>🌙 أوجه القمر (القفز المباشر)</summary>
                     <div class="c3d-btn-group" style="margin-top:6px;">
                         <button class="c3d-btn-ui c3d-btn-moon" onclick="jumpToMoonPhase(0)">🌑 محاق (0°)</button>
                         <button class="c3d-btn-ui c3d-btn-moon" onclick="jumpToMoonPhase(90)">🌓 تربيع أول (90°)</button>
@@ -1605,22 +1619,22 @@
                         <button class="c3d-btn-ui c3d-btn-moon" onclick="jumpToMoonPhase(270)">🌗 تربيع أخير (270°)</button>
                         <button class="c3d-btn-ui" onclick="setCameraPreset('moon')" style="color:#E9D5FF;">🔭 قفل الكاميرا على القمر</button>
                     </div>
-                </div>
+                </details>
 
-                <!-- Sun Seasons -->
-                <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
-                    <div class="c3d-sub-title">☀️ فصول السنة ومسار الشمس:</div>
+                <!-- Sun Seasons Subgroup -->
+                <details open class="c3d-action-subgroup">
+                    <summary>☀️ فصول السنة والانقلابين</summary>
                     <div class="c3d-btn-group" style="margin-top:6px;">
                         <button class="c3d-btn-ui" onclick="jumpToSeason('spring')">🌸 اعتدال ربيعي</button>
                         <button class="c3d-btn-ui" onclick="jumpToSeason('summer')">☀️ انقلاب صيفي</button>
                         <button class="c3d-btn-ui" onclick="jumpToSeason('autumn')">🍂 اعتدال خريفي</button>
                         <button class="c3d-btn-ui" onclick="jumpToSeason('winter')">❄️ انقلاب شتوي</button>
                     </div>
-                </div>
+                </details>
 
-                <!-- Time Flow & Speeds -->
-                <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
-                    <div class="c3d-sub-title">⏱️ خطوة الزمن وتدفق المحاكاة:</div>
+                <!-- Time Flow & Speeds Subgroup -->
+                <details open class="c3d-action-subgroup">
+                    <summary>⏱️ خطوة الزمن وتدفق المحاكاة</summary>
                     <div class="c3d-btn-group" style="margin-top:6px;">
                         <button id="btnPlay" class="c3d-btn-ui c3d-btn-play" onclick="togglePlay()">⏸️ إيقاف</button>
                         <button class="c3d-btn-ui" onclick="stepTime(-1, 'hour')">⏪ -ساعة</button>
@@ -1632,10 +1646,9 @@
                         <span style="font-size:0.8em; color:var(--subtext); align-self:center; margin-left:4px;">السرعة:</span>
                         <button class="c3d-btn-ui active" onclick="applyUnifiedSpeed(0.0417)">1 س/ث</button>
                         <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(1)">1 يوم/ث</button>
-                        <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(7)">أسبوع/ث</button>
                         <button class="c3d-btn-ui" onclick="applyUnifiedSpeed(27.32)">شهر/ث</button>
                     </div>
-                </div>
+                </details>
             </div>
         </div>
     </div>
