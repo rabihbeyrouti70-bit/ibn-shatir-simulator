@@ -968,8 +968,8 @@
                 <button type="button" id="btnOpenWorldMap" class="btn-view" style="background:linear-gradient(135deg,#0284c7,#2563eb); border-color:#38bdf8; color:#fff; font-weight:800; box-shadow:0 0 10px rgba(56,189,248,0.35);" onclick="openWorldMapModal()" title="فتح خريطة العالم التفاعلية والبحث عن أي مدينة حول العالم">
                     🗺️ الخريطة والبحث
                 </button>
-                <button type="button" id="btnToggleTwilight" class="btn-view" style="background:linear-gradient(135deg,#7c2d12,#9a3412); border-color:#f97316; color:#fed7aa; font-weight:700;" onclick="toggleTwilightCircles()" title="التركيز على العشائين: إخفاء الكواكب والنجوم وإبراز المدارات والشمس والقمر والعشائين بحجم مقروء">
-                    🕌 وضع العشائين (16°/18°)
+                <button type="button" id="btnTogglePrayerFocus" class="btn-view active" style="background:linear-gradient(135deg,#065f46,#047857); border-color:#10b981; color:#ecfdf5; font-weight:800; box-shadow:0 0 10px rgba(16,185,129,0.35);" onclick="togglePrayerFocusMode()" title="منظور مواقيت الصلوات: التركيز على مدار الشمس اليومي وأقواس الصلوات وميكانيكا ابن الشاطر بحجم مقروء">
+                    🕌 منظور مواقيت الصلوات
                 </button>
                 <div id="customCoordRow" class="custom-coord-row" style="display:none;">
                     <span style="font-size:0.8em; color:var(--gold);">عرض:</span>
@@ -1004,7 +1004,8 @@
             <div class="c3d-toolgroup">
                 <span style="color:#94A3B8; font-size:0.8em; font-weight:bold;">👁️ الكاميرا:</span>
                 <select id="cameraPresetSelect" class="btn-view" style="background:#0F172A; border-color:#6366F1; color:#E0E7FF; font-weight:700; padding:2px 8px; cursor:pointer;" onchange="setCameraPreset(this.value)" aria-label="اختيار منظور الكاميرا">
-                    <option value="orbit" selected>🌌 كوني موسع (الافتراضي)</option>
+                    <option value="prayers" selected>🕌 منظور مواقيت الصلوات (الافتراضي)</option>
+                    <option value="orbit">🌌 كوني موسع</option>
                     <option value="perspective">📐 منظور مجسم متوازن</option>
                     <option value="horizon">🌅 منظور الأفق</option>
                     <option value="polaris">★ نجم القطب الشمالي</option>
