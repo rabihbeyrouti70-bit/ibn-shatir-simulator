@@ -5671,11 +5671,11 @@ var cosmos3DInitialized = false;
                 const el = document.getElementById(id);
                 if (el) {
                     if (id === activeCardId) {
-                        el.style.boxShadow = `0 0 10px ${currentPrayerColor}`;
-                        el.style.transform = 'scale(1.03)';
+                        el.classList.add('active-prayer');
+                        el.style.transform = '';
                     } else {
-                        el.style.boxShadow = 'none';
-                        el.style.transform = 'none';
+                        el.classList.remove('active-prayer');
+                        el.style.transform = '';
                     }
                 }
             });

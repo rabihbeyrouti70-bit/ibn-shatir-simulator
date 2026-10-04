@@ -1090,14 +1090,15 @@
         /* Floating Help Button */
         .floating-help-btn {
             position: fixed;
-            bottom: 22px;
-            right: 22px;
+            bottom: 12px;
+            left: 12px;
             background: linear-gradient(135deg, rgba(30, 58, 95, 0.92), rgba(49, 46, 129, 0.92));
             border: 1.5px solid rgba(245, 158, 11, 0.5);
             color: var(--gold);
-            padding: 9px 18px;
+            padding: 4px 10px;
             border-radius: 9999px;
-            font-size: 0.88em;
+            font-size: 0.76em;
+            opacity: 0.85;
             font-weight: 800;
             cursor: pointer;
             box-shadow: 0 8px 25px rgba(0,0,0,0.5), 0 0 15px rgba(245, 158, 11, 0.2);
@@ -2235,3 +2236,218 @@
 
 .c3d-months-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:100%;margin-top:2px}
 .c3d-months-grid .btn-season-snap{font-size:0.7em;padding:3px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ==================== POLISHED PRAYER TIMES & HIGH-END THEME (prayertimescalc.app style) ==================== */
+:root {
+    --num-font: 'Outfit', 'Cairo', 'JetBrains Mono', sans-serif;
+}
+
+.header-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 16px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(99, 102, 241, 0.15));
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #38BDF8;
+    font-size: 0.82em;
+    font-weight: 700;
+    margin-bottom: 6px;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+    letter-spacing: 0.3px;
+}
+
+header h1 {
+    background: linear-gradient(135deg, #FDE047 0%, #F59E0B 50%, #D97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 25px rgba(245, 158, 11, 0.2);
+}
+
+.prayer-section-box {
+    border-right: 3px solid #06B6D4;
+    background: linear-gradient(145deg, rgba(6, 182, 212, 0.08), rgba(15, 23, 42, 0.85)) !important;
+    padding: 10px 12px;
+    border-radius: 12px !important;
+    margin-top: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(6, 182, 212, 0.22);
+}
+
+.prayer-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.prayer-section-title {
+    color: #67E8F9;
+    font-weight: 800;
+    font-size: 0.88em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.prayer-status-chip {
+    font-family: var(--num-font);
+    font-size: 0.8em;
+    font-weight: 700;
+    color: #FDE047;
+    background: rgba(15, 23, 42, 0.85);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
+    transition: all 0.3s ease;
+}
+
+.prayer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+@media (max-width: 640px) {
+    .prayer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.prayer-card {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.7) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 6px 4px;
+    text-align: center;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.prayer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.prayer-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 100%;
+    margin-bottom: 2px;
+}
+
+.prayer-icon {
+    font-size: 0.9em;
+}
+
+.prayer-name {
+    font-size: 0.78em;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.prayer-angle {
+    font-size: 0.68em;
+    opacity: 0.75;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0 3px;
+    border-radius: 4px;
+}
+
+.prayer-time {
+    font-family: var(--num-font);
+    font-size: 1.08em;
+    font-weight: 800;
+    color: #FFFFFF;
+    white-space: nowrap;
+    direction: ltr;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.4px;
+    margin: 1px 0;
+}
+
+.prayer-dur {
+    font-family: var(--num-font);
+    font-size: 0.74em;
+    padding: 1px 6px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #94A3B8;
+    white-space: nowrap;
+}
+
+/* Prayer Card Themes */
+.prayer-fajr { border-top: 2.5px solid #06B6D4; }
+.prayer-fajr .prayer-name { color: #67E8F9; }
+.prayer-fajr .prayer-dur { color: #A5F3FC; }
+
+.prayer-sunrise { border-top: 2.5px solid #EAB308; }
+.prayer-sunrise .prayer-name { color: #FDE047; }
+.prayer-sunrise .prayer-dur { color: #FEF08A; }
+
+.prayer-dhuha { border-top: 2.5px solid #10B981; }
+.prayer-dhuha .prayer-name { color: #6EE7B7; }
+.prayer-dhuha .prayer-dur { color: #A7F3D0; }
+
+.prayer-duhr { border-top: 2.5px solid #FACC15; }
+.prayer-duhr .prayer-name { color: #FEF08A; }
+.prayer-duhr .prayer-dur { color: #FEF08A; }
+
+.prayer-asr-shafi { border-top: 2.5px solid #F97316; }
+.prayer-asr-shafi .prayer-name { color: #FED7AA; }
+.prayer-asr-shafi .prayer-dur { color: #FDBA74; }
+
+.prayer-asr-hanafi { border-top: 2.5px solid #A855F7; }
+.prayer-asr-hanafi .prayer-name { color: #D8B4FE; }
+.prayer-asr-hanafi .prayer-dur { color: #C084FC; }
+
+.prayer-sunset { border-top: 2.5px solid #E11D48; }
+.prayer-sunset .prayer-name { color: #FDA4AF; }
+.prayer-sunset .prayer-dur { color: #FECDD3; }
+
+.prayer-ishaa { border-top: 2.5px solid #6366F1; }
+.prayer-ishaa .prayer-name { color: #C7D2FE; }
+.prayer-ishaa .prayer-dur { color: #E0E7FF; }
+
+/* Active Next Prayer Highlight */
+.prayer-card.active-prayer {
+    border: 1.5px solid #38BDF8 !important;
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.4), inset 0 0 12px rgba(56, 189, 248, 0.15) !important;
+    background: linear-gradient(145deg, rgba(14, 165, 233, 0.22), rgba(15, 23, 42, 0.9)) !important;
+    transform: translateY(-2px);
+}
+
+.prayer-card.active-prayer::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #38BDF8;
+    box-shadow: 0 0 8px #38BDF8;
+    animation: prayer-beacon 1.5s infinite;
+}
+
+@keyframes prayer-beacon {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.7); opacity: 0.4; }
+}
+
+/* Polished Tabular Numbers on Telemetry & Sliders */
+.c3d-telemetry-val, .z-val, #speedDisplayBadge, .c3d-decl-badge, .c3d-month-badge, .c3d-city-badge {
+    font-family: var(--num-font);
+    font-variant-numeric: tabular-nums;
+}

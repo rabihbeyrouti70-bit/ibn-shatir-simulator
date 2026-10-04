@@ -45,7 +45,7 @@
     </script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <title>المحاكي الفلكي المقارن: بطلميوس وابن الشاطر الدمشقي (ت 777هـ)</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="manifest" href="manifest.json">
@@ -64,6 +64,7 @@
 
 <header style="position:relative;">
     <button id="btnLangToggle" class="btn-lang-toggle" onclick="window.i18n && window.i18n.toggleLanguage()" title="Switch Language / تبديل اللغة">English 🌐</button>
+    <div class="header-pill">🕌 حساب مواقيت الصلاة والأفلاك • طريقة الرُبع المُجَيَّب ومخطوطات ابن الشاطر (ت 777هـ)</div>
     <h1 data-i18n="app.title">⚖️ المحاكي الفلكي المقارن: بطلميوس وابن الشاطر الدمشقي (ت 777هـ)</h1>
     <div class="subtitle" data-i18n="app.subtitle">
         مقارنة تفاعلية متزامنة زمنياً بين النماذج الفلكية البطلمية وإصلاحات ابن الشاطر<br>
@@ -1417,55 +1418,82 @@
                 </div>
 
                 <!-- مواقيت الصلاة وأقواس المدار الشمسي وفق الرُبع المُجَيَّب (مجلد prayertimes) -->
-                <div class="c3d-section-box" style="border-right: 3px solid #06B6D4; background: rgba(6, 182, 212, 0.08); padding: 8px 10px; border-radius: 6px; margin-top: 6px;">
-                    <div style="color:#67E8F9; font-weight:800; font-size:0.84em; display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-                        <span>🕌 مواقيت الصلاة وأقواس المدار الشمسي (الرُبع المُجَيَّب):</span>
-                        <span id="hudSunTwilightStatus" style="font-size:0.8em; color:#FDE047; background:rgba(0,0,0,0.5); padding:2px 8px; border-radius:10px; border:1px solid rgba(245,158,11,0.4); transition:all 0.3s ease;">☀️ نهار</span>
+                <div class="c3d-section-box prayer-section-box">
+                    <div class="prayer-section-header">
+                        <span class="prayer-section-title">🕌 مواقيت الصلاة (طريقة الرُبع المُجَيَّب):</span>
+                        <span id="hudSunTwilightStatus" class="prayer-status-chip">☀️ نهار</span>
                     </div>
 
-                    <!-- شبكة أوقات الصلوات والضحى والعصرين بألوان الأقواس المطابقة للثلاثي الأبعاد -->
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 4px; font-size: 0.76em;">
-                        <div id="hudCardFajr" style="background: rgba(6, 182, 212, 0.15); border: 1px solid #06B6D4; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
-                            <div style="color: #67E8F9; font-weight: 700;">🌅 الفجر (18°)</div>
-                            <div id="hudTimeFajr" style="color: #FFFFFF; font-weight: 800; font-size: 0.94em; white-space: nowrap; direction: ltr; font-variant-numeric: tabular-nums;">--:--</div>
-                            <div id="hudDurFajr" style="color: #A5F3FC; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
+                    <!-- شبكة أوقات الصلوات والضحى والعصرين بطراز عصري فائق البوليش -->
+                    <div class="prayer-grid">
+                        <div id="hudCardFajr" class="prayer-card prayer-fajr">
+                            <div class="prayer-card-header">
+                                <span class="prayer-icon">🌅</span>
+                                <span class="prayer-name">الفجر</span>
+                                <span class="prayer-angle">18°</span>
+                            </div>
+                            <div id="hudTimeFajr" class="prayer-time">--:--</div>
+                            <div id="hudDurFajr" class="prayer-dur">⏱️ --</div>
                         </div>
-                        <div id="hudCardSunrise" style="background: rgba(234, 179, 8, 0.15); border: 1px solid #EAB308; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
-                            <div style="color: #FDE047; font-weight: 700;">☀️ الشروق</div>
-                            <div id="hudTimeSunrise" style="color: #FFFFFF; font-weight: 800; font-size: 0.94em; white-space: nowrap; direction: ltr; font-variant-numeric: tabular-nums;">--:--</div>
-                            <div id="hudDurSunrise" style="color: #FEF08A; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
+                        <div id="hudCardSunrise" class="prayer-card prayer-sunrise">
+                            <div class="prayer-card-header">
+                                <span class="prayer-icon">☀️</span>
+                                <span class="prayer-name">الشروق</span>
+                            </div>
+                            <div id="hudTimeSunrise" class="prayer-time">--:--</div>
+                            <div id="hudDurSunrise" class="prayer-dur">⏱️ --</div>
                         </div>
-                        <div id="hudCardDhuha" style="background: rgba(16, 185, 129, 0.18); border: 1px solid #10B981; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
-                            <div style="color: #6EE7B7; font-weight: 700;">🌤️ الضحى (5°)</div>
-                            <div id="hudTimeDhuha" style="color: #FFFFFF; font-weight: 800; font-size: 0.94em; white-space: nowrap; direction: ltr; font-variant-numeric: tabular-nums;">--:--</div>
-                            <div id="hudDurDhuha" style="color: #A7F3D0; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
+                        <div id="hudCardDhuha" class="prayer-card prayer-dhuha">
+                            <div class="prayer-card-header">
+                                <span class="prayer-icon">🌤️</span>
+                                <span class="prayer-name">الضحى</span>
+                                <span class="prayer-angle">5°</span>
+                            </div>
+                            <div id="hudTimeDhuha" class="prayer-time">--:--</div>
+                            <div id="hudDurDhuha" class="prayer-dur">⏱️ --</div>
                         </div>
-                        <div id="hudCardDuhr" style="background: rgba(250, 204, 21, 0.15); border: 1px solid #FACC15; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
-                            <div style="color: #FEF08A; font-weight: 700;">☀️ الظهر (الزوال)</div>
-                            <div id="hudTimeDuhr" style="color: #FFFFFF; font-weight: 800; font-size: 0.94em; white-space: nowrap; direction: ltr; font-variant-numeric: tabular-nums;">--:--</div>
-                            <div id="hudDurDuhr" style="color: #FEF08A; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
+                        <div id="hudCardDuhr" class="prayer-card prayer-duhr">
+                            <div class="prayer-card-header">
+                                <span class="prayer-icon">☀️</span>
+                                <span class="prayer-name">الظهر</span>
+                                <span class="prayer-angle">الزوال</span>
+                            </div>
+                            <div id="hudTimeDuhr" class="prayer-time">--:--</div>
+                            <div id="hudDurDuhr" class="prayer-dur">⏱️ --</div>
                         </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 6px; font-size: 0.76em;">
-                        <div id="hudCardAsr" style="background: rgba(249, 115, 22, 0.15); border: 1px solid #F97316; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
-                            <div style="color: #FED7AA; font-weight: 700;">🌤️ العصر الشافعي</div>
-                            <div id="hudTimeAsr" style="color: #FFFFFF; font-weight: 800; font-size: 0.94em; white-space: nowrap; direction: ltr; font-variant-numeric: tabular-nums;">--:--</div>
-                            <div id="hudDurAsr" style="color: #FDBA74; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
+                        <div id="hudCardAsr" class="prayer-card prayer-asr-shafi">
+                            <div class="prayer-card-header">
+                                <span class="prayer-icon">🌤️</span>
+                                <span class="prayer-name">العصر (شافعي)</span>
+                            </div>
+                            <div id="hudTimeAsr" class="prayer-time">--:--</div>
+                            <div id="hudDurAsr" class="prayer-dur">⏱️ --</div>
                         </div>
-                        <div id="hudCardAsrHanafi" style="background: rgba(168, 85, 247, 0.18); border: 1px solid #A855F7; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
-                            <div style="color: #D8B4FE; font-weight: 700;">🌤️ العصر الحنفي</div>
-                            <div id="hudTimeAsrHanafi" style="color: #FFFFFF; font-weight: 800; font-size: 0.94em; white-space: nowrap; direction: ltr; font-variant-numeric: tabular-nums;">--:--</div>
-                            <div id="hudDurAsrHanafi" style="color: #C084FC; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
+                        <div id="hudCardAsrHanafi" class="prayer-card prayer-asr-hanafi">
+                            <div class="prayer-card-header">
+                                <span class="prayer-icon">🌤️</span>
+                                <span class="prayer-name">العصر (حنفي)</span>
+                            </div>
+                            <div id="hudTimeAsrHanafi" class="prayer-time">--:--</div>
+                            <div id="hudDurAsrHanafi" class="prayer-dur">⏱️ --</div>
                         </div>
-                        <div id="hudCardSunset" style="background: rgba(225, 29, 72, 0.15); border: 1px solid #E11D48; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
-                            <div style="color: #FDA4AF; font-weight: 700;">🌇 المغرب (الغروب)</div>
-                            <div id="hudTimeSunset" style="color: #FFFFFF; font-weight: 800; font-size: 0.94em; white-space: nowrap; direction: ltr; font-variant-numeric: tabular-nums;">--:--</div>
-                            <div id="hudDurSunset" style="color: #FECDD3; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
+                        <div id="hudCardSunset" class="prayer-card prayer-sunset">
+                            <div class="prayer-card-header">
+                                <span class="prayer-icon">🌇</span>
+                                <span class="prayer-name">المغرب</span>
+                                <span class="prayer-angle">الغروب</span>
+                            </div>
+                            <div id="hudTimeSunset" class="prayer-time">--:--</div>
+                            <div id="hudDurSunset" class="prayer-dur">⏱️ --</div>
                         </div>
-                        <div id="hudCardIshaa" style="background: rgba(99, 102, 241, 0.15); border: 1px solid #6366F1; border-radius: 4px; padding: 3px 4px; text-align: center; transition: all 0.3s ease;">
-                            <div style="color: #C7D2FE; font-weight: 700;">🌌 العشاء (18°)</div>
-                            <div id="hudTimeIshaa" style="color: #FFFFFF; font-weight: 800; font-size: 0.94em; white-space: nowrap; direction: ltr; font-variant-numeric: tabular-nums;">--:--</div>
-                            <div id="hudDurIshaa" style="color: #E0E7FF; font-size: 0.82em; margin-top: 1px;">⏱️ --</div>
+                        <div id="hudCardIshaa" class="prayer-card prayer-ishaa">
+                            <div class="prayer-card-header">
+                                <span class="prayer-icon">🌌</span>
+                                <span class="prayer-name">العشاء</span>
+                                <span class="prayer-angle">18°</span>
+                            </div>
+                            <div id="hudTimeIshaa" class="prayer-time">--:--</div>
+                            <div id="hudDurIshaa" class="prayer-dur">⏱️ --</div>
                         </div>
                     </div>
 
