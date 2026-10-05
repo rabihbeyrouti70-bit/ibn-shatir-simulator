@@ -1,5 +1,5 @@
 import { computeHorizontalCoords, getJD } from './astronomy-core.js';
-import { SUN_MODEL, MOON_MODEL, calculateSunMechanism, calculateMoonMechanism, fitMechanismToTrueAngle } from './ibnshatir-mechanism.js';
+import { SUN_MODEL, MOON_MODEL, calculateSunMechanism, calculateMoonMechanism } from './ibnshatir-mechanism.js';
 const getJD_Mujaib = getJD;
 import { computePrayersMujaib, getCityTimezoneHours, calculateQiblaDirection } from './prayer-core.js';
 window.calculateQiblaDirection = calculateQiblaDirection;
@@ -3666,8 +3666,7 @@ var cosmos3DInitialized = false;
             const P_NCP = new THREE.Vector3(0, Math.sin(phi), -Math.cos(phi)).normalize();
 
             // المتجهان الأساسيان المتعامدان مع محور القطبين (المستوى الموازي لمعدل النهار ومداري السرطان والجدي)
-            // زاوية الساعة H تزداد نحو الغرب، لذا يُعكس محور الشرق حتى يطابق الجرم السمت الحقيقي (شروق من الشرق)
-            const uEast = new THREE.Vector3(-1, 0, 0);
+            const uEast = new THREE.Vector3(1, 0, 0);
             const vNoon = new THREE.Vector3(0, Math.cos(phi), Math.sin(phi)).normalize();
 
             // =============================================================
@@ -3680,11 +3679,10 @@ var cosmos3DInitialized = false;
             const rDiurnalSun = DOME_R * Math.cos(deltaSun);
 
             // زوايا حركة الشمس الخاصة في نموذج ابن الشاطر
-            const alpha_solar = sunAlpha;
+            const alpha_solar = (typeof sunAlpha !== 'undefined') ? sunAlpha : (((lambdaSun - 77.0 * Math.PI / 180.0) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2));
 
-            // الزاوية الوسطى تُحسب بحيث ينتهي المدير عند الزاوية الحقيقية H_sun (لا تُطبَّق معادلة المركز مرتين)،
-            // ثم تُقاس الآلية بحيث تقع نهايتها على الدائرة اليومية فيبقى الجرم على القبة
-            const sunMech = fitMechanismToTrueAngle((th) => calculateSunMechanism(th, alpha_solar), H_sun, rDiurnalSun);
+            // حساب متجهات آلية الشمس الصافية باستخدام الدالة النقية calculateSunMechanism
+            const sunMech = calculateSunMechanism(H_sun, alpha_solar, rDiurnalSun);
 
             // تحويل المتجهات النقية (2D) إلى أبعاد ثلاثية (3D) على مستوى مدار الشمس اليومي
             const vecSunP0 = new THREE.Vector3().addScaledVector(uEast, sunMech.p0.y).addScaledVector(vNoon, sunMech.p0.x);
@@ -3710,8 +3708,8 @@ var cosmos3DInitialized = false;
                     const th = (k / 72) * Math.PI * 2;
                     sunDefPts.push(new THREE.Vector3()
                         .copy(cSeasonalSun)
-                        .addScaledVector(uEast, sunMech.R * Math.sin(th))
-                        .addScaledVector(vNoon, sunMech.R * Math.cos(th))
+                        .addScaledVector(uEast, rDiurnalSun * Math.sin(th))
+                        .addScaledVector(vNoon, rDiurnalSun * Math.cos(th))
                     );
                 }
                 if (sunDeferentLine) {
@@ -3781,11 +3779,15 @@ var cosmos3DInitialized = false;
             const rDiurnalMoon = rMoonDome * Math.cos(moonDelta);
 
             // زوايا حركة القمر
-            const eta = moonAlpha;
-            const gamma = moonAnomalyRad;
+            const eta = (typeof moonAlpha !== 'undefined' && moonAlpha !== 0)
+                ? moonAlpha
+                : (((moonLambda - lambdaSun) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2));
+            const gamma = (typeof moonAnomalyRad !== 'undefined' && moonAnomalyRad !== 0)
+                ? moonAnomalyRad
+                : (((dayOfYear / 27.55455 * Math.PI * 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2));
 
-            // نفس المعالجة: زاوية وسطى تنتهي عند H_moon الحقيقية، والآلية مقيسة على الدائرة اليومية
-            const moonMech = fitMechanismToTrueAngle((th) => calculateMoonMechanism(th, eta, gamma, 60.0, true), H_moon, rDiurnalMoon);
+            // حساب متجهات آلية القمر الصافية باستخدام الدالة النقية calculateMoonMechanism
+            const moonMech = calculateMoonMechanism(H_moon, eta, gamma, rDiurnalMoon, true);
 
             // تحويل المتجهات النقية (2D) إلى أبعاد ثلاثية (3D) على مستوى مدار القمر اليومي
             const vecMoonP0 = new THREE.Vector3().addScaledVector(uEast, moonMech.p0.y).addScaledVector(vNoon, moonMech.p0.x);
@@ -3811,8 +3813,8 @@ var cosmos3DInitialized = false;
                     const th = (k / 72) * Math.PI * 2;
                     moonDefPts.push(new THREE.Vector3()
                         .copy(cSeasonalMoon)
-                        .addScaledVector(uEast, moonMech.R * Math.sin(th))
-                        .addScaledVector(vNoon, moonMech.R * Math.cos(th))
+                        .addScaledVector(uEast, rDiurnalMoon * Math.sin(th))
+                        .addScaledVector(vNoon, rDiurnalMoon * Math.cos(th))
                     );
                 }
                 if (moonDeferentLine) {
