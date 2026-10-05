@@ -101,3 +101,30 @@ describe('نظام الحامل والمدير للشمس والقمر (Ibn al-S
         assert.ok(Math.abs(moonRes.pFinal.y - expectedMoonY) < 1e-9);
     });
 });
+
+import { fitMechanismToTrueAngle } from '../js/ibnshatir-mechanism.js';
+
+describe('مطابقة الآلية للزاوية الحقيقية على الدائرة اليومية', () => {
+    it('الزاوية النهائية تساوي الزاوية الحقيقية والجرم على الدائرة اليومية (شمس وقمر)', () => {
+        const R = 100;
+        for (let i = 0; i < 400; i++) {
+            const H = (i / 400) * Math.PI * 2 - Math.PI;
+            const alpha = (i * 0.37) % (Math.PI * 2);
+            const gamma = (i * 1.13) % (Math.PI * 2);
+            const eta = (i * 0.71) % (Math.PI * 2);
+
+            const cases = [
+                fitMechanismToTrueAngle((th) => calculateSunMechanism(th, alpha), H, R),
+                fitMechanismToTrueAngle((th) => calculateMoonMechanism(th, eta, gamma, 60.0, true), H, R)
+            ];
+            for (const f of cases) {
+                const diff = Math.atan2(Math.sin(f.trueLambda - H), Math.cos(f.trueLambda - H));
+                assert.ok(Math.abs(diff) < 1e-6, `final angle must equal true angle, diff=${diff}`);
+                assert.ok(Math.abs(Math.hypot(f.pFinal.x, f.pFinal.y) - R) < 1e-9, 'body must lie on diurnal circle');
+                assert.ok(Math.abs(Math.hypot(f.p0.x, f.p0.y) - f.R) < 1e-9, 'deferent radius consistent');
+                const sum = { x: f.p0.x + f.v1.x + f.v2.x, y: f.p0.y + f.v1.y + f.v2.y };
+                assert.ok(Math.hypot(sum.x - f.pFinal.x, sum.y - f.pFinal.y) < 1e-9, 'end = deferent + r1 + r2');
+            }
+        }
+    });
+});
