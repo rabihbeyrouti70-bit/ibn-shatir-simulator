@@ -10,6 +10,7 @@ function cleanModule(code) {
 let astro = cleanModule(fs.readFileSync('js/astronomy-core.js', 'utf8'));
 let prayer = cleanModule(fs.readFileSync('js/prayer-core.js', 'utf8'));
 let i18n = cleanModule(fs.readFileSync('js/i18n.js', 'utf8'));
+let mech = cleanModule(fs.readFileSync('js/ibnshatir-mechanism.js', 'utf8'));
 let app = cleanModule(fs.readFileSync('js/app.js', 'utf8'))
   .replace(/const\s+getJD_Mujaib\s*=\s*getJD;/, 'var getJD_Mujaib = getJD;');
 
@@ -19,6 +20,7 @@ const bundle = [
   i18n,
   astro,
   prayer,
+  mech,
   'window.i18n = new I18nManager();',
   'if (document.readyState === "loading") {',
   '  document.addEventListener("DOMContentLoaded", () => window.i18n.init());',

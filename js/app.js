@@ -1,4 +1,5 @@
 import { computeHorizontalCoords, getJD } from './astronomy-core.js';
+import { SUN_MODEL, MOON_MODEL, calculateSunMechanism, calculateMoonMechanism } from './ibnshatir-mechanism.js';
 const getJD_Mujaib = getJD;
 import { computePrayersMujaib, getCityTimezoneHours, calculateQiblaDirection } from './prayer-core.js';
 window.calculateQiblaDirection = calculateQiblaDirection;
@@ -3655,8 +3656,6 @@ var cosmos3DInitialized = false;
         }
 
         function updateIbnShatirOrbs(lambdaSun, alpha_sun, H_sun, deltaSun, moonLambda, moonDelta, H_moon, phi, dayOfYearInput) {
-            if (!ibnShatirOrbsGroup || !ibnShatirOrbsGroup.visible) return;
-
             const obsPos = new THREE.Vector3(0, 2, 0);
             const simDate = currentDate || new Date();
             const dayOfYear = dayOfYearInput !== undefined
@@ -3673,62 +3672,44 @@ var cosmos3DInitialized = false;
             // =============================================================
             // A. فلك الشمس الحامل والمدير (انتقال الحامل فصلياً بين المشارق والمغارب)
             // =============================================================
-            if (ibnShatirSunGroup && ibnShatirSunGroup.visible) {
-                // مركز المستوى المداري اليومي للشمس (يزحف شمالاً وجنوباً مع ميل الشمس deltaSun عبر الفصول)
-                // عند الانقلاب الصيفي (+23.44°): يرتفع نحو الشمال (المشرق والمغرب الصيفي)
-                // عند الانقلاب الشتوي (-23.44°): ينحدر نحو الجنوب (المشرق والمغرب الشتوي)
-                // عند الاعتدالين (0°): يقع على معدل النهار
-                const cSeasonalSun = new THREE.Vector3()
-                    .copy(obsPos)
-                    .addScaledVector(P_NCP, DOME_R * Math.sin(deltaSun));
+            const cSeasonalSun = new THREE.Vector3()
+                .copy(obsPos)
+                .addScaledVector(P_NCP, DOME_R * Math.sin(deltaSun));
 
-                const rDiurnalSun = DOME_R * Math.cos(deltaSun);
+            const rDiurnalSun = DOME_R * Math.cos(deltaSun);
 
-                // توزيع أنصاف أقطار أفلاك ابن الشاطر لتنتهي في مركز جرم الشمس الفيزيائي sunMesh
-                const R_SUN_DEF = rDiurnalSun * 0.84;
-                const r_sun_1 = rDiurnalSun * 0.10;
-                const r_sun_2 = rDiurnalSun * 0.06;
+            // زوايا حركة الشمس الخاصة في نموذج ابن الشاطر
+            const alpha_solar = (typeof sunAlpha !== 'undefined') ? sunAlpha : (((lambdaSun - 77.0 * Math.PI / 180.0) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2));
 
-                // زوايا حركة الشمس الخاصة في نموذج ابن الشاطر
-                const lambda_apo = 77.0 * Math.PI / 180.0; // أوج الشمس
-                const alpha_anom = ((lambdaSun - lambda_apo) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+            // حساب متجهات آلية الشمس الصافية باستخدام الدالة النقية calculateSunMechanism
+            const sunMech = calculateSunMechanism(H_sun, alpha_solar, rDiurnalSun);
 
-                // اتجاه فلك الحامل اللحظي على الدائرة اليومية
-                const uDef = new THREE.Vector3()
-                    .addScaledVector(uEast, Math.sin(H_sun))
-                    .addScaledVector(vNoon, Math.cos(H_sun));
+            // تحويل المتجهات النقية (2D) إلى أبعاد ثلاثية (3D) على مستوى مدار الشمس اليومي
+            const vecSunP0 = new THREE.Vector3().addScaledVector(uEast, sunMech.p0.y).addScaledVector(vNoon, sunMech.p0.x);
+            const vecSunV1 = new THREE.Vector3().addScaledVector(uEast, sunMech.v1.y).addScaledVector(vNoon, sunMech.v1.x);
+            const vecSunV2 = new THREE.Vector3().addScaledVector(uEast, sunMech.v2.y).addScaledVector(vNoon, sunMech.v2.x);
 
-                // 1. مركز فلك التدوير الأول على فلك الحامل
-                const cSunDef = new THREE.Vector3()
-                    .copy(cSeasonalSun)
-                    .addScaledVector(uDef, R_SUN_DEF);
+            const cSunDef = new THREE.Vector3().copy(cSeasonalSun).add(vecSunP0);
+            const pSun1 = new THREE.Vector3().copy(cSunDef).add(vecSunV1);
+            const pSunFinal = new THREE.Vector3().copy(pSun1).add(vecSunV2);
 
+            // الجرم هو نهاية الآلية: موضع sunMesh ناتج من مجموع متجهات الآلية (ممثل + r1 + r2)
+            if (sunMesh) {
+                sunMesh.position.copy(pSunFinal);
+            }
+
+            if (ibnShatirOrbsGroup && ibnShatirOrbsGroup.visible && ibnShatirSunGroup && ibnShatirSunGroup.visible) {
                 if (sunJointDefMesh) sunJointDefMesh.position.copy(cSunDef);
-
-                // 2. الذراع الأول (الحامل الصغير r1 نحو اتجاه الأوج والتعديل)
-                const uEp1Dir = new THREE.Vector3()
-                    .addScaledVector(uEast, Math.sin(H_sun + Math.cos(alpha_anom) * 0.15))
-                    .addScaledVector(vNoon, Math.cos(H_sun + Math.cos(alpha_anom) * 0.15));
-
-                const pSun1 = new THREE.Vector3()
-                    .copy(cSunDef)
-                    .addScaledVector(uEp1Dir, r_sun_1);
-
                 if (sunJointEp1Mesh) sunJointEp1Mesh.position.copy(pSun1);
 
-                // 3. الذراع الثاني (المدير) ينتهي مباشرة في مركز جرم الشمس الوحيد sunMesh!
-                const pSunFinal = (sunMesh && sunMesh.position)
-                    ? sunMesh.position
-                    : new THREE.Vector3().copy(cSeasonalSun).addScaledVector(uDef, rDiurnalSun);
-
-                // 4. رسم دائرة فلك الحامل للشمس (الموازية لمداري السرطان والجدي والمتنقلة فصلياً بين المشارق والمغارب)
+                // 1. رسم دائرة فلك الحامل للشمس (الموازية لمداري السرطان والجدي والمتنقلة فصلياً بين المشارق والمغارب)
                 const sunDefPts = [];
                 for (let k = 0; k <= 72; k++) {
                     const th = (k / 72) * Math.PI * 2;
                     sunDefPts.push(new THREE.Vector3()
                         .copy(cSeasonalSun)
-                        .addScaledVector(uEast, R_SUN_DEF * Math.sin(th))
-                        .addScaledVector(vNoon, R_SUN_DEF * Math.cos(th))
+                        .addScaledVector(uEast, rDiurnalSun * Math.sin(th))
+                        .addScaledVector(vNoon, rDiurnalSun * Math.cos(th))
                     );
                 }
                 if (sunDeferentLine) {
@@ -3736,14 +3717,14 @@ var cosmos3DInitialized = false;
                     sunDeferentLine.geometry = new THREE.BufferGeometry().setFromPoints(sunDefPts);
                 }
 
-                // 5. رسم دائرة فلك التدوير الأول (الحامل الصغير) حول cSunDef
+                // 2. رسم دائرة فلك التدوير الأول (الحامل r1) حول cSunDef بنصف قطر ثابت = sunMech.r1
                 const sunEp1Pts = [];
                 for (let k = 0; k <= 36; k++) {
                     const th = (k / 36) * Math.PI * 2;
                     sunEp1Pts.push(new THREE.Vector3()
                         .copy(cSunDef)
-                        .addScaledVector(uEast, r_sun_1 * Math.sin(th))
-                        .addScaledVector(vNoon, r_sun_1 * Math.cos(th))
+                        .addScaledVector(uEast, sunMech.r1 * Math.sin(th))
+                        .addScaledVector(vNoon, sunMech.r1 * Math.cos(th))
                     );
                 }
                 if (sunEp1Line) {
@@ -3751,15 +3732,14 @@ var cosmos3DInitialized = false;
                     sunEp1Line.geometry = new THREE.BufferGeometry().setFromPoints(sunEp1Pts);
                 }
 
-                // 6. رسم دائرة فلك المدير حول pSun1
-                const actualR2 = pSunFinal.distanceTo(pSun1) || r_sun_2;
+                // 3. رسم دائرة فلك المدير حول pSun1 بنصف قطر ثابت = sunMech.r2
                 const sunDirPts = [];
                 for (let k = 0; k <= 36; k++) {
                     const th = (k / 36) * Math.PI * 2;
                     sunDirPts.push(new THREE.Vector3()
                         .copy(pSun1)
-                        .addScaledVector(uEast, actualR2 * Math.sin(th))
-                        .addScaledVector(vNoon, actualR2 * Math.cos(th))
+                        .addScaledVector(uEast, sunMech.r2 * Math.sin(th))
+                        .addScaledVector(vNoon, sunMech.r2 * Math.cos(th))
                     );
                 }
                 if (sunDirectorLine) {
@@ -3767,7 +3747,7 @@ var cosmos3DInitialized = false;
                     sunDirectorLine.geometry = new THREE.BufferGeometry().setFromPoints(sunDirPts);
                 }
 
-                // 7. تحديث الأذرع الميكانيكية للشمس
+                // 4. تحديث الأذرع الميكانيكية للشمس (ممثل + r1 + r2)
                 if (sunArmDeferent) {
                     sunArmDeferent.visible = true;
                     sunArmDeferent.geometry.dispose();
@@ -3778,7 +3758,6 @@ var cosmos3DInitialized = false;
                     sunArm1.geometry = new THREE.BufferGeometry().setFromPoints([cSunDef, pSun1]);
                 }
                 if (sunArm2) {
-                    // ذراع فلك المدير يمسك بجرم الشمس الوحيد مباشرة!
                     sunArm2.geometry.dispose();
                     sunArm2.geometry = new THREE.BufferGeometry().setFromPoints([pSun1, pSunFinal]);
                 }
@@ -3792,57 +3771,50 @@ var cosmos3DInitialized = false;
             // =============================================================
             // B. فلك القمر الحامل والمديران (نموذج ابن الشاطر القمري الموحد)
             // =============================================================
-            if (ibnShatirMoonGroup && ibnShatirMoonGroup.visible) {
-                const rMoonDome = DOME_R - 2;
-                const cSeasonalMoon = new THREE.Vector3()
-                    .copy(obsPos)
-                    .addScaledVector(P_NCP, rMoonDome * Math.sin(moonDelta));
+            const rMoonDome = DOME_R - 2;
+            const cSeasonalMoon = new THREE.Vector3()
+                .copy(obsPos)
+                .addScaledVector(P_NCP, rMoonDome * Math.sin(moonDelta));
 
-                const rDiurnalMoon = rMoonDome * Math.cos(moonDelta);
+            const rDiurnalMoon = rMoonDome * Math.cos(moonDelta);
 
-                const R_MOON_DEF = rDiurnalMoon * 0.82;
-                const r_moon_1 = rDiurnalMoon * 0.11;
-                const r_moon_2 = rDiurnalMoon * 0.07;
+            // زوايا حركة القمر
+            const eta = (typeof moonAlpha !== 'undefined' && moonAlpha !== 0)
+                ? moonAlpha
+                : (((moonLambda - lambdaSun) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2));
+            const gamma = (typeof moonAnomalyRad !== 'undefined' && moonAnomalyRad !== 0)
+                ? moonAnomalyRad
+                : (((dayOfYear / 27.55455 * Math.PI * 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2));
 
-                // زوايا حركة القمر
-                const eta = ((moonLambda - lambdaSun) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-                const gamma = ((dayOfYear / 27.55455 * Math.PI * 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+            // حساب متجهات آلية القمر الصافية باستخدام الدالة النقية calculateMoonMechanism
+            const moonMech = calculateMoonMechanism(H_moon, eta, gamma, rDiurnalMoon, true);
 
-                // 1. مركز فلك التدوير الأول على فلك القمر الحامل
-                const uMoonDef = new THREE.Vector3()
-                    .addScaledVector(uEast, Math.sin(H_moon))
-                    .addScaledVector(vNoon, Math.cos(H_moon));
+            // تحويل المتجهات النقية (2D) إلى أبعاد ثلاثية (3D) على مستوى مدار القمر اليومي
+            const vecMoonP0 = new THREE.Vector3().addScaledVector(uEast, moonMech.p0.y).addScaledVector(vNoon, moonMech.p0.x);
+            const vecMoonV1 = new THREE.Vector3().addScaledVector(uEast, moonMech.v1.y).addScaledVector(vNoon, moonMech.v1.x);
+            const vecMoonV2 = new THREE.Vector3().addScaledVector(uEast, moonMech.v2.y).addScaledVector(vNoon, moonMech.v2.x);
 
-                const cMoonDef = new THREE.Vector3()
-                    .copy(cSeasonalMoon)
-                    .addScaledVector(uMoonDef, R_MOON_DEF);
+            const cMoonDef = new THREE.Vector3().copy(cSeasonalMoon).add(vecMoonP0);
+            const pMoon1 = new THREE.Vector3().copy(cMoonDef).add(vecMoonV1);
+            const pMoonFinal = new THREE.Vector3().copy(pMoon1).add(vecMoonV2);
 
+            // الجرم هو نهاية الآلية: موضع moonMesh ناتج من مجموع متجهات الآلية (ممثل + r1 + r2)
+            if (moonMesh) {
+                moonMesh.position.copy(pMoonFinal);
+            }
+
+            if (ibnShatirOrbsGroup && ibnShatirOrbsGroup.visible && ibnShatirMoonGroup && ibnShatirMoonGroup.visible) {
                 if (moonJointDefMesh) moonJointDefMesh.position.copy(cMoonDef);
-
-                // 2. فلك التدوير الأول (الحامل الصغير r1)
-                const uM1 = new THREE.Vector3()
-                    .addScaledVector(uEast, Math.sin(H_moon + Math.sin(eta + gamma) * 0.18))
-                    .addScaledVector(vNoon, Math.cos(H_moon + Math.sin(eta + gamma) * 0.18));
-
-                const pMoon1 = new THREE.Vector3()
-                    .copy(cMoonDef)
-                    .addScaledVector(uM1, r_moon_1);
-
                 if (moonJointEp1Mesh) moonJointEp1Mesh.position.copy(pMoon1);
 
-                // 3. الذراع الثاني (المدير r2) ينتهي مباشرة في مركز جرم القمر الوحيد moonMesh!
-                const pMoonFinal = (moonMesh && moonMesh.position)
-                    ? moonMesh.position
-                    : new THREE.Vector3().copy(cSeasonalMoon).addScaledVector(uMoonDef, rDiurnalMoon);
-
-                // 4. رسم دائرة فلك القمر الحامل
+                // 1. رسم دائرة فلك القمر الحامل
                 const moonDefPts = [];
                 for (let k = 0; k <= 72; k++) {
                     const th = (k / 72) * Math.PI * 2;
                     moonDefPts.push(new THREE.Vector3()
                         .copy(cSeasonalMoon)
-                        .addScaledVector(uEast, R_MOON_DEF * Math.sin(th))
-                        .addScaledVector(vNoon, R_MOON_DEF * Math.cos(th))
+                        .addScaledVector(uEast, rDiurnalMoon * Math.sin(th))
+                        .addScaledVector(vNoon, rDiurnalMoon * Math.cos(th))
                     );
                 }
                 if (moonDeferentLine) {
@@ -3850,14 +3822,14 @@ var cosmos3DInitialized = false;
                     moonDeferentLine.geometry = new THREE.BufferGeometry().setFromPoints(moonDefPts);
                 }
 
-                // 5. رسم دائرة فلك التدوير الأول للقمر
+                // 2. رسم دائرة فلك التدوير الأول للقمر (الحامل r1) بنصف قطر ثابت = moonMech.r1
                 const moonEp1Pts = [];
                 for (let k = 0; k <= 36; k++) {
                     const th = (k / 36) * Math.PI * 2;
                     moonEp1Pts.push(new THREE.Vector3()
                         .copy(cMoonDef)
-                        .addScaledVector(uEast, r_moon_1 * Math.sin(th))
-                        .addScaledVector(vNoon, r_moon_1 * Math.cos(th))
+                        .addScaledVector(uEast, moonMech.r1 * Math.sin(th))
+                        .addScaledVector(vNoon, moonMech.r1 * Math.cos(th))
                     );
                 }
                 if (moonEp1Line) {
@@ -3865,15 +3837,14 @@ var cosmos3DInitialized = false;
                     moonEp1Line.geometry = new THREE.BufferGeometry().setFromPoints(moonEp1Pts);
                 }
 
-                // 6. رسم دائرة فلك التدوير الثاني للقمر (المدير)
-                const actualMoonR2 = pMoonFinal.distanceTo(pMoon1) || r_moon_2;
+                // 3. رسم دائرة فلك التدوير الثاني للقمر (المدير r2) بنصف قطر ثابت = moonMech.r2
                 const moonEp2Pts = [];
                 for (let k = 0; k <= 36; k++) {
                     const th = (k / 36) * Math.PI * 2;
                     moonEp2Pts.push(new THREE.Vector3()
                         .copy(pMoon1)
-                        .addScaledVector(uEast, actualMoonR2 * Math.sin(th))
-                        .addScaledVector(vNoon, actualMoonR2 * Math.cos(th))
+                        .addScaledVector(uEast, moonMech.r2 * Math.sin(th))
+                        .addScaledVector(vNoon, moonMech.r2 * Math.cos(th))
                     );
                 }
                 if (moonEp2Line) {
@@ -3881,7 +3852,7 @@ var cosmos3DInitialized = false;
                     moonEp2Line.geometry = new THREE.BufferGeometry().setFromPoints(moonEp2Pts);
                 }
 
-                // 7. تحديث أذرع القمر الميكانيكية
+                // 4. تحديث أذرع القمر الميكانيكية (ممثل + r1 + r2)
                 if (moonArmDeferent) {
                     moonArmDeferent.visible = true;
                     moonArmDeferent.geometry.dispose();
