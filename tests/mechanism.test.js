@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { sunMechanism, moonMechanism } from '../js/ibnshatir-mechanism.js';
+import { sunMechanism, moonMechanism, mapMechanismToDiurnal } from '../js/ibnshatir-mechanism.js';
 
 function normalize360(angle) {
     return (angle % 360 + 360) % 360;
@@ -227,5 +227,89 @@ describe('آلية القمر لابن الشاطر (Ibn al-Shatir Lunar Mechani
 
         const rms = Math.sqrt(sumSqErr / N);
         assert.ok(rms < 1.3, `RMS ${rms}° >= 1.3°`);
+    });
+});
+
+describe('تحويل الآليات لإحداثيات المستوي اليومي (mapMechanismToDiurnal)', () => {
+    test('Sun mechanism diurnal mapping properties', () => {
+        const A = 102.9;
+        const Lbar = 150.0;
+        const res = sunMechanism(Lbar, A);
+
+        const Rd = 140.0 * Math.cos(0.2); // Example diurnal radius
+        const kappa = Rd / 60.0;
+        const phiTrue = res.lambdaTrue * Math.PI / 180.0;
+        const Htrue = 0.75; // Radians
+
+        const mapped = mapMechanismToDiurnal({
+            p0: res.p0,
+            p1: res.p1,
+            pFinal: res.pFinal,
+            v1: res.v1,
+            v2: res.v2
+        }, phiTrue, Htrue, kappa);
+
+        // 1. D radius == Rd
+        const distD = Math.hypot(mapped.p0.x, mapped.p0.y);
+        assert.ok(Math.abs(distD - Rd) < 1e-9, `D radius ${distD} != Rd ${Rd}`);
+
+        // 2. End ray angle == H_true
+        const rayAngle = Math.atan2(mapped.pFinal.y, mapped.pFinal.x);
+        assert.ok(angleDiff(rayAngle * 180 / Math.PI, Htrue * 180 / Math.PI) < 1e-9, `End ray angle ${rayAngle} != Htrue ${Htrue}`);
+
+        // 3. r1 and r2 arm lengths == kappa * (4;37) and kappa * (2;30)
+        const r1_expected = kappa * (4 + 37 / 60);
+        const r2_expected = kappa * 2.5;
+        const len1 = Math.hypot(mapped.p1.x - mapped.p0.x, mapped.p1.y - mapped.p0.y);
+        const len2 = Math.hypot(mapped.pFinal.x - mapped.p1.x, mapped.pFinal.y - mapped.p1.y);
+        assert.ok(Math.abs(len1 - r1_expected) < 1e-9, `Sun r1 len ${len1} != ${r1_expected}`);
+        assert.ok(Math.abs(len2 - r2_expected) < 1e-9, `Sun r2 len ${len2} != ${r2_expected}`);
+
+        // 4. Body on circle property (Body B has radius Rd at angle Htrue)
+        const bodyB = { x: Rd * Math.cos(Htrue), y: Rd * Math.sin(Htrue) };
+        const bodyDist = Math.hypot(bodyB.x, bodyB.y);
+        assert.ok(Math.abs(bodyDist - Rd) < 1e-9, `Body distance ${bodyDist} != Rd ${Rd}`);
+        const bodyAngle = Math.atan2(bodyB.y, bodyB.x);
+        assert.ok(angleDiff(bodyAngle * 180 / Math.PI, rayAngle * 180 / Math.PI) < 1e-9, `Body and mechanism end not on same ray`);
+    });
+
+    test('Moon mechanism diurnal mapping properties', () => {
+        const res = moonMechanism(218.3, 125.0, 134.9, 297.8, 5.0);
+
+        const Rd = (140.0 - 2.0) * Math.cos(0.15); // Moon diurnal radius
+        const kappa = Rd / 60.0;
+        const uTrue = Math.atan2(res.pFinal.y, res.pFinal.x); // In-plane polar angle u
+        const Htrue = -0.45; // Radians
+
+        const mapped = mapMechanismToDiurnal({
+            center: res.center,
+            p1: res.p1,
+            pFinal: res.pFinal,
+            v1: res.planeVectors.v1,
+            v2: res.planeVectors.v2
+        }, uTrue, Htrue, kappa);
+
+        // 1. D radius == Rd
+        const distD = Math.hypot(mapped.center.x, mapped.center.y);
+        assert.ok(Math.abs(distD - Rd) < 1e-9, `Moon D radius ${distD} != Rd ${Rd}`);
+
+        // 2. End ray angle == H_true
+        const rayAngle = Math.atan2(mapped.pFinal.y, mapped.pFinal.x);
+        assert.ok(angleDiff(rayAngle * 180 / Math.PI, Htrue * 180 / Math.PI) < 1e-9, `Moon end ray angle ${rayAngle} != Htrue ${Htrue}`);
+
+        // 3. r1 and r2 arm lengths == kappa * (6;35) and kappa * (1;25)
+        const r1_expected = kappa * (6 + 35 / 60);
+        const r2_expected = kappa * (1 + 25 / 60);
+        const len1 = Math.hypot(mapped.p1.x - mapped.center.x, mapped.p1.y - mapped.center.y);
+        const len2 = Math.hypot(mapped.pFinal.x - mapped.p1.x, mapped.pFinal.y - mapped.p1.y);
+        assert.ok(Math.abs(len1 - r1_expected) < 1e-9, `Moon r1 len ${len1} != ${r1_expected}`);
+        assert.ok(Math.abs(len2 - r2_expected) < 1e-9, `Moon r2 len ${len2} != ${r2_expected}`);
+
+        // 4. Body on circle property
+        const bodyB = { x: Rd * Math.cos(Htrue), y: Rd * Math.sin(Htrue) };
+        const bodyDist = Math.hypot(bodyB.x, bodyB.y);
+        assert.ok(Math.abs(bodyDist - Rd) < 1e-9, `Moon body distance ${bodyDist} != Rd ${Rd}`);
+        const bodyAngle = Math.atan2(bodyB.y, bodyB.x);
+        assert.ok(angleDiff(bodyAngle * 180 / Math.PI, rayAngle * 180 / Math.PI) < 1e-9, `Moon body and mechanism end not on same ray`);
     });
 });

@@ -1,5 +1,5 @@
 import { computeHorizontalCoords, getJD } from './astronomy-core.js';
-import { sunMechanism, moonMechanism } from './ibnshatir-mechanism.js';
+import { sunMechanism, moonMechanism, mapMechanismToDiurnal } from './ibnshatir-mechanism.js';
 const getJD_Mujaib = getJD;
 import { computePrayersMujaib, getCityTimezoneHours, calculateQiblaDirection } from './prayer-core.js';
 window.calculateQiblaDirection = calculateQiblaDirection;
@@ -2279,8 +2279,8 @@ var cosmos3DInitialized = false;
         let scene, camera, renderer, controls;
         let horizonGroup, seasonalArcsGroup, planetsGroup, zodiacGroup, atlasGroup, moonArcGroup, sunArcGroup, twilightGroup;
         let ibnShatirOrbsGroup, ibnShatirSunGroup, ibnShatirMoonGroup;
-        let sunDeferentLine, sunEp1Line, sunDirectorLine, sunJointDefMesh, sunJointEp1Mesh, sunArmDeferent, sunArm1, sunArm2, sunDirectorLabelSprite;
-        let moonDeferentLine, moonEp1Line, moonEp2Line, moonJointDefMesh, moonJointEp1Mesh, moonArmDeferent, moonArmEp1, moonArmEp2, moonOrbsLabelSprite;
+        let sunDeferentLine, sunEp1Line, sunDirectorLine, sunJointDefMesh, sunJointEp1Mesh, sunArmDeferent, sunArm1, sunArm2, sunLineEB, sunDirectorLabelSprite;
+        let moonDeferentLine, moonEp1Line, moonEp2Line, moonJointDefMesh, moonJointEp1Mesh, moonArmDeferent, moonArmEp1, moonArmEp2, moonLineEB, moonOrbsLabelSprite;
         let qiblaGroup, qiblaPointerMesh, qiblaLineRay, qiblaLabelSprite;
         let ishaShafiLine, ishaHanafiLine, ishaShafiSector, ishaHanafiSector;
         let ishaShafiLabelSprite;
@@ -3125,11 +3125,12 @@ var cosmos3DInitialized = false;
             cleanThreeGroup(moonArcGroup);
 
             const phi = currentLatRad;
+            const Rb = DOME_R - 2.0;
             const pts = [];
             for (let i = 0; i <= 72; i++) {
                 const H = -Math.PI + (i / 72) * Math.PI * 2;
                 const { alt, az } = computeHorizontalCoords(moonDelta, H, phi);
-                pts.push(new THREE.Vector3(DOME_R * Math.cos(alt) * Math.sin(az), DOME_R * Math.sin(alt), -DOME_R * Math.cos(alt) * Math.cos(az)));
+                pts.push(new THREE.Vector3(Rb * Math.cos(alt) * Math.sin(az), Rb * Math.sin(alt), -Rb * Math.cos(alt) * Math.cos(az)));
             }
             const line = new THREE.Line(
                 new THREE.BufferGeometry().setFromPoints(pts),
@@ -3508,21 +3509,14 @@ var cosmos3DInitialized = false;
             // -------------------------------------------------------------
             // 1. فلك الشمس الحامل وفلكا التدوير (الحامل الصغير والمدير)
             // -------------------------------------------------------------
-            // أ. فلك الحامل الرئيسي للشمس (متراكز مع الأرض في فلك البروج)
-            sunDeferentLine = new THREE.Line(
-                new THREE.BufferGeometry(),
-                new THREE.LineBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.82, linewidth: 2.2 })
-            );
-            ibnShatirSunGroup.add(sunDeferentLine);
-
-            // ب. فلك التدوير الأول للشمس (الحامل الصغير r1)
+            // أ. فلك التدوير الأول للشمس (الحامل الصغير r1)
             sunEp1Line = new THREE.Line(
                 new THREE.BufferGeometry(),
                 new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.85, linewidth: 1.8 })
             );
             ibnShatirSunGroup.add(sunEp1Line);
 
-            // ج. فلك التدوير الثاني للشمس (المدير r2)
+            // ب. فلك التدوير الثاني للشمس (المدير r2)
             sunDirectorLine = new THREE.Line(
                 new THREE.BufferGeometry(),
                 new THREE.LineBasicMaterial({ color: 0xF59E0B, transparent: true, opacity: 0.95, linewidth: 2.4 })
@@ -3542,7 +3536,7 @@ var cosmos3DInitialized = false;
             );
             ibnShatirSunGroup.add(sunJointEp1Mesh);
 
-            // أذرع الربط الميكانيكية للشمس (تنتهي مباشرة في مركز جرم الشمس الوحيد sunMesh)
+            // أذرع الربط الميكانيكية للشمس (تنتهي في E، وخط نقطي من E إلى B)
             sunArmDeferent = new THREE.Line(
                 new THREE.BufferGeometry(),
                 new THREE.LineBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.85, linewidth: 2.2 })
@@ -3555,9 +3549,14 @@ var cosmos3DInitialized = false;
                 new THREE.BufferGeometry(),
                 new THREE.LineBasicMaterial({ color: 0xFBBF24, transparent: true, opacity: 0.95, linewidth: 2.5 })
             );
+            sunLineEB = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineDashedMaterial({ color: 0xFBBF24, dashSize: 2, gapSize: 2, transparent: true, opacity: 0.75 })
+            );
             ibnShatirSunGroup.add(sunArmDeferent);
             ibnShatirSunGroup.add(sunArm1);
             ibnShatirSunGroup.add(sunArm2);
+            ibnShatirSunGroup.add(sunLineEB);
 
             sunDirectorLabelSprite = createIbsBadgeSprite('☉ فلك الشمس الحامل والمدير (ابن الشاطر)', '#F59E0B');
             ibnShatirSunGroup.add(sunDirectorLabelSprite);
@@ -3565,21 +3564,14 @@ var cosmos3DInitialized = false;
             // -------------------------------------------------------------
             // 2. فلك القمر الحامل وفلكا التدوير (الحامل الصغير والمدير)
             // -------------------------------------------------------------
-            // أ. فلك الحامل الرئيسي للقمر
-            moonDeferentLine = new THREE.Line(
-                new THREE.BufferGeometry(),
-                new THREE.LineBasicMaterial({ color: 0xA78BFA, transparent: true, opacity: 0.78, linewidth: 2.0 })
-            );
-            ibnShatirMoonGroup.add(moonDeferentLine);
-
-            // ب. فلك التدوير الأول للقمر (الحامل الصغير r1)
+            // أ. فلك التدوير الأول للقمر (الحامل الصغير r1)
             moonEp1Line = new THREE.Line(
                 new THREE.BufferGeometry(),
                 new THREE.LineBasicMaterial({ color: 0x60A5FA, transparent: true, opacity: 0.85, linewidth: 1.8 })
             );
             ibnShatirMoonGroup.add(moonEp1Line);
 
-            // ج. فلك التدوير الثاني للقمر (المدير r2)
+            // ب. فلك التدوير الثاني للقمر (المدير r2)
             moonEp2Line = new THREE.Line(
                 new THREE.BufferGeometry(),
                 new THREE.LineBasicMaterial({ color: 0xFDE047, transparent: true, opacity: 0.92, linewidth: 2.2 })
@@ -3599,7 +3591,7 @@ var cosmos3DInitialized = false;
             );
             ibnShatirMoonGroup.add(moonJointEp1Mesh);
 
-            // أذرع الربط الميكانيكية للقمر (تنتهي مباشرة في مركز جرم القمر الوحيد moonMesh)
+            // أذرع الربط الميكانيكية للقمر (تنتهي في E، وخط نقطي من E إلى B)
             moonArmDeferent = new THREE.Line(
                 new THREE.BufferGeometry(),
                 new THREE.LineBasicMaterial({ color: 0xA78BFA, transparent: true, opacity: 0.75, linewidth: 1.8 })
@@ -3612,9 +3604,14 @@ var cosmos3DInitialized = false;
                 new THREE.BufferGeometry(),
                 new THREE.LineBasicMaterial({ color: 0xFDE047, transparent: true, opacity: 0.95, linewidth: 2.2 })
             );
+            moonLineEB = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineDashedMaterial({ color: 0xC084FC, dashSize: 2, gapSize: 2, transparent: true, opacity: 0.75 })
+            );
             ibnShatirMoonGroup.add(moonArmDeferent);
             ibnShatirMoonGroup.add(moonArmEp1);
             ibnShatirMoonGroup.add(moonArmEp2);
+            ibnShatirMoonGroup.add(moonLineEB);
 
             moonOrbsLabelSprite = createIbsBadgeSprite('☽ فلك القمر الحامل والمدير (ابن الشاطر)', '#C084FC');
             ibnShatirMoonGroup.add(moonOrbsLabelSprite);
@@ -3622,9 +3619,7 @@ var cosmos3DInitialized = false;
             window.ibnShatirOrbsGroup = ibnShatirOrbsGroup;
             window.ibnShatirSunGroup = ibnShatirSunGroup;
             window.ibnShatirMoonGroup = ibnShatirMoonGroup;
-            window.sunDeferentLine = sunDeferentLine;
             window.sunDirectorLine = sunDirectorLine;
-            window.moonDeferentLine = moonDeferentLine;
             window.moonEpicycle1Line = moonEp1Line;
             window.moonEpicycle2Line = moonEp2Line;
         }
@@ -3657,84 +3652,89 @@ var cosmos3DInitialized = false;
 
         function updateIbnShatirOrbs(lambdaSun, alpha_sun, H_sun, deltaSun, moonLambda, moonDelta, H_moon, phi, dayOfYearInput) {
             const obsPos = new THREE.Vector3(0, 2, 0);
-            const k = DOME_R / 70.0;
 
             const n = currentN;
             const year = 2000.0 + n / 365.25;
 
-            // Solar Parameters & Mechanism
+            // Diurnal plane basis vectors for any celestial body with declination delta
+            // Center C = obsPos + P_NCP * Rb * sin(delta)
+            // vNoon = (0, cos phi, sin phi), uEast = (-1, 0, 0)
+            const vNoon = new THREE.Vector3(0, Math.cos(phi), Math.sin(phi));
+            const uEast = new THREE.Vector3(-1, 0, 0);
+            const pNCP = new THREE.Vector3(0, Math.sin(phi), -Math.cos(phi));
+
+            function getDiurnalWorldPos(delta, Rb, xInPlane, yInPlane) {
+                const C = new THREE.Vector3().copy(obsPos).addScaledVector(pNCP, Rb * Math.sin(delta));
+                return C.addScaledVector(vNoon, xInPlane).addScaledVector(uEast, yInPlane);
+            }
+
+            // -------------------------------------------------------------
+            // 1. SUN MECHANISM ON SUN'S DIURNAL PLANE
+            // -------------------------------------------------------------
+            const Rb_sun = DOME_R;
+            const Rd_sun = Rb_sun * Math.cos(deltaSun);
+            const kappa_sun = Rd_sun / 60.0;
+
             const A_sun = 102.9 + (year - 2000.0) / 60.0;
             const L_sun = ((280.460 + 0.9856474 * n) % 360 + 360) % 360;
             const resSun = sunMechanism(L_sun, A_sun);
 
-            // Ecliptic 3D basis vectors
-            const lamSunTrueRad = resSun.lambdaTrue * Math.PI / 180.0;
-            const alpha_sun_true = Math.atan2(Math.cos(EPSILON) * Math.sin(lamSunTrueRad), Math.cos(lamSunTrueRad));
+            const phiTrue_sun = resSun.lambdaTrue * Math.PI / 180.0;
 
-            const e0 = getEcliptic3DPos(0, H_sun, alpha_sun_true, phi, 1.0);
-            const e90 = getEcliptic3DPos(Math.PI / 2, H_sun, alpha_sun_true, phi, 1.0);
-            const eNormal = new THREE.Vector3().crossVectors(e0, e90).normalize();
+            // Map Sun 2D mechanism vectors to diurnal plane
+            const mappedSun = mapMechanismToDiurnal({
+                p0: resSun.p0,
+                p1: resSun.p1,
+                pFinal: resSun.pFinal
+            }, phiTrue_sun, H_sun, kappa_sun);
 
-            // Map 2D Ecliptic vector (x, y) to 3D world coordinates around obsPos
-            function mapEcliptic2D(x, y) {
-                return new THREE.Vector3()
-                    .copy(obsPos)
-                    .addScaledVector(e0, k * x)
-                    .addScaledVector(e90, k * y);
-            }
+            // 3D World Positions
+            const pSun0 = getDiurnalWorldPos(deltaSun, Rb_sun, mappedSun.p0.x, mappedSun.p0.y);
+            const pSun1 = getDiurnalWorldPos(deltaSun, Rb_sun, mappedSun.p1.x, mappedSun.p1.y);
+            const pSunE = getDiurnalWorldPos(deltaSun, Rb_sun, mappedSun.pFinal.x, mappedSun.pFinal.y);
 
-            // --- Update Sun Mechanism in 3D ---
-            const pSun0 = mapEcliptic2D(resSun.p0.x, resSun.p0.y);
-            const pSun1 = mapEcliptic2D(resSun.p1.x, resSun.p1.y);
-            const pSunFinal = mapEcliptic2D(resSun.pFinal.x, resSun.pFinal.y);
+            // Body B on Sun diurnal circle at true hour angle H_sun
+            const bodyBSun = getDiurnalWorldPos(deltaSun, Rb_sun, Rd_sun * Math.cos(H_sun), Rd_sun * Math.sin(H_sun));
+            if (sunMesh) sunMesh.position.copy(bodyBSun);
 
             if (sunJointDefMesh) sunJointDefMesh.position.copy(pSun0);
             if (sunJointEp1Mesh) sunJointEp1Mesh.position.copy(pSun1);
 
-            // Position sunMesh at mapped pFinal
-            if (sunMesh) sunMesh.position.copy(pSunFinal);
-
             if (ibnShatirOrbsGroup && ibnShatirOrbsGroup.visible && ibnShatirSunGroup && ibnShatirSunGroup.visible) {
-                // Parecliptic Circle (R = 60)
-                const sunDefPts = [];
-                for (let kIdx = 0; kIdx <= 72; kIdx++) {
-                    const th = (kIdx / 72) * Math.PI * 2;
-                    sunDefPts.push(mapEcliptic2D(60.0 * Math.cos(th), 60.0 * Math.sin(th)));
-                }
-                if (sunDeferentLine) {
-                    sunDeferentLine.geometry.dispose();
-                    sunDeferentLine.geometry = new THREE.BufferGeometry().setFromPoints(sunDefPts);
-                }
-
-                // Deferent circle r1 (around p0)
+                // Circle r1 around D (radius kappa_sun * r1)
                 const r1_sun = 4.0 + 37.0 / 60.0;
                 const sunEp1Pts = [];
                 for (let kIdx = 0; kIdx <= 36; kIdx++) {
                     const th = (kIdx / 36) * Math.PI * 2;
-                    sunEp1Pts.push(mapEcliptic2D(resSun.p0.x + r1_sun * Math.cos(th), resSun.p0.y + r1_sun * Math.sin(th)));
+                    const v2d = { x: resSun.p0.x + r1_sun * Math.cos(th), y: resSun.p0.y + r1_sun * Math.sin(th) };
+                    const m2d = mapMechanismToDiurnal(v2d, phiTrue_sun, H_sun, kappa_sun);
+                    sunEp1Pts.push(getDiurnalWorldPos(deltaSun, Rb_sun, m2d.x, m2d.y));
                 }
                 if (sunEp1Line) {
                     sunEp1Line.geometry.dispose();
                     sunEp1Line.geometry = new THREE.BufferGeometry().setFromPoints(sunEp1Pts);
                 }
 
-                // Rotator circle r2 (around p1)
+                // Circle r2 around p1 (radius kappa_sun * r2)
                 const r2_sun = 2.5;
                 const sunDirPts = [];
                 for (let kIdx = 0; kIdx <= 36; kIdx++) {
                     const th = (kIdx / 36) * Math.PI * 2;
-                    sunDirPts.push(mapEcliptic2D(resSun.p1.x + r2_sun * Math.cos(th), resSun.p1.y + r2_sun * Math.sin(th)));
+                    const v2d = { x: resSun.p1.x + r2_sun * Math.cos(th), y: resSun.p1.y + r2_sun * Math.sin(th) };
+                    const m2d = mapMechanismToDiurnal(v2d, phiTrue_sun, H_sun, kappa_sun);
+                    sunDirPts.push(getDiurnalWorldPos(deltaSun, Rb_sun, m2d.x, m2d.y));
                 }
                 if (sunDirectorLine) {
                     sunDirectorLine.geometry.dispose();
                     sunDirectorLine.geometry = new THREE.BufferGeometry().setFromPoints(sunDirPts);
                 }
 
-                // Arms
+                // Arms D -> p1 -> E
+                const centerSunC = getDiurnalWorldPos(deltaSun, Rb_sun, 0, 0);
                 if (sunArmDeferent) {
                     sunArmDeferent.visible = true;
                     sunArmDeferent.geometry.dispose();
-                    sunArmDeferent.geometry = new THREE.BufferGeometry().setFromPoints([obsPos, pSun0]);
+                    sunArmDeferent.geometry = new THREE.BufferGeometry().setFromPoints([centerSunC, pSun0]);
                 }
                 if (sunArm1) {
                     sunArm1.geometry.dispose();
@@ -3742,7 +3742,13 @@ var cosmos3DInitialized = false;
                 }
                 if (sunArm2) {
                     sunArm2.geometry.dispose();
-                    sunArm2.geometry = new THREE.BufferGeometry().setFromPoints([pSun1, pSunFinal]);
+                    sunArm2.geometry = new THREE.BufferGeometry().setFromPoints([pSun1, pSunE]);
+                }
+                // Thin dotted line E -> B
+                if (sunLineEB) {
+                    sunLineEB.geometry.dispose();
+                    sunLineEB.geometry = new THREE.BufferGeometry().setFromPoints([pSunE, bodyBSun]);
+                    sunLineEB.computeLineDistances();
                 }
 
                 if (sunDirectorLabelSprite) {
@@ -3751,7 +3757,9 @@ var cosmos3DInitialized = false;
                 }
             }
 
-            // Lunar Parameters & Mechanism
+            // -------------------------------------------------------------
+            // 2. MOON MECHANISM ON MOON'S DIURNAL PLANE
+            // -------------------------------------------------------------
             const L_moon = ((218.316 + 13.176396 * n) % 360 + 360) % 360;
             const Omega_moon = ((125.045 - 0.0529538 * n) % 360 + 360) % 360;
             const M_moon = ((134.963 + 13.064993 * n) % 360 + 360) % 360;
@@ -3759,82 +3767,74 @@ var cosmos3DInitialized = false;
 
             const resMoon = moonMechanism(L_moon, Omega_moon, M_moon, D_moon, MOON_INC);
 
-            // Inclined Plane Basis relative to Ascending Node Omega
-            const OmegaRad = Omega_moon * Math.PI / 180.0;
-            const incRad = MOON_INC * Math.PI / 180.0;
+            // Moon declination and hour angle from mechanism outputs (lambda, beta)
+            const lamMoonRad = resMoon.lambdaTrue * Math.PI / 180.0;
+            const betaMoonRad = resMoon.beta * Math.PI / 180.0;
+            const deltaMoon_mech = Math.asin(Math.sin(betaMoonRad) * Math.cos(EPSILON) + Math.cos(betaMoonRad) * Math.sin(EPSILON) * Math.sin(lamMoonRad));
+            const alphaMoon_mech = Math.atan2(Math.sin(lamMoonRad) * Math.cos(EPSILON) * Math.cos(betaMoonRad) - Math.sin(betaMoonRad) * Math.sin(EPSILON), Math.cos(lamMoonRad) * Math.cos(betaMoonRad));
 
-            const nodeVec = new THREE.Vector3()
-                .copy(e0).multiplyScalar(Math.cos(OmegaRad))
-                .addScaledVector(e90, Math.sin(OmegaRad));
+            const alphaSunTrue_rad = resSun.lambdaTrue * Math.PI / 180.0;
+            const alphaSunTrue_ra = Math.atan2(Math.sin(alphaSunTrue_rad) * Math.cos(EPSILON), Math.cos(alphaSunTrue_rad));
+            const H_moon_mech = H_sun - (alphaMoon_mech - alphaSunTrue_ra);
 
-            const perpEclVec = new THREE.Vector3()
-                .copy(e0).multiplyScalar(-Math.sin(OmegaRad))
-                .addScaledVector(e90, Math.cos(OmegaRad));
+            const Rb_moon = DOME_R - 2.0;
+            const Rd_moon = Rb_moon * Math.cos(deltaMoon_mech);
+            const kappa_moon = Rd_moon / 60.0;
 
-            const perpIncVec = new THREE.Vector3()
-                .copy(perpEclVec).multiplyScalar(Math.cos(incRad))
-                .addScaledVector(eNormal, Math.sin(incRad));
+            const uMoon = Math.atan2(resMoon.pFinal.y, resMoon.pFinal.x);
 
-            // Map 2D Inclined Plane Vector (x, y) to 3D world coordinates around obsPos
-            function mapMoonInclined2D(x, y) {
-                return new THREE.Vector3()
-                    .copy(obsPos)
-                    .addScaledVector(nodeVec, k * x)
-                    .addScaledVector(perpIncVec, k * y);
-            }
+            const mappedMoon = mapMechanismToDiurnal({
+                center: resMoon.center,
+                p1: resMoon.p1,
+                pFinal: resMoon.pFinal
+            }, uMoon, H_moon_mech, kappa_moon);
 
-            // --- Update Moon Mechanism in 3D ---
-            const pMoon0 = mapMoonInclined2D(resMoon.center.x, resMoon.center.y);
-            const pMoon1 = mapMoonInclined2D(resMoon.p1.x, resMoon.p1.y);
-            const pMoonFinal = mapMoonInclined2D(resMoon.pFinal.x, resMoon.pFinal.y);
+            const pMoon0 = getDiurnalWorldPos(deltaMoon_mech, Rb_moon, mappedMoon.center.x, mappedMoon.center.y);
+            const pMoon1 = getDiurnalWorldPos(deltaMoon_mech, Rb_moon, mappedMoon.p1.x, mappedMoon.p1.y);
+            const pMoonE = getDiurnalWorldPos(deltaMoon_mech, Rb_moon, mappedMoon.pFinal.x, mappedMoon.pFinal.y);
+
+            // Body B on Moon diurnal circle at true hour angle H_moon_mech
+            const bodyBMoon = getDiurnalWorldPos(deltaMoon_mech, Rb_moon, Rd_moon * Math.cos(H_moon_mech), Rd_moon * Math.sin(H_moon_mech));
+            if (moonMesh) moonMesh.position.copy(bodyBMoon);
 
             if (moonJointDefMesh) moonJointDefMesh.position.copy(pMoon0);
             if (moonJointEp1Mesh) moonJointEp1Mesh.position.copy(pMoon1);
 
-            // Position moonMesh at mapped pFinal
-            if (moonMesh) moonMesh.position.copy(pMoonFinal);
-
             if (ibnShatirOrbsGroup && ibnShatirOrbsGroup.visible && ibnShatirMoonGroup && ibnShatirMoonGroup.visible) {
-                // Deferent Circle (R = 60) in inclined plane
-                const moonDefPts = [];
-                for (let kIdx = 0; kIdx <= 72; kIdx++) {
-                    const th = (kIdx / 72) * Math.PI * 2;
-                    moonDefPts.push(mapMoonInclined2D(60.0 * Math.cos(th), 60.0 * Math.sin(th)));
-                }
-                if (moonDeferentLine) {
-                    moonDeferentLine.geometry.dispose();
-                    moonDeferentLine.geometry = new THREE.BufferGeometry().setFromPoints(moonDefPts);
-                }
-
-                // Epicycle 1 Circle r1 (around center p0) in inclined plane
+                // Circle r1 around D (radius kappa_moon * r1)
                 const r1_moon = 6.0 + 35.0 / 60.0;
                 const moonEp1Pts = [];
                 for (let kIdx = 0; kIdx <= 36; kIdx++) {
                     const th = (kIdx / 36) * Math.PI * 2;
-                    moonEp1Pts.push(mapMoonInclined2D(resMoon.center.x + r1_moon * Math.cos(th), resMoon.center.y + r1_moon * Math.sin(th)));
+                    const v2d = { x: resMoon.center.x + r1_moon * Math.cos(th), y: resMoon.center.y + r1_moon * Math.sin(th) };
+                    const m2d = mapMechanismToDiurnal(v2d, uMoon, H_moon_mech, kappa_moon);
+                    moonEp1Pts.push(getDiurnalWorldPos(deltaMoon_mech, Rb_moon, m2d.x, m2d.y));
                 }
                 if (moonEp1Line) {
                     moonEp1Line.geometry.dispose();
                     moonEp1Line.geometry = new THREE.BufferGeometry().setFromPoints(moonEp1Pts);
                 }
 
-                // Rotator Circle r2 (around p1) in inclined plane
+                // Circle r2 around p1 (radius kappa_moon * r2)
                 const r2_moon = 1.0 + 25.0 / 60.0;
                 const moonEp2Pts = [];
                 for (let kIdx = 0; kIdx <= 36; kIdx++) {
                     const th = (kIdx / 36) * Math.PI * 2;
-                    moonEp2Pts.push(mapMoonInclined2D(resMoon.p1.x + r2_moon * Math.cos(th), resMoon.p1.y + r2_moon * Math.sin(th)));
+                    const v2d = { x: resMoon.p1.x + r2_moon * Math.cos(th), y: resMoon.p1.y + r2_moon * Math.sin(th) };
+                    const m2d = mapMechanismToDiurnal(v2d, uMoon, H_moon_mech, kappa_moon);
+                    moonEp2Pts.push(getDiurnalWorldPos(deltaMoon_mech, Rb_moon, m2d.x, m2d.y));
                 }
                 if (moonEp2Line) {
                     moonEp2Line.geometry.dispose();
                     moonEp2Line.geometry = new THREE.BufferGeometry().setFromPoints(moonEp2Pts);
                 }
 
-                // Arms
+                // Arms D -> p1 -> E
+                const centerMoonC = getDiurnalWorldPos(deltaMoon_mech, Rb_moon, 0, 0);
                 if (moonArmDeferent) {
                     moonArmDeferent.visible = true;
                     moonArmDeferent.geometry.dispose();
-                    moonArmDeferent.geometry = new THREE.BufferGeometry().setFromPoints([obsPos, pMoon0]);
+                    moonArmDeferent.geometry = new THREE.BufferGeometry().setFromPoints([centerMoonC, pMoon0]);
                 }
                 if (moonArmEp1) {
                     moonArmEp1.geometry.dispose();
@@ -3842,7 +3842,13 @@ var cosmos3DInitialized = false;
                 }
                 if (moonArmEp2) {
                     moonArmEp2.geometry.dispose();
-                    moonArmEp2.geometry = new THREE.BufferGeometry().setFromPoints([pMoon1, pMoonFinal]);
+                    moonArmEp2.geometry = new THREE.BufferGeometry().setFromPoints([pMoon1, pMoonE]);
+                }
+                // Thin dotted line E -> B
+                if (moonLineEB) {
+                    moonLineEB.geometry.dispose();
+                    moonLineEB.geometry = new THREE.BufferGeometry().setFromPoints([pMoonE, bodyBMoon]);
+                    moonLineEB.computeLineDistances();
                 }
 
                 if (moonOrbsLabelSprite) {

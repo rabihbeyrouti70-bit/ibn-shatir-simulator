@@ -155,3 +155,38 @@ export function moonMechanism(Lmoon, Omega, M, D, inc = 5.0) {
         beta
     };
 }
+
+/**
+ * Maps 2D mechanism vectors to diurnal plane coordinates.
+ * @param {Object|Array|{x:number, y:number}} vectors2D - Single vector or object/array of vectors
+ * @param {number} phiTrue - Reference mechanism polar angle in radians (lambdaTrue for Sun, u for Moon)
+ * @param {number} Htrue - True hour angle in radians
+ * @param {number} kappa - Scale factor (Rd / 60)
+ * @returns {Object|Array|{x:number, y:number}} Plane coordinates (x = κρ cosψ, y = κρ sinψ)
+ */
+export function mapMechanismToDiurnal(vectors2D, phiTrue, Htrue, kappa) {
+    const mapOne = (v) => {
+        if (!v || typeof v.x !== 'number' || typeof v.y !== 'number') return v;
+        const rho = Math.hypot(v.x, v.y);
+        const phi = Math.atan2(v.y, v.x);
+        const psi = Htrue - (phi - phiTrue);
+        return {
+            x: kappa * rho * Math.cos(psi),
+            y: kappa * rho * Math.sin(psi)
+        };
+    };
+
+    if (Array.isArray(vectors2D)) {
+        return vectors2D.map(mapOne);
+    } else if (vectors2D && typeof vectors2D === 'object') {
+        if (typeof vectors2D.x === 'number' && typeof vectors2D.y === 'number') {
+            return mapOne(vectors2D);
+        }
+        const res = {};
+        for (const key of Object.keys(vectors2D)) {
+            res[key] = mapOne(vectors2D[key]);
+        }
+        return res;
+    }
+    return vectors2D;
+}
