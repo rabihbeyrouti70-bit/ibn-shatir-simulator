@@ -4473,13 +4473,13 @@ var cosmos3DInitialized = false;
 
             // مفاصل وأجرام حركة الشمس
             sunJointDefMesh = new THREE.Mesh(
-                new THREE.SphereGeometry(1.6, 16, 16),
+                new THREE.SphereGeometry(0.45, 12, 12),
                 new THREE.MeshStandardMaterial({ color: 0x38BDF8, emissive: 0x0284C7, roughness: 0.3 })
             );
             ibnShatirSunGroup.add(sunJointDefMesh);
 
             sunJointEp1Mesh = new THREE.Mesh(
-                new THREE.SphereGeometry(1.4, 16, 16),
+                new THREE.SphereGeometry(0.4, 12, 12),
                 new THREE.MeshStandardMaterial({ color: 0x60A5FA, emissive: 0x2563EB, roughness: 0.3 })
             );
             ibnShatirSunGroup.add(sunJointEp1Mesh);
@@ -4528,13 +4528,13 @@ var cosmos3DInitialized = false;
 
             // مفاصل حركة القمر
             moonJointDefMesh = new THREE.Mesh(
-                new THREE.SphereGeometry(1.4, 16, 16),
+                new THREE.SphereGeometry(0.4, 12, 12),
                 new THREE.MeshStandardMaterial({ color: 0xA78BFA, emissive: 0x7C3AED, roughness: 0.3 })
             );
             ibnShatirMoonGroup.add(moonJointDefMesh);
 
             moonJointEp1Mesh = new THREE.Mesh(
-                new THREE.SphereGeometry(1.3, 16, 16),
+                new THREE.SphereGeometry(0.35, 12, 12),
                 new THREE.MeshStandardMaterial({ color: 0x60A5FA, emissive: 0x2563EB, roughness: 0.3 })
             );
             ibnShatirMoonGroup.add(moonJointEp1Mesh);
