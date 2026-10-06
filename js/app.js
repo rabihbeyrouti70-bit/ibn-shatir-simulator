@@ -2887,12 +2887,13 @@ var cosmos3DInitialized = false;
         // 2. الشمس والقمر في القبة السماوية DOME_R
         function createSunAndMoonOnDome() {
             // الشمس
-            const sunGeom = new THREE.SphereGeometry(7.5, 32, 32);
+            // حجم صغير حتى لا يغطي فلكي المدور والمدير (نصف قطر المدير r2 ≈ 5.4 وحدة)
+            const sunGeom = new THREE.SphereGeometry(3.0, 32, 32);
             const sunMat = new THREE.MeshBasicMaterial({ color: 0xFDE047 });
             sunMesh = new THREE.Mesh(sunGeom, sunMat);
             scene.add(sunMesh);
 
-            const glowGeom = new THREE.SphereGeometry(12, 16, 16);
+            const glowGeom = new THREE.SphereGeometry(5.0, 16, 16);
             const glowMat = new THREE.MeshBasicMaterial({ color: 0xF59E0B, transparent: true, opacity: 0.35 });
             sunMesh.add(new THREE.Mesh(glowGeom, glowMat));
 
@@ -2900,7 +2901,8 @@ var cosmos3DInitialized = false;
             sunMesh.add(sunLight);
 
             // القمر: كرة فضية واضحة في القبة السماوية مع وهج فضي
-            const moonGeom = new THREE.SphereGeometry(5.5, 32, 32);
+            // نصف قطر المدير للقمر r2 ≈ 3.3 وحدة، فالقمر أصغر منه
+            const moonGeom = new THREE.SphereGeometry(1.8, 32, 32);
             const moonMat = new THREE.MeshStandardMaterial({
                 color: 0xF1F5F9,
                 emissive: 0xCBD5E1,
@@ -2978,14 +2980,14 @@ var cosmos3DInitialized = false;
             scene.add(polarisOrbitLine);
 
             // جرم النجم القطبي
-            const polGeom = new THREE.SphereGeometry(4.5, 24, 24);
+            const polGeom = new THREE.SphereGeometry(2.2, 24, 24);
             const polMat = new THREE.MeshBasicMaterial({ color: 0xE0F2FE });
             polarisStar = new THREE.Mesh(polGeom, polMat);
             scene.add(polarisStar);
 
             // وهج النجم القطبي
             const polGlow = new THREE.Mesh(
-                new THREE.SphereGeometry(8, 16, 16),
+                new THREE.SphereGeometry(4, 16, 16),
                 new THREE.MeshBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.45 })
             );
             polarisStar.add(polGlow);
@@ -3004,7 +3006,7 @@ var cosmos3DInitialized = false;
 
             polarisLabelSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(polCanvas), transparent: true }));
             polarisLabelSprite.scale.set(28, 7, 1);
-            polarisLabelSprite.position.set(0, 12, 0);
+            polarisLabelSprite.position.set(0, 8, 0);
             polarisStar.add(polarisLabelSprite);
 
             updateCelestialAxesGeometry();
@@ -3039,7 +3041,7 @@ var cosmos3DInitialized = false;
 
             // تحديث دائرة مدار النجم القطبي حول القطب السماوي
             const polDist = 320;
-            const polOrbitR = 24;
+            const polOrbitR = 8;
             const centerPole = new THREE.Vector3(0, polDist * Math.sin(phi), -polDist * Math.cos(phi));
 
             const polOrbitPts = [];
@@ -5269,7 +5271,7 @@ var cosmos3DInitialized = false;
             // تحديث حركة النجم القطبي اليومية حول القطب السماوي الشمالي (دورة كل 24 ساعة)
             if (polarisStar) {
                 const polDist = 320;
-                const polOrbitR = 24;
+                const polOrbitR = 8;
                 // الزاوية متوافقة تماماً مع الحركة اليومية من الشرق إلى الغرب (+H_sun)
                 const polAngle = H_sun;
 
