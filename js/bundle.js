@@ -4609,9 +4609,19 @@ var cosmos3DInitialized = false;
             const uEast = new THREE.Vector3(-1, 0, 0);
             const pNCP = new THREE.Vector3(0, Math.sin(phi), -Math.cos(phi));
 
+            // تحويل نقطة من مستوى الدائرة اليومية إلى العالم عبر خط النظر من الأرض (المراقب):
+            // الاتجاه (الارتفاع والسمت) يُؤخذ من النقطة على دائرة المواقيت عند زاوية الساعة ψ، والبعد عن الأرض
+            // يتناسب مع ρ/60 كما في الكتاب (الشمس 52;53–67;07، القمر 52–68)، فتقترب الشمس والقمر من الأرض وتبتعدان
+            // بحسب الحامل والمدير دون أن يتغير موضعهما الظاهري ولا أوقات الصلاة.
             function getDiurnalWorldPos(delta, Rb, xInPlane, yInPlane) {
                 const C = new THREE.Vector3().copy(obsPos).addScaledVector(pNCP, Rb * Math.sin(delta));
-                return C.addScaledVector(vNoon, xInPlane).addScaledVector(uEast, yInPlane);
+                const r = Math.hypot(xInPlane, yInPlane);
+                if (r < 1e-9) return C;
+                const Rd = Rb * Math.cos(delta);
+                const circlePt = new THREE.Vector3().copy(C)
+                    .addScaledVector(vNoon, Rd * xInPlane / r)
+                    .addScaledVector(uEast, Rd * yInPlane / r);
+                return new THREE.Vector3().copy(obsPos).addScaledVector(circlePt.sub(obsPos), r / Rd);
             }
 
             // -------------------------------------------------------------
@@ -4639,9 +4649,8 @@ var cosmos3DInitialized = false;
             const pSun1 = getDiurnalWorldPos(deltaSun, Rb_sun, mappedSun.p1.x, mappedSun.p1.y);
             const pSunE = getDiurnalWorldPos(deltaSun, Rb_sun, mappedSun.pFinal.x, mappedSun.pFinal.y);
 
-            // Body B on Sun diurnal circle at true hour angle H_sun
-            const bodyBSun = getDiurnalWorldPos(deltaSun, Rb_sun, Rd_sun * Math.cos(H_sun), Rd_sun * Math.sin(H_sun));
-            if (sunMesh) sunMesh.position.copy(bodyBSun);
+            // الجرم على خط النظر عند زاوية الساعة الحقيقية H_sun وبعده عن الأرض من الآلية
+            if (sunMesh) sunMesh.position.copy(pSunE);  // الجرم هو نهاية الآلية على خط النظر
 
             if (sunJointDefMesh) sunJointDefMesh.position.copy(pSun0);
             if (sunJointEp1Mesh) sunJointEp1Mesh.position.copy(pSun1);
@@ -4690,12 +4699,8 @@ var cosmos3DInitialized = false;
                     sunArm2.geometry.dispose();
                     sunArm2.geometry = new THREE.BufferGeometry().setFromPoints([pSun1, pSunE]);
                 }
-                // Thin dotted line E -> B
-                if (sunLineEB) {
-                    sunLineEB.geometry.dispose();
-                    sunLineEB.geometry = new THREE.BufferGeometry().setFromPoints([pSunE, bodyBSun]);
-                    sunLineEB.computeLineDistances();
-                }
+                // E هو نفسه جرم الشمس؛ لا حاجة لخط E-B
+                if (sunLineEB) sunLineEB.visible = false;
 
                 if (sunDirectorLabelSprite) {
                     sunDirectorLabelSprite.position.set(pSun1.x, pSun1.y + 7, pSun1.z);
@@ -4742,9 +4747,8 @@ var cosmos3DInitialized = false;
             const pMoon1 = getDiurnalWorldPos(deltaMoon_mech, Rb_moon, mappedMoon.p1.x, mappedMoon.p1.y);
             const pMoonE = getDiurnalWorldPos(deltaMoon_mech, Rb_moon, mappedMoon.pFinal.x, mappedMoon.pFinal.y);
 
-            // Body B on Moon diurnal circle at true hour angle H_moon_mech
-            const bodyBMoon = getDiurnalWorldPos(deltaMoon_mech, Rb_moon, Rd_moon * Math.cos(H_moon_mech), Rd_moon * Math.sin(H_moon_mech));
-            if (moonMesh) moonMesh.position.copy(bodyBMoon);
+            // الجرم على خط النظر عند زاوية الساعة الحقيقية H_moon وبعده عن الأرض من الآلية
+            if (moonMesh) moonMesh.position.copy(pMoonE);  // الجرم هو نهاية الآلية على خط النظر
 
             if (moonJointDefMesh) moonJointDefMesh.position.copy(pMoon0);
             if (moonJointEp1Mesh) moonJointEp1Mesh.position.copy(pMoon1);
@@ -4794,11 +4798,7 @@ var cosmos3DInitialized = false;
                     moonArmEp2.geometry = new THREE.BufferGeometry().setFromPoints([pMoon1, pMoonE]);
                 }
                 // Thin dotted line E -> B
-                if (moonLineEB) {
-                    moonLineEB.geometry.dispose();
-                    moonLineEB.geometry = new THREE.BufferGeometry().setFromPoints([pMoonE, bodyBMoon]);
-                    moonLineEB.computeLineDistances();
-                }
+                if (moonLineEB) moonLineEB.visible = false;  // E هو نفسه جرم القمر
 
                 if (moonOrbsLabelSprite) {
                     moonOrbsLabelSprite.position.set(pMoon1.x, pMoon1.y + 6, pMoon1.z);
