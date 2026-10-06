@@ -3232,6 +3232,12 @@ var cosmos3DInitialized = false;
         let twilightDescendingArcLine;
         let showTwilightCircles = false;
         let isPrayerFocusMode = true;
+        // مدارات الفصول (السرطان/الاستواء/الجدي): مخفية افتراضياً في منظور مواقيت الصلوات، ودائرة المواقيت الملوّنة تبقى ظاهرة
+        let showTropicArcs = false;
+        function setTropicArcsVisible(v) {
+            showTropicArcs = v;
+            if (seasonalArcsGroup) seasonalArcsGroup.children.forEach(c => { if (c.userData && c.userData.season) c.visible = v; });
+        }
         let isIshaFocusMode = false;
         let savedVisibilityBeforeIsha = null;
         var show3DLabels = true;
@@ -4055,6 +4061,7 @@ var cosmos3DInitialized = false;
                 }
                 const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.75, linewidth: 2.5 }));
                 line.userData = { season: seasonKey, decl: decl };
+                line.visible = showTropicArcs;
                 seasonalArcsGroup.add(line);
             }
 
@@ -4395,7 +4402,11 @@ var cosmos3DInitialized = false;
                 if (ibnShatirOrbsGroup) ibnShatirOrbsGroup.visible = true;
                 if (ibnShatirSunGroup) ibnShatirSunGroup.visible = true;
                 if (moonArcGroup) moonArcGroup.visible = true;
-                if (twilightGroup) twilightGroup.visible = true;
+                // إخفاء مدارات الفصول ودوائر الشفق؛ يبقى مدار الشمس والقمر والأفلاك الحاملة ودائرة المواقيت
+                setTropicArcsVisible(false);
+                if (twilightGroup) twilightGroup.visible = false;
+                showTwilightCircles = false;
+                if (ishaShafiLabelSprite) ishaShafiLabelSprite.visible = false;
 
                 const chkSunArc = document.getElementById('chkSunTodayArc');
                 const chkHorizon = document.getElementById('chkHorizon');
@@ -4404,7 +4415,9 @@ var cosmos3DInitialized = false;
                 if (chkSunArc) chkSunArc.checked = true;
                 if (chkHorizon) chkHorizon.checked = true;
                 if (chkIbs) chkIbs.checked = true;
-                if (chkSunArcs) chkSunArcs.checked = true;
+                if (chkSunArcs) chkSunArcs.checked = false;
+                const chkTwi = document.getElementById('chkTwilight');
+                if (chkTwi) chkTwi.checked = false;
 
                 showC3DToast('🕌 تم تفعيل منظور مواقيت الصلوات: تركيز كامل على مدار الشمس ومواقيت الصلاة وميكانيكا ابن الشاطر');
             } else {
@@ -4425,6 +4438,10 @@ var cosmos3DInitialized = false;
                     if (atlasGroup) atlasGroup.visible = true;
                     if (zodiacGroup) zodiacGroup.visible = true;
                 }
+
+                setTropicArcsVisible(true);
+                const chkSunArcsOn = document.getElementById('chkSunArcs');
+                if (chkSunArcsOn) chkSunArcsOn.checked = true;
 
                 showC3DToast('🌌 تم الانتقال إلى المشهد الكوني الموسع الشامل');
             }
@@ -5396,7 +5413,7 @@ var cosmos3DInitialized = false;
                 });
             }
             if (layer === 'horizon' && horizonGroup) horizonGroup.visible = isVisible;
-            if (layer === 'sunArcs' && seasonalArcsGroup) seasonalArcsGroup.visible = isVisible;
+            if (layer === 'sunArcs') setTropicArcsVisible(isVisible);  // مدارات الفصول فقط (دائرة المواقيت لا تتأثر)
             if (layer === 'twilight' && twilightGroup) {
                 twilightGroup.visible = isVisible;
                 showTwilightCircles = isVisible;
