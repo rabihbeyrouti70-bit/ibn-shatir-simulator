@@ -3130,7 +3130,8 @@ var cosmos3DInitialized = false;
             for (let i = 0; i <= 72; i++) {
                 const H = -Math.PI + (i / 72) * Math.PI * 2;
                 const { alt, az } = computeHorizontalCoords(moonDelta, H, phi);
-                pts.push(new THREE.Vector3(Rb * Math.cos(alt) * Math.sin(az), Rb * Math.sin(alt), -Rb * Math.cos(alt) * Math.cos(az)));
+                // مركز الدائرة عند المراقب (0,2,0) ليطابق جرم القمر
+                pts.push(new THREE.Vector3(Rb * Math.cos(alt) * Math.sin(az), 2 + Rb * Math.sin(alt), -Rb * Math.cos(alt) * Math.cos(az)));
             }
             const line = new THREE.Line(
                 new THREE.BufferGeometry().setFromPoints(pts),
@@ -3152,7 +3153,7 @@ var cosmos3DInitialized = false;
                 const { alt, az } = computeHorizontalCoords(sunDelta, H, phi);
                 pts.push(new THREE.Vector3(
                     DOME_R * Math.cos(alt) * Math.sin(az),
-                    DOME_R * Math.sin(alt),
+                    2 + DOME_R * Math.sin(alt),  // مركز الدائرة عند المراقب (0,2,0)
                     -DOME_R * Math.cos(alt) * Math.cos(az)
                 ));
             }
@@ -3776,6 +3777,9 @@ var cosmos3DInitialized = false;
             const alphaSunTrue_rad = resSun.lambdaTrue * Math.PI / 180.0;
             const alphaSunTrue_ra = Math.atan2(Math.sin(alphaSunTrue_rad) * Math.cos(EPSILON), Math.cos(alphaSunTrue_rad));
             const H_moon_mech = H_sun - (alphaMoon_mech - alphaSunTrue_ra);
+
+            // دائرة حامل القمر: موازية لدائرة القطب عند ميل القمر الحقيقي من الآلية
+            updateMoonSkyArc(deltaMoon_mech);
 
             const Rb_moon = DOME_R - 2.0;
             const Rd_moon = Rb_moon * Math.cos(deltaMoon_mech);
@@ -5121,7 +5125,7 @@ var cosmos3DInitialized = false;
             }
 
             // رسم قوس مسار القمر لليوم الحالي
-            updateMoonSkyArc(moonDelta);
+            // قوس القمر (الحامل) يُرسم داخل updateIbnShatirOrbs بميل القمر الحقيقي من الآلية
 
             // رسم مدار وقوس مسار الشمس لليوم الحالي (الموازي لمدار السرطان والجدي)
             updateSunSkyArc(deltaSun);
